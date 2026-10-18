@@ -1,0 +1,14 @@
+{
+  "package_directory": "/home/abdal/keepsims_backend/",
+  "node": "v22.23.1",
+  "package_json_sha256": "806d6362179b4e81adf721a0e061bafa52c51ac714bc25289a040b43c6eabe22",
+  "package_lock_sha256": "bb9ed1de003378a4da3c6af8dfb351be500142f48793861e82faad4b7a4449a5",
+  "selected_installed_versions": {
+    "@supabase/supabase-js": "2.108.2",
+    "dotenv": "17.4.2",
+    "@whiskeysockets/baileys": "7.0.0-rc13",
+    "axios": null,
+    "node-fetch": null,
+    "pino": "10.3.1"
+  }
+}

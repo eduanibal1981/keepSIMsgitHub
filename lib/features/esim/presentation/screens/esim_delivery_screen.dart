@@ -120,7 +120,7 @@ class EsimDeliveryScreen extends StatelessWidget {
                         'Renders Offline',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                       ),
-                      backgroundColor: Colors.teal.withOpacity(0.1),
+                      backgroundColor: Colors.teal.withValues(alpha: 0.1),
                     ),
                   ],
                 ),
@@ -247,7 +247,7 @@ class EsimDeliveryScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 12,
-          backgroundColor: Colors.teal.withOpacity(0.2),
+          backgroundColor: Colors.teal.withValues(alpha: 0.2),
           child: Text(
             stepNumber,
             style: const TextStyle(fontSize: 12, color: Colors.teal, fontWeight: FontWeight.bold),

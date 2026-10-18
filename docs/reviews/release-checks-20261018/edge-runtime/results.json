@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "profile": "edge-runtime",
+  "started_utc": "2026-10-18T19:24:09.690596+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.9.6",
+  "toolchains": {
+    "format": 1,
+    "flutter": "3.47.7",
+    "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5",
+    "node": "26.11.1",
+    "ci_python": "3.12.8",
+    "minimum_python": "3.9",
+    "deno": "2.5.6",
+    "postgrest": "16.4",
+    "database_dependencies": "tools/financial-tests/package-lock.json",
+    "pglite": "0.5.10",
+    "embedded_postgres": "18.4.0-beta.17",
+    "ci_os": "macos-15",
+    "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+  },
+  "checks": [
+    {
+      "name": "prerequisite",
+      "status": "failed",
+      "message": "deno unavailable: FileNotFoundError"
+    }
+  ],
+  "evidence": "local checks only; no provider sandbox or live smoke certification",
+  "status": "failed",
+  "release_approved": false
+}

@@ -1,0 +1,79 @@
+{
+  "environment": "isolated PGlite PostgreSQL; captured production baseline and voucher extension; no live actions",
+  "passed": 18,
+  "failed": 0,
+  "results": [
+    {
+      "name": "original production query hides a real open request",
+      "status": "passed"
+    },
+    {
+      "name": "open request projects the active promise correctly",
+      "status": "passed"
+    },
+    {
+      "name": "fulfilled request projects the active promise correctly",
+      "status": "passed"
+    },
+    {
+      "name": "cancelled request projects the active promise correctly",
+      "status": "passed"
+    },
+    {
+      "name": "none request projects the active promise correctly",
+      "status": "passed"
+    },
+    {
+      "name": "only actual lifecycle values are accepted and no-supplier reason is preserved",
+      "status": "passed"
+    },
+    {
+      "name": "closed history cannot duplicate or replace the one active request",
+      "status": "passed"
+    },
+    {
+      "name": "open request transitions to fulfilled and cancelled clear its deadline",
+      "status": "passed"
+    },
+    {
+      "name": "another owner and malformed foreign request are not exposed",
+      "status": "passed"
+    },
+    {
+      "name": "current user with no lines receives an empty list",
+      "status": "passed"
+    },
+    {
+      "name": "grant metadata remains visible without bearer secrets or private request notes",
+      "status": "passed"
+    },
+    {
+      "name": "foreign grant on owned line is excluded",
+      "status": "passed"
+    },
+    {
+      "name": "feature flag remains off or absent without changing request lifecycle",
+      "status": "passed"
+    },
+    {
+      "name": "anonymous execution denied and missing identity fails closed",
+      "status": "passed"
+    },
+    {
+      "name": "raw voucher tables remain inaccessible to customer and anonymous roles",
+      "status": "passed"
+    },
+    {
+      "name": "admin queue defaults to open, terminal filters and all-history remain accurate",
+      "status": "passed"
+    },
+    {
+      "name": "ordinary customer cannot use admin request queue",
+      "status": "passed"
+    },
+    {
+      "name": "status API has explicit signed-in grants and a safe definer boundary",
+      "status": "passed"
+    }
+  ]
+}

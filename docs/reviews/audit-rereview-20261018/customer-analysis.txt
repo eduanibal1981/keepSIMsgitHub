@@ -1,0 +1,37 @@
+Analyzing keep_sims...                                          
+
+   info • The file name 'voip-quality-followup-repros_test.dart' isn't a lower_case_with_underscores identifier. Try changing the name to follow the lower_case_with_underscores style • docs/reviews/voip-quality-followup-repros_test.dart:1:1 • file_names
+   info • Don't invoke 'print' in production code. Try using a logging framework • lib/core/services/sync_queue_service.dart:144:9 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • lib/core/services/sync_queue_service.dart:150:9 • avoid_print
+   info • 'anonKey' is deprecated and shouldn't be used. Use publishableKey instead. anonKey will be removed in a future major version. Try replacing the use of the deprecated member with the replacement • lib/core/supabase_client.dart:33:5 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/notifications/presentation/screens/notifications_screen.dart:104:15 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/notifications/presentation/screens/notifications_screen.dart:215:38 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/notifications/presentation/screens/notifications_screen.dart:548:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/notifications/presentation/screens/notifications_screen.dart:564:29 • use_build_context_synchronously
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre. Try replacing the use of the deprecated member with the replacement • lib/features/payments/ui/payments_screen.dart:560:17 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/profile/presentation/ui/onboarding_screen.dart:901:47 • use_build_context_synchronously
+   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/features/profile/presentation/ui/onboarding_screen.dart:2760:25 • deprecated_member_use
+   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/features/profile/presentation/ui/onboarding_screen.dart:2764:25 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/features/profile/presentation/widgets/subscription_upsell_sheet.dart:202:31 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code. Try using a logging framework • lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart:324:11 • avoid_print
+   info • 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart:1478:25 • deprecated_member_use
+   info • 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre. Try replacing the use of the deprecated member with the replacement • lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart:1482:25 • deprecated_member_use
+   info • 'extra' is deprecated and shouldn't be used. Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible. Try replacing the use of the deprecated member with the replacement • lib/main.dart:206:41 • deprecated_member_use
+   info • 'extra' is deprecated and shouldn't be used. Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible. Try replacing the use of the deprecated member with the replacement • lib/main.dart:218:54 • deprecated_member_use
+   info • String literals shouldn't be concatenated by the '+' operator. Try removing the operator to use adjacent strings • tool/replace_tiers.dart:25:166 • prefer_adjacent_string_concatenation
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/replace_tiers.dart:34:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_esim_api.dart:21:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_esim_api.dart:22:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_esim_api.dart:23:3 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_gb.dart:23:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_gb.dart:25:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_gb.dart:26:29 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_gb.dart:28:5 • avoid_print
+   info • The imported package 'supabase' isn't a dependency of the importing package. Try adding a dependency for 'supabase' in the 'pubspec.yaml' file • tool/test_supabase.dart:1:8 • depend_on_referenced_packages
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_supabase.dart:19:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_supabase.dart:21:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/test_supabase.dart:26:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/update_sim_card.dart:13:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • tool/update_sim_card.dart:261:3 • avoid_print
+
+33 issues found. (ran in 6.6s)

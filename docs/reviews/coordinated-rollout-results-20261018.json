@@ -1,0 +1,98 @@
+{
+  "task": 25,
+  "review_date": "2026-10-18",
+  "timezone": "Asia/Muscat",
+  "status": "PREPARED_ROLLOUT_BLOCKED",
+  "manifest": "docs/reviews/coordinated-rollout-manifest-20261018.json",
+  "production_writes": false,
+  "deployments": false,
+  "vm_restarts": false,
+  "provider_operations": false,
+  "customer_balance_repairs": false,
+  "credential_changes": false,
+  "finding_status": [
+    {
+      "surface": "Task 25 release preparation",
+      "status": "REPAIRED LOCALLY",
+      "evidence": "Pinned blocked manifest, runbook, checker and aggregate read-only preflight"
+    },
+    {
+      "surface": "Deployed coordinated financial repair",
+      "status": "UNVERIFIED",
+      "evidence": "No operations were authorized/scoped or performed in Task 25"
+    },
+    {
+      "surface": "Release/source coherence",
+      "status": "OPEN IN CURRENT SOURCE",
+      "evidence": "Source-lock and Task 22 manifest drift; concurrent Task 23/24 changes"
+    },
+    {
+      "surface": "Historical financial reconciliation",
+      "status": "UNVERIFIED",
+      "evidence": "No fresh live/provider disposition performed; prior signed-ledger difference remains evidence requiring review"
+    }
+  ],
+  "limits": [
+    "Four PGlite preflight scenarios use the existing financial fixture/migration subset, not the complete 26-file upgrade",
+    "Six artifact-safety tests and candidate integrity do not establish release readiness",
+    "No fresh Supabase or SSH verification was performed",
+    "Existing lock/Task 22 manifest were preserved; source changes require a reviewed successor freeze and retained bundle",
+    "Operational authorization, backups, approved legacy dispositions, final Task 22-24 gates and scoped provider/runtime acceptance remain required"
+  ],
+  "checks": [
+    {
+      "name": "artifact_safety",
+      "command": "python3 -m unittest discover -s tools -p test_coordinated_rollout.py",
+      "exit_code": 0,
+      "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.010s\n\nOK\n"
+    },
+    {
+      "name": "isolated_sql_preflight",
+      "command": "node tools/financial-tests/rollout-preflight.mjs",
+      "exit_code": 0,
+      "output": "PASS isolated schema\nPASS captured media-session dependency\nPASS captured production tables, constraints, functions, grants, policies and financial triggers\nPASS old schema inventory reports absent new evidence objects\nPASS legacy executions report missing versions and ambiguous terminal evidence\nPASS original-debit linkage separates missing, ambiguous and single candidates\nPASS 20261016010000_financial_rpc_containment.sql\nPASS 20261016020000_wallet_funding_integrity.sql\nPASS 20261016025000_instant_refill_submission_boundary.sql\nPASS 20261016030000_compatible_sim_finalization.sql\nPASS 20261016040000_canonical_paid_pricing.sql\nPASS 20261016045000_canonical_esim_catalogue_prices.sql\nPASS 20261016050000_retail_customer_contracts.sql\nPASS 20261016060000_schedule_wallet_recovery.sql\nPASS 20261016235338_sim_setup_instant_settlement.sql\nPASS 20261017164417_scheduled_refill_worker_contracts.sql\nPASS 20261017190000_supplier_outcome_recovery.sql\nPASS 20261017201740_liveness_verification_contract.sql\nPASS 20261017203115_call_budget_contract.sql\nPASS repaired schema inventory sees funding and supplier evidence without fabricating rows\n4 passed / 0 failed rollout preflight scenarios (isolated PGlite; not full upgrade/live proof)\n"
+    },
+    {
+      "name": "candidate_integrity",
+      "command": "python3 tools/check_coordinated_rollout.py --check",
+      "exit_code": 0,
+      "output": "Candidate pins and dependency order verified locally; no runtime verification\n"
+    },
+    {
+      "name": "rollout_gate",
+      "command": "python3 tools/check_coordinated_rollout.py --gate",
+      "exit_code": 2,
+      "output": "Candidate pins and dependency order verified locally; no runtime verification\nBLOCKING: Task 22 source manifest drift; refresh only after reviewing concurrent changes\nBLOCKING: Source drift: customer:.github/workflows/release-checks.yml, customer:deployment/coordinated-rollout-20261018.json, customer:docs/reviews/source-reproducibility-20261018.md, customer:docs/reviews/source-reproducibility-20261018/verification.json, customer:lib/core/services/local_cache_service.dart, customer:lib/features/offline_recharge/controller/offline_refill_controller.dart, customer:test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart, customer:tools/check_coordinated_rollout.py, customer:tools/financial-tests/fleet.mjs, customer:tools/financial-tests/second-number.mjs, customer:unlocked:tools/test_release_checks.py, admin:lib/core/admin/admin_api.dart, admin:lib/core/services/local_cache_service.dart, admin:lib/features/control/presentation/scheduled_jobs_screen.dart, admin:unlocked:lib/features/control/presentation/worker_fleet_panel.dart, admin:unlocked:test/features/control/worker_fleet_panel_test.dart, backend:test/worker_health_test.js, backend:worker_esim_fulfillment.js, backend:worker_health.js, backend:worker_offers_cache.js\nBLOCKING: full-baseline — No approved complete provisioning baseline: public export/routine evidence and bounded fixtures omit managed Auth/Storage/Vault/net/cron dependency contracts, application-owned cross-schema objects and owner/default-ACL replay.\nBLOCKING: full-upgrade — The entire ordered release has not been applied together to the complete current shape. Bounded subsystem tests cannot establish that convergence.\nBLOCKING: remote-history — 23 original remote-only history rows lack original statements. Capture current contracts separately; never fabricate dates/statements or mark rows reverted because files moved.\nBLOCKING: live-definition-owners — Automatic approval review rejected full production SQL-definition/ownership export. Exact public body/signature comparisons are available; full current definitions/owners remain unverified.\nBLOCKING: worker-runtime — Fresh VM hashes differ from some repaired local sources. Runtime package/lock sources are recovered exactly, but installed dependency equivalence and a clean installation under the observed Node 22.23.1 runtime still require release verification.\nBLOCKING: config-seeds-cron — Required non-secret effective prices, routing/policy/config rows and safe cron templates are not an approved seed set. Hashes and config names do not provision values. Secrets must be provisioned separately.\nBLOCKING: edge-parity — Full deployed Edge source parity, explicit gateway settings for every source and exact remote dependency locks remain incomplete; live test-func-check has no versioned entrypoint.\nBLOCKING: release-gate — Task 24 pinned toolchain/application/API/provider checks and Task 25 operational approval are still required.\nBLOCKING: source-lock-drift — Source lock was refreshed concurrently; candidate/runtime sources continue changing. A reviewed successor freeze, retained dirty-source bundle and reverified candidate are required.\nBLOCKING: task23-fleet — Fleet SQL/health endpoint and nine-process instrumentation arrived concurrently. Final review, complete upgrade, installed runtime and operational acceptance remain pending.\nBLOCKING: task24-gate — Release-check tooling and app fixes arrived concurrently. Their final report and complete supported-target gate remain pending.\nBLOCKING: operational-authorization — No authorization tied to this manifest digest, target, window, operator, exact actions or test accounts/provider budget has been recorded.\nBLOCKING: backups-recovery — Backup/PITR identifiers, restore drill, recovery operators and approved recovery objectives are missing.\nBLOCKING: writer-containment — No verified global money kill switch; per-entry controls, in-flight drain and exclusion of newly installed cron jobs remain unproven.\nBLOCKING: legacy-reconciliation — Historical wallet-vs-signed-ledger difference and all legacy hold/submission/refund/reversal/call dispositions require fresh approved evidence.\nBLOCKING: client-artifacts — Customer/admin signed artifacts, target platforms, distribution/minimum-version and cache/offline compatibility are unverified.\nBLOCKING: pilot-acceptance — No approved provider account/environment, exposure cap, pilot runtime checks or observation thresholds; allowed spend remains USD 0.\nBLOCKING: base-manifest-freshness — Task 22 base manifest drift was observed during concurrent fleet/config edits; checker gate compares it with current generated source intent. Refresh/review that base before a release freeze.\nPreparation candidate cannot authorize deployment or activation\n"
+    },
+    {
+      "name": "task22_manifest_integrity",
+      "command": "python3 tools/build_deployment_manifest.py --check",
+      "exit_code": 1,
+      "output": "Deployment manifest drift; review and regenerate\n"
+    },
+    {
+      "name": "archive_integrity",
+      "command": "python3 tools/migration_archive.py verify",
+      "exit_code": 0,
+      "output": "Verified 254 migration sources; 240 immutable archived, 1 explicitly revised pending.\n"
+    },
+    {
+      "name": "existing_source_lock",
+      "command": "python3 tools/reproducible_sources.py verify",
+      "exit_code": 1,
+      "output": "Source drift: customer:.github/workflows/release-checks.yml, customer:deployment/coordinated-rollout-20261018.json, customer:docs/reviews/source-reproducibility-20261018.md, customer:docs/reviews/source-reproducibility-20261018/verification.json, customer:lib/core/services/local_cache_service.dart, customer:lib/features/offline_recharge/controller/offline_refill_controller.dart, customer:test/features/scheduled_topups/scheduled_topup_sheet_channel_status_test.dart, customer:tools/check_coordinated_rollout.py, customer:tools/financial-tests/fleet.mjs, customer:tools/financial-tests/second-number.mjs, customer:unlocked:tools/test_release_checks.py, admin:lib/core/admin/admin_api.dart, admin:lib/core/services/local_cache_service.dart, admin:lib/features/control/presentation/scheduled_jobs_screen.dart, admin:unlocked:lib/features/control/presentation/worker_fleet_panel.dart, admin:unlocked:test/features/control/worker_fleet_panel_test.dart, backend:test/worker_health_test.js, backend:worker_esim_fulfillment.js, backend:worker_health.js, backend:worker_offers_cache.js\n"
+    },
+    {
+      "name": "changed_whitespace",
+      "command": "git diff --check -- .codex/CURRENT_STATUS_AND_ROADMAP.md docs/reviews/audit-executor-plan-20261016.md",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "name": "new_runner_syntax",
+      "command": "node --check tools/financial-tests/rollout-preflight.mjs",
+      "exit_code": 0,
+      "output": ""
+    }
+  ]
+}

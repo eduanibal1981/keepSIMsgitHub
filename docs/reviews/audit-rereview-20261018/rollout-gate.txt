@@ -1,0 +1,6 @@
+Source drift: backend:server_baileys.js
+Source drift: backend:worker_esim_catalog.js
+Source drift: customer:deployment/manifest.json
+Source drift: customer:deployment/source-lock.json
+Source drift: customer:supabase/migrations/20261018090000_worker_fleet_monitoring.sql
+Source drift: customer:tools/release_checks.py

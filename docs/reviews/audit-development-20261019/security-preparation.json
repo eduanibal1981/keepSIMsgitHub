@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-19",
+  "phase": "development",
+  "deployment_status": "pending; no deployment authorized or performed",
+  "live_refresh": "unavailable: this session exposes no Supabase SQL/catalog tools",
+  "retained_live_evidence": "docs/reviews/audit-rereview-20261018/live-verification.json",
+  "retained_evidence_date": "2026-10-18; not a current live verification",
+  "candidate_files": {
+    "supabase/migrations/20261016210736_privileged_database_access.sql": "cb7ea968ef2e6f03f7dddc8a9f3668a1f5481a7146942e24357893612480c858",
+    "supabase/tests/privileged_database_access_tests.sql": "a5d4a96a71fc287ba906931e03352406ad66a789148a9d032f562ef1d9601bec",
+    "docs/reviews/privileged-database-access-20261017/allowlist.json": "a21ea5299f4e33c4f5d246a20926a0419c8c80033c6bb90d05222016cfd0e4c0",
+    "supabase/migrations/20261017100000_endpoint_webhook_authentication.sql": "5ec42cd3fb3b33d2b5639ace4cf7d601f5f635e4f0b58b3b802517ef398af02b",
+    "supabase/tests/endpoint_webhook_authentication_tests.sql": "4b67f3101229648a0c6eda3489cdb28c6c21eb04acffdc8b2dc445c4b722b64b"
+  },
+  "local_privilege_scenarios_passed": 25,
+  "local_endpoint_tests_passed": 41,
+  "scope": "Task 3 migration only, independently; Task 4 schema plus all compatible handlers is a separate release",
+  "recovery": "transaction rollback on preflight/default-owner/dependency failure; retain restrictive grants after commit, forward-repair legitimate callers; do not restore broad grants or unsafe handlers",
+  "endpoint_prerequisites": [
+    "legitimate external voicemail producer remains unidentified; no callers found in either app or worker sources",
+    "voicemail producer must provide stable recording_id, HTTPS audio_url and stored call_record_id/did_id with service credential",
+    "provider signing configuration presence/validity not verified; no credentials read or rotated",
+    "retain existing receipt RPCs/schema and service-only authorization; no additional authorization layer"
+  ],
+  "remaining_security_acceptance": [
+    "fresh live full allowlist, grants, defaults, six body hashes and cron callers",
+    "release role can change postgres and supabase_admin defaults",
+    "authorized scoped deployment and post-deployment catalog verification"
+  ]
+}

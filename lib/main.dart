@@ -202,22 +202,23 @@ void main() async {
           options.tracesSampleRate = kReleaseMode ? 0.05 : 1.0;
           options.beforeSend = (SentryEvent event, Hint hint) {
             // PII scrubbing: strip sensitive data (wallet amounts, phone numbers, ICCIDs) from extra, breadcrumbs, and exceptions
-            var scrubbedEvent = event;
-            final extra = scrubbedEvent.extra;
-            if (extra != null) {
-              final scrubbed = Map<String, dynamic>.from(extra);
-              scrubbed.removeWhere((key, value) {
-                final k = key.toLowerCase();
-                return k.contains('phone') ||
-                    k.contains('wallet') ||
-                    k.contains('iccid') ||
-                    k.contains('amount') ||
-                    k.contains('token') ||
-                    k.contains('secret');
-              });
-              scrubbedEvent = scrubbedEvent.copyWith(extra: scrubbed);
-            }
-            return scrubbedEvent;
+            final payload = event.toJson();
+            // Legacy unstructured extras are not emitted. Contexts retain
+            // diagnostic metadata under the current Sentry API.
+            payload.remove('extra');
+            final contexts = Map<String, dynamic>.from(event.contexts.toJson());
+            contexts.removeWhere((key, value) {
+              final k = key.toLowerCase();
+              return k.contains('phone') ||
+                  k.contains('wallet') ||
+                  k.contains('iccid') ||
+                  k.contains('amount') ||
+                  k.contains('token') ||
+                  k.contains('secret');
+            });
+            return SentryEvent.fromJson(
+              payload,
+            ).copyWith(contexts: Contexts.fromJson(contexts));
           };
         }, appRunner: runAppMain);
       }

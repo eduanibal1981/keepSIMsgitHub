@@ -1,0 +1,436 @@
+{
+  "project": {
+    "id": "zwxswagokhgbuzrrbnhr",
+    "ref": "zwxswagokhgbuzrrbnhr",
+    "organization_id": "slahtmwllavlqshdlsdn",
+    "organization_slug": "slahtmwllavlqshdlsdn",
+    "name": "simSaveDB",
+    "region": "ap-northeast-2",
+    "status": "ACTIVE_HEALTHY",
+    "database": {
+      "host": "db.zwxswagokhgbuzrrbnhr.supabase.co",
+      "version": "17.6.1.121",
+      "postgres_engine": "17",
+      "release_channel": "ga"
+    },
+    "created_at": "2026-05-17T09:05:02.884881Z"
+  },
+  "edge_metadata": [
+    {
+      "slug": "dispatch-alert",
+      "version": 37,
+      "verify_jwt": false,
+      "bundle_sha256": "77e272b81e5e660c59f3db9639221b9eb4696a2bbc7584f84b29f20e4ed01996"
+    },
+    {
+      "slug": "fetch_zendit_offers",
+      "version": 12,
+      "verify_jwt": true,
+      "bundle_sha256": "b3b97e4cf30102660c73c64d4a182089fc01b9d7ab5a44050fe7ee672c653f05"
+    },
+    {
+      "slug": "execute_zendit_recharge",
+      "version": 7,
+      "verify_jwt": true,
+      "bundle_sha256": "a3b4f1e34f9f381bb86c13651b04272623a75753383298578064d8c0be7989fd"
+    },
+    {
+      "slug": "wallet_transact",
+      "version": 8,
+      "verify_jwt": true,
+      "bundle_sha256": "f918cf5478aa00c80f14a34930138007c43143bb4293ac390ecfec3f31d1a667"
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "verify_jwt": false,
+      "bundle_sha256": "70836d20fe8ef9150be330d1241a667dab728f172b652f9f1595001cc436b4ae"
+    },
+    {
+      "slug": "waba-webhook",
+      "version": 7,
+      "verify_jwt": false,
+      "bundle_sha256": "e7100b02b597e609392ecbe402d97a5f8d6b40f0cca2089b82964ed3d2e687c7"
+    },
+    {
+      "slug": "sms-webhook",
+      "version": 5,
+      "verify_jwt": false,
+      "bundle_sha256": "785bfe07cb8f754d6380f6f2a9eb9413a6e69add27eb6ff36cf3f0ccf0732692"
+    },
+    {
+      "slug": "twilio-voice-webhook",
+      "version": 3,
+      "verify_jwt": false,
+      "bundle_sha256": "a24f5a6ec45132cfd03a7f3b77b1c9e848304e2ab3cdd403b85ec6f131b18a74"
+    },
+    {
+      "slug": "detect-country",
+      "version": 3,
+      "verify_jwt": true,
+      "bundle_sha256": "65a9e53440b9b85ce9544591a58ee3c038c70e4e8a3d52ba4d08276958c782cf"
+    },
+    {
+      "slug": "delete_account",
+      "version": 3,
+      "verify_jwt": true,
+      "bundle_sha256": "0ae5f9647cfac943d8b54c7b58b029cd16ae60c6ec85beb3dfbab3f3ee08e615"
+    },
+    {
+      "slug": "purge-accounts",
+      "version": 10,
+      "verify_jwt": false,
+      "bundle_sha256": "bf8635ceb0d286493c2dfe546100f8aa687a2693e3eaf2a5fce93a3bc7c6b16f"
+    },
+    {
+      "slug": "create-paypal-order",
+      "version": 9,
+      "verify_jwt": true,
+      "bundle_sha256": "db3a856ecb9eb22e8b30bcef0b9c96fee145a5a6afdb46e22da897cf5bc57c35"
+    },
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "verify_jwt": true,
+      "bundle_sha256": "e23ce9e144b6978efdc38d17f6329fbe56c1214762f9341ee01d721aa383d8ca"
+    },
+    {
+      "slug": "health",
+      "version": 3,
+      "verify_jwt": false,
+      "bundle_sha256": "72a9ebe1f467283b398fea31bde02b13e88606ce94c1dcc32478810cf41e27a7"
+    },
+    {
+      "slug": "refresh-fx-rates",
+      "version": 2,
+      "verify_jwt": false,
+      "bundle_sha256": "bc89504803f15dcb4181de47f9abcb5f40493cfafad0d263566373eb27e1d4fd"
+    },
+    {
+      "slug": "sync-esim-catalogue",
+      "version": 6,
+      "verify_jwt": false,
+      "bundle_sha256": "700c18f6bb244e4660a0884cbca50bf0e68a3d284d05da39167d2ebc324e9fa9"
+    },
+    {
+      "slug": "sync-affiliate-network",
+      "version": 2,
+      "verify_jwt": false,
+      "bundle_sha256": "c170158f5b50a21a4850f439a66458ad1dbdf68e683a1e39cde49f6b2c8afdd9"
+    },
+    {
+      "slug": "send-admin-email",
+      "version": 2,
+      "verify_jwt": false,
+      "bundle_sha256": "9d18ac3541ab3df67c8cdf2baeee9aa80f2558c9363bb9c397077a58a97c55d6"
+    },
+    {
+      "slug": "make-call",
+      "version": 12,
+      "verify_jwt": true,
+      "bundle_sha256": "4aedef319340565775e967510d1149ebdc6105a5091a1179a81be3947eb561d9"
+    },
+    {
+      "slug": "telnyx-cdr",
+      "version": 8,
+      "verify_jwt": false,
+      "bundle_sha256": "bbadf25ae508f340f2d80008b93f1f6d9ca8361698e1dd9b8a70a7f68b4b3a1b"
+    },
+    {
+      "slug": "manage-caller-id",
+      "version": 5,
+      "verify_jwt": true,
+      "bundle_sha256": "e987a98c23c4eba84ef56318c2d2aafa455a641470699ef84849f7f2950ab7a7"
+    },
+    {
+      "slug": "validate-sim-liveness",
+      "version": 12,
+      "verify_jwt": true,
+      "bundle_sha256": "c550049f7cc08874e502208e0611345dfac32b2fd3a4ca21b617ac90861e38a3"
+    },
+    {
+      "slug": "send-sim-otp",
+      "version": 2,
+      "verify_jwt": true,
+      "bundle_sha256": "2babdc61bc3a626ed268ea127c6bf9e43a03ad971fae44b46a4a6c4ca8eb7b51"
+    },
+    {
+      "slug": "verify-sim-otp",
+      "version": 2,
+      "verify_jwt": true,
+      "bundle_sha256": "5a1c032c7275217c76b13cfd721dca5349384ada0b25630fb6413215ab294b8a"
+    },
+    {
+      "slug": "process-wallet-refund",
+      "version": 2,
+      "verify_jwt": true,
+      "bundle_sha256": "699ac13f575bce53d9eb661df6d4abd91ff7954dd9ee20b5bf067994b0b80368"
+    },
+    {
+      "slug": "liveness-verification",
+      "version": 8,
+      "verify_jwt": true,
+      "bundle_sha256": "57515941b33c6e52d54fb1be1cf55d41164b3a60ddc1d5438f5e50b92ba8ca3b"
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "verify_jwt": false,
+      "bundle_sha256": "ada0feeace5a06ff77463de72e855a81c841268db62f37369b4e7e865b988907"
+    },
+    {
+      "slug": "test-func-check",
+      "version": 3,
+      "verify_jwt": false,
+      "bundle_sha256": "56013b72631c08320a66b76cee831debaf00d040c23bb1605d87e9d49094ac7e"
+    },
+    {
+      "slug": "paypal-return",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "0c59c7e06c3aafcc16ee883e103f7869fcb55ca86358d31d97237fb75b209f88"
+    },
+    {
+      "slug": "initiate-voip-call",
+      "version": 7,
+      "verify_jwt": false,
+      "bundle_sha256": "a9cc3e3ef2d2ab3d0455f516c65009620671ec400851f9311d1ed350ec194f98"
+    },
+    {
+      "slug": "end-voip-call",
+      "version": 3,
+      "verify_jwt": false,
+      "bundle_sha256": "53f90bffc32b64a1f9a89271a3d1db825755ed7675849d2caa32b03e0ee83cc9"
+    },
+    {
+      "slug": "manage-dids",
+      "version": 3,
+      "verify_jwt": true,
+      "bundle_sha256": "45c8b3c5441ec2a611d08310c806b60585781e98305065a254daa52ea9ede006"
+    },
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "verify_jwt": false,
+      "bundle_sha256": "a837ec6e961e1b4b742f0ee42a47d345f0261312b03d2584c31bab2abe0ec0d5"
+    },
+    {
+      "slug": "admin-telnyx-billing",
+      "version": 4,
+      "verify_jwt": true,
+      "bundle_sha256": "4e3588d5da3f8e049bfef28a4a93c7318cb8885e45cfab58159fbcce7d4f95fa"
+    },
+    {
+      "slug": "process-alert-outbox",
+      "version": 7,
+      "verify_jwt": false,
+      "bundle_sha256": "35630a628a754db3dd6fc1196df9dc29cb01826250814eacd84e4bbba987e67c"
+    },
+    {
+      "slug": "get-turn-credentials",
+      "version": 6,
+      "verify_jwt": false,
+      "bundle_sha256": "470a0608f517f1fbba24ec38e37d02b9b4fa253fd93f76ea86e33b277ef026ef"
+    },
+    {
+      "slug": "send-whatsapp-alert",
+      "version": 4,
+      "verify_jwt": false,
+      "bundle_sha256": "2f2fe435bdac1a7bbca29e4ece157c5ad3c0ccb233ad4275c07d3baa2ca71e25"
+    },
+    {
+      "slug": "notification-email-verification",
+      "version": 2,
+      "verify_jwt": true,
+      "bundle_sha256": "decb20ba205ba78204d3378f33a3985a4b30721d61a2ac7ddefaa6bdcf24c9e2"
+    }
+  ],
+  "database": [
+    {
+      "jsonb_build_object": {
+        "migrations": [
+          {
+            "name": "admin_provider_credentials",
+            "version": "20261016205533"
+          }
+        ],
+        "new_tables": [
+          "public.provider_credential_registry",
+          "public.wallet_funding_lots",
+          "public.wallet_refund_items",
+          "public.wallet_refund_requests"
+        ],
+        "database_version": "PostgreSQL 17.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit"
+      }
+    }
+  ],
+  "critical_grants": [
+    {
+      "signature": "check_scheduled_jobs_health()",
+      "definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "6532e399241d80d77fb85a2cf5d65c23"
+    },
+    {
+      "signature": "confirm_line_verification(uuid,text,text)",
+      "definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "3a0b86d1d9c834673a3be898c86d1f61"
+    },
+    {
+      "signature": "finalize_sim_setup_order(uuid,text)",
+      "definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "ab90d66f037f30304125bd61b0229e15"
+    },
+    {
+      "signature": "finalize_sim_setup_order(uuid,uuid)",
+      "definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "fa1f725d7f332a0569a312f3bb5258d6"
+    },
+    {
+      "signature": "get_authoritative_refill_quote(uuid,numeric,text,text,text)",
+      "definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "a7463307d70dadb748b93f01e67da353"
+    },
+    {
+      "signature": "prune_database_logs(integer,integer)",
+      "definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "ec8f683d64222471bde7ac4dff6a5033"
+    },
+    {
+      "signature": "reap_stuck_executions(integer,integer)",
+      "definer": true,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "service_execute": true,
+      "source_md5": "d7445440f327b1dd2198619252958db8"
+    }
+  ],
+  "reconciliation": [
+    {
+      "reconciliation_report": {
+        "limits": "No provider evidence, opening-balance inference, timestamp tie ordering or customer loss certification; no records changed",
+        "metrics": {
+          "wallets_checked": 7,
+          "unknown_completed_type": 0,
+          "foreign_hold_allocation": 0,
+          "active_lot_overallocated": 0,
+          "active_legacy_refund_items": 0,
+          "incorrect_completed_direction": 0,
+          "lot_owner_or_currency_mismatch": 0,
+          "hold_owner_or_currency_mismatch": 0,
+          "reserved_exceeds_posted_balance": 0,
+          "wallet_vs_funding_lot_difference": 0,
+          "invalid_completed_amount_or_delta": 0,
+          "wallet_vs_signed_ledger_difference": 1,
+          "chain_breaks_without_timestamp_ties": 0,
+          "duplicate_completed_reference_groups": 0,
+          "active_hold_allocation_total_mismatch": 0,
+          "wallets_with_ambiguous_timestamp_order": 0
+        },
+        "captured_at_utc": "2026-10-18T19:42:28.756819+00:00"
+      }
+    }
+  ],
+  "legacy_inventory": [
+    {
+      "jsonb_build_object": {
+        "captured_at_utc": "2026-10-18T19:48:35.871403+00:00",
+        "expired_active_holds": [
+          {
+            "count": 1,
+            "order_type": "plan_fee",
+            "submission_marked": false
+          }
+        ],
+        "ambiguous_refill_rows": [],
+        "nonterminal_refund_items": 0
+      }
+    }
+  ],
+  "advisor_summary": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 41
+    },
+    {
+      "name": "security_definer_view",
+      "level": "ERROR",
+      "count": 3
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "count": 2
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 39
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 193
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1
+    }
+  ],
+  "retrieved_edge_sources": [
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "bundle_sha256": "e23ce9e144b6978efdc38d17f6329fbe56c1214762f9341ee01d721aa383d8ca",
+      "source_retrieved": true
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "bundle_sha256": "70836d20fe8ef9150be330d1241a667dab728f172b652f9f1595001cc436b4ae",
+      "source_retrieved": true
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "bundle_sha256": "ada0feeace5a06ff77463de72e855a81c841268db62f37369b4e7e865b988907",
+      "source_retrieved": true
+    },
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "bundle_sha256": "a837ec6e961e1b4b742f0ee42a47d345f0261312b03d2584c31bab2abe0ec0d5",
+      "source_retrieved": true
+    },
+    {
+      "slug": "health",
+      "version": 3,
+      "bundle_sha256": "72a9ebe1f467283b398fea31bde02b13e88606ce94c1dcc32478810cf41e27a7",
+      "source_retrieved": true
+    }
+  ]
+}

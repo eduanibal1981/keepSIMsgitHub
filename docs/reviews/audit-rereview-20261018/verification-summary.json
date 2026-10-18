@@ -1,0 +1,488 @@
+{
+  "review_date": "2026-10-18",
+  "timezone": "Asia/Muscat",
+  "captured_at_utc": "2026-10-18T19:49:46.372764+00:00",
+  "scope": "Read-only production review and isolated local tests. No deployments, provider operations, credentials or customer balances changed.",
+  "profiles": {
+    "source": {
+      "status": "passed",
+      "started_utc": "2026-10-18T19:39:27.443730+00:00",
+      "repository_heads": {
+        "customer": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+        "admin": "93fc37e568ab8f7e13c1d62465703132b342a309",
+        "backend": "c2d84997b691bc9171c327603de5f2e6ddf8e643"
+      },
+      "source_lock_sha256": "b2642c309f675e12ce911dcfa349290a383028af10ad98bcee6e42491ea3cc7c",
+      "checks": [
+        {
+          "name": "archive",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "archive.log",
+          "log_sha256": "c0617256342891433da102466ee251d82997f0e83536f6acfe6f995b1e3498b7"
+        },
+        {
+          "name": "source-tool-tests",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "source-tool-tests.log",
+          "log_sha256": "0ff98357417721ddad487a86eb0caad0db80e2146bd4a84248ef72b1c5b2db40"
+        },
+        {
+          "name": "migration-edge-manifest",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "migration-edge-manifest.log",
+          "log_sha256": "31700490224c475dba35994afa9b38fd4be064e74c35566954f8fecbbeee1f73"
+        },
+        {
+          "name": "source-bytes",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "source-bytes.log",
+          "log_sha256": "1ed383e00526cadbce7149fbd3d9352d73469301c389280dcab20d33c2446ea7"
+        },
+        {
+          "name": "secrets",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "secrets.log",
+          "log_sha256": "9a88550e59f31cae70f122635e9688c75792e5b25acc0e8fb2d944d433f98c7e"
+        }
+      ]
+    },
+    "unit": {
+      "status": "passed",
+      "started_utc": "2026-10-18T19:39:27.443730+00:00",
+      "repository_heads": {
+        "customer": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+        "admin": "93fc37e568ab8f7e13c1d62465703132b342a309",
+        "backend": "c2d84997b691bc9171c327603de5f2e6ddf8e643"
+      },
+      "source_lock_sha256": "b2642c309f675e12ce911dcfa349290a383028af10ad98bcee6e42491ea3cc7c",
+      "checks": [
+        {
+          "name": "edge-contracts",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "edge-contracts.log",
+          "log_sha256": "d6fa7590deadb0d7e87c7e4b6ad27d0e2ff56a5264a46d977fb5d30a83c2ac6c"
+        },
+        {
+          "name": "worker-contracts",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "worker-contracts.log",
+          "log_sha256": "908a1691e0944f72b7a2774cec97d84adf58c060af45b355132e9409d82ea27e"
+        },
+        {
+          "name": "syntax-durable_whatsapp_queue.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-durable_whatsapp_queue.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-durable_whatsapp_receipts.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-durable_whatsapp_receipts.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-offer_validation.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-offer_validation.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-offer_validation.test.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-offer_validation.test.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-refill_approval_quotes.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-refill_approval_quotes.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-server_baileys.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-server_baileys.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-server_tg.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-server_tg.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-server_ww.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-server_ww.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-sim_liveness_service.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-sim_liveness_service.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-supplier_reconciliation.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-supplier_reconciliation.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-voucher_pin_test.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-voucher_pin_test.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-whatsapp_inbound_commands.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-whatsapp_inbound_commands.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_auto_custom_refill.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_auto_custom_refill.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_auto_mini_refill.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_auto_mini_refill.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_esim_catalog.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_esim_catalog.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_esim_fulfillment.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_esim_fulfillment.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_health.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_health.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_instant_refill.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_instant_refill.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_offers_cache.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_offers_cache.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_supplier_reconciliation.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_supplier_reconciliation.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-worker_voucher_stock.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-worker_voucher_stock.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-ding.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-ding.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-dtone.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-dtone.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-esimaccess.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-esimaccess.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-firsty.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-firsty.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-reloadly.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-reloadly.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "syntax-providers-zendit.js",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "syntax-providers-zendit.js.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "database": {
+      "status": "passed",
+      "started_utc": "2026-10-18T19:40:36.849632+00:00",
+      "repository_heads": {
+        "customer": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+        "admin": "93fc37e568ab8f7e13c1d62465703132b342a309",
+        "backend": "c2d84997b691bc9171c327603de5f2e6ddf8e643"
+      },
+      "source_lock_sha256": "b2642c309f675e12ce911dcfa349290a383028af10ad98bcee6e42491ea3cc7c",
+      "checks": [
+        {
+          "name": "sql-fixture",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-fixture.log",
+          "log_sha256": "431594d82b6040da7e7ae76b36dd4a6e7e33c80a45dcc7217b5144f4fe9b7006"
+        },
+        {
+          "name": "sql-run",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-run.log",
+          "log_sha256": "47a975dd57911385a6cda9a535cbf61d67e0ae9da2b9202912bd17bdefbc4790"
+        },
+        {
+          "name": "sql-credentials",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-credentials.log",
+          "log_sha256": "bdd3297c0baebaf94c8e74d6c636e7fb3b738fb01bff772986e02d72c0631b7e"
+        },
+        {
+          "name": "sql-privileges",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-privileges.log",
+          "log_sha256": "a463b6d219b95a32a09977fd507b9ac8a3e0d4db947a53bf46d01a2432dfc87c"
+        },
+        {
+          "name": "sql-paypal",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-paypal.log",
+          "log_sha256": "060f7506c0cbd4ff6c7d04155928aadeefe8e2349a61e4609b6a4f7e6b2bcb7f"
+        },
+        {
+          "name": "sql-webhook-auth",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-webhook-auth.log",
+          "log_sha256": "35292fa14364e05ac0545043a58467128ba9db0fd26c20cfe7dc617860252f9d"
+        },
+        {
+          "name": "sql-concurrency",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-concurrency.log",
+          "log_sha256": "ac00b5fd36f26108aace158b4682de5077e32c7655da6fa8805993ff9e618272"
+        },
+        {
+          "name": "sql-paypal-concurrency",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-paypal-concurrency.log",
+          "log_sha256": "88daa15f193fef2d6d5bb0425293591933f23df4a76c4fcf1eab63ef04dd309b"
+        },
+        {
+          "name": "sql-webhook-auth-concurrency",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-webhook-auth-concurrency.log",
+          "log_sha256": "b127f342bb861eb1d8cb2bf3ae5a809288dcab7f87550a1da965c88f418e4e87"
+        },
+        {
+          "name": "sql-notifications",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-notifications.log",
+          "log_sha256": "055afb0afa15e46f4075452f21f125e864210727ca85210b96088cbf45cecb4b"
+        },
+        {
+          "name": "sql-forecasts",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-forecasts.log",
+          "log_sha256": "78872a5ecc20772da45e03a918472ca25bf25226eaa26ddc7fa6fc3041fab168"
+        },
+        {
+          "name": "sql-maintenance",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-maintenance.log",
+          "log_sha256": "0a7ef078a0d848547b8fa3bf3ed3e5d6f91cb3faf0a61f10cd7c2d765d612d79"
+        },
+        {
+          "name": "sql-second-number",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-second-number.log",
+          "log_sha256": "f4b3af59527a795760d4903f88e9d4adbba8c43b8a383bf6fd26339a6dd99ed5"
+        },
+        {
+          "name": "sql-pricing",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-pricing.log",
+          "log_sha256": "fa48b3c766c9af868fbde29347597895d9859713a89b43edf0ba5fe17f5405a9"
+        },
+        {
+          "name": "sql-retail",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-retail.log",
+          "log_sha256": "24df85c5e347582930156a852de691e2010177c09e8071021cacfc1a4731ea87"
+        },
+        {
+          "name": "sql-schedules",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-schedules.log",
+          "log_sha256": "82a5e8dd14822e775d7407bc6d30765a540b575975f2fcb0d06c10283a70cb4c"
+        },
+        {
+          "name": "sql-vouchers",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-vouchers.log",
+          "log_sha256": "d9f683353aa2daccacce7f7b10a528337ab6a960bffc3f6a213f38133044d6de"
+        },
+        {
+          "name": "sql-fleet",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-fleet.log",
+          "log_sha256": "82e1de2e0e9e0ac530ba2debfdcf21eb48aec76d41058c3070af30ff80654317"
+        },
+        {
+          "name": "sql-source-recovery",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-source-recovery.log",
+          "log_sha256": "c973b657e99796b53391e229351a97564a683b701425d8e5599399bd44c9b054"
+        },
+        {
+          "name": "sql-scheduled-http",
+          "status": "passed",
+          "exit_code": 0,
+          "log": "sql-scheduled-http.log",
+          "log_sha256": "b6925ffb0c495d4f70c0ea3499b1626680bed968082b52b1cb3179619af64c38"
+        }
+      ]
+    },
+    "edge-runtime": {
+      "status": "failed",
+      "started_utc": "2026-10-18T19:43:17.033608+00:00",
+      "repository_heads": {
+        "customer": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+        "admin": "93fc37e568ab8f7e13c1d62465703132b342a309",
+        "backend": "c2d84997b691bc9171c327603de5f2e6ddf8e643"
+      },
+      "source_lock_sha256": "b2642c309f675e12ce911dcfa349290a383028af10ad98bcee6e42491ea3cc7c",
+      "checks": [
+        {
+          "name": "prerequisite",
+          "status": "failed",
+          "message": "deno unavailable: FileNotFoundError"
+        }
+      ]
+    }
+  },
+  "apps": {
+    "customer": {
+      "error": 0,
+      "warning": 0,
+      "info": 33,
+      "flutter_tests_passed": 893
+    },
+    "admin": {
+      "error": 53,
+      "warning": 19,
+      "info": 124,
+      "flutter_tests_passed": 32
+    }
+  },
+  "edge_contract_tests_passed": 232,
+  "worker_tests_passed": 218,
+  "native_fleet_scenarios_passed": 50,
+  "native_fleet_scenarios_in_release_profile": 49,
+  "native_fleet_note": "Release profile omits FLEET_NATIVE=1; independent sweep race is not selected by that profile. It was run separately during this review.",
+  "android_signing_file_present": false,
+  "per_function_deno_lock_count": 0,
+  "mac_local_signature_verification": "passed deep/strict; ad hoc local signature, not distribution notarization",
+  "mac_archive_vs_build": [
+    {
+      "file": "Contents/MacOS/keep_sims_admin",
+      "archive_matches_build": false,
+      "build_sha256": "82d1cc4ee5bb2d2aecc3047fd27603b87fea5aa0d219aef61fc48cb93a46c3aa",
+      "archive_sha256": "3e94ad9cb188f5c3e6c6c294c5de8b060dc8233fd8fab6104a705fd9b8d3d57d"
+    },
+    {
+      "file": "Contents/Frameworks/App.framework/Versions/A/App",
+      "archive_matches_build": false,
+      "build_sha256": "55f1b0648ee8c9425bd677d38d469c1551e8996c3ef4a3d254a0ac19d44bc2ed",
+      "archive_sha256": "448bd029628e5438ecc7c16bb28923f419911844b40ee2fa7bad2fdf94ec8aeb"
+    }
+  ],
+  "source_lock_after_suite": "failed on randomly regenerated voucher grant ID; original exact locked fixture restored and source lock verification passed",
+  "complete_upgrade_and_fresh_platform_provisioning": "not established by the bounded subsystem suites",
+  "rollout_gate": "fails on six stale candidate pins",
+  "database_evidence_gate": "blocked",
+  "last_observed_live_migration": {
+    "count": 239,
+    "latest": "20261016205533",
+    "name": "admin_provider_credentials"
+  },
+  "forecast_job_last_failure": {
+    "started_utc": "2026-10-18T02:20:00.22274+00:00",
+    "missing_esims_relation": true
+  }
+}

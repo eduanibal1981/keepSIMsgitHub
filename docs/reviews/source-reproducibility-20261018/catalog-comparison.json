@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-18",
+  "function_export_exact_body_matches": 369,
+  "function_export_signatures": 369,
+  "functions_since_october16": {
+    "new": [
+      [
+        "admin_confirm_provider_credential_rotation",
+        "text, integer"
+      ],
+      [
+        "admin_list_provider_credentials",
+        ""
+      ],
+      [
+        "admin_rotate_provider_credential",
+        "text, text, text, integer"
+      ]
+    ],
+    "removed": [],
+    "body_changed": [
+      [
+        "admin_set_vault_secret",
+        "text, text, text"
+      ]
+    ],
+    "acl_changed": [
+      [
+        "admin_set_vault_secret",
+        "text, text, text"
+      ]
+    ]
+  },
+  "constraints": {
+    "previous": 543,
+    "current_public": 546,
+    "exact_definition_matches": 543,
+    "unmatched": []
+  },
+  "triggers": {
+    "previous": 65,
+    "current_public": 65,
+    "exact_definition_matches": 65,
+    "unmatched": []
+  },
+  "policies": {
+    "previous": 137,
+    "current": 137,
+    "exact_using_and_check_matches": 137
+  },
+  "cron": {
+    "previous": 22,
+    "current": 22,
+    "unchanged_schedule_active_command": 22
+  },
+  "non_public_static_references": [
+    "auth.jwt",
+    "auth.role",
+    "auth.uid",
+    "auth.users",
+    "cron.job",
+    "cron.job_run_details",
+    "cron.schedule",
+    "cron.unschedule",
+    "extensions.digest",
+    "extensions.pgp_sym_decrypt",
+    "extensions.pgp_sym_encrypt",
+    "net.http_post",
+    "vault.create_secret",
+    "vault.decrypted_secrets",
+    "vault.secrets",
+    "vault.update_secret"
+  ],
+  "limits": [
+    "Function bodies/signatures are exact matches; owners and full definition parity remain blocked.",
+    "Constraint/trigger comparison uses the same non-pretty PostgreSQL deparse; pretty formatting produced false differences.",
+    "137 policy expressions match; this does not claim that their legacy access is safe.",
+    "Static non-public references omit dynamic SQL and runtime configuration dependencies.",
+    "Current effective table/function/column/default ACLs are evidence, not an approved fresh-install grant script.",
+    "Cron commands are compared by hash; secret-free executable cron templates and complete platform dependencies remain blocked."
+  ]
+}

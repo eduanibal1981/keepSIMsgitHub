@@ -1,0 +1,1141 @@
+{
+  "format": 1,
+  "task": 25,
+  "date": "2026-10-18",
+  "timezone": "Asia/Muscat",
+  "status": "BLOCKED_PREPARATION_ONLY",
+  "project_id": "zwxswagokhgbuzrrbnhr",
+  "project_name_from_prior_evidence": "simSaveDB",
+  "environment": "production candidate; no operations authorized",
+  "endpoint": "https://zwxswagokhgbuzrrbnhr.supabase.co",
+  "runbook": "docs/reviews/coordinated-rollout-runbook-20261018.md",
+  "source_manifest": "deployment/manifest.json",
+  "source_lock": "deployment/source-lock.json",
+  "source_lock_freshness": "DRIFT_OBSERVED; successor freeze required",
+  "authorization": {
+    "record": null,
+    "manifest_sha256_approved": null,
+    "window": null,
+    "executing_operator": null,
+    "recovery_operator": null,
+    "test_account_refs": [],
+    "provider_environment": null,
+    "cumulative_budget_usd": 0,
+    "allowed_operations": [],
+    "expires_at": null
+  },
+  "backup_recovery": {
+    "database_backup_id": null,
+    "pitr_restore_range": null,
+    "isolated_restore_evidence": null,
+    "rpo": null,
+    "rto": null,
+    "previous_runtime_artifacts_evidence": null
+  },
+  "migration_order": [
+    {
+      "file": "20261016210736_privileged_database_access.sql",
+      "sha256": "cb7ea968ef2e6f03f7dddc8a9f3668a1f5481a7146942e24357893612480c858"
+    },
+    {
+      "file": "20261016010000_financial_rpc_containment.sql",
+      "sha256": "9edd31f637c353cf6d42eb2c454bf93047ee3cacdc0497323a31c09cb4fb806e"
+    },
+    {
+      "file": "20261016020000_wallet_funding_integrity.sql",
+      "sha256": "fae5f9ed6e5cb58fece805b62f6569d2034a8075ebbe271fddc382998d3a52f7"
+    },
+    {
+      "file": "20261016025000_instant_refill_submission_boundary.sql",
+      "sha256": "72ba34ef442325c51f0302125ef8a9bbbfc7cd74de06242b91ae08ff4f46db81"
+    },
+    {
+      "file": "20261016030000_compatible_sim_finalization.sql",
+      "sha256": "d8056202d65e71e937464a77b36823485ed6109163f6e4403c78b4279a3f3be0"
+    },
+    {
+      "file": "20261016040000_canonical_paid_pricing.sql",
+      "sha256": "553a13594315f17d400c5c93b807e3b786b91586aa7866b3a27e61bf042f1d1d"
+    },
+    {
+      "file": "20261016045000_canonical_esim_catalogue_prices.sql",
+      "sha256": "6cc81ae890490e56eee686b84021ea4d0462526394864caa14d811e82461bc2e"
+    },
+    {
+      "file": "20261016050000_retail_customer_contracts.sql",
+      "sha256": "9e44d2c2305a6e58b51fe71124c7418dfee7b39855553341bc222a723508d3f3"
+    },
+    {
+      "file": "20261016060000_schedule_wallet_recovery.sql",
+      "sha256": "00208f5513ec04d7bd2fbe1c97e399494f02c41128037bb1d8e884f92b8ea7e0"
+    },
+    {
+      "file": "20261017100000_endpoint_webhook_authentication.sql",
+      "sha256": "5ec42cd3fb3b33d2b5639ace4cf7d601f5f635e4f0b58b3b802517ef398af02b"
+    },
+    {
+      "file": "20261017110000_paypal_capture_fulfillment.sql",
+      "sha256": "b955ef40395b848d9b32b85250ba6108d02c0b9608316e7a7ba86144c494e9a1"
+    },
+    {
+      "file": "20261016235338_sim_setup_instant_settlement.sql",
+      "sha256": "4d3894846b0d650d478c75c8b01e0f17d1ed99651e43b8a2de0128d1bb84393d"
+    },
+    {
+      "file": "20261017164417_scheduled_refill_worker_contracts.sql",
+      "sha256": "be9e5223d86b7d17803b8466b175f7797469f67552e9171722dd3f102ea76bee"
+    },
+    {
+      "file": "20261017190000_supplier_outcome_recovery.sql",
+      "sha256": "46ffe79f94237309d24a2e7922240d0d5006aec4faaea9a7f9df1eea4fcce48c"
+    },
+    {
+      "file": "20261017201740_liveness_verification_contract.sql",
+      "sha256": "e18fa352647af362a42b2572fa757cda92b41e60a0ecffdb4c301774aa627f20"
+    },
+    {
+      "file": "20261017203115_call_budget_contract.sql",
+      "sha256": "b24044d2d9e5ec76956ba744aca3e10ac50d442b83fde6d97b0b1db9939fa1f8"
+    },
+    {
+      "file": "20261017024520_second_number_inbox_and_lifecycle.sql",
+      "sha256": "7a3d87e1002a624a8119fb1e48844344e64390eabe051675bb980fca52654d9c"
+    },
+    {
+      "file": "20261018010000_notification_scheduler_contract.sql",
+      "sha256": "ac48dc60e2f635ba2ba52a17f8aaabaf50a073bc5a3c7c9770db90aadf684a86"
+    },
+    {
+      "file": "20261018020000_usage_forecast_schema_contract.sql",
+      "sha256": "72ab66dfab0abe630a5ffa3342bf4e2502a019e1829ed190305c8c5bbcb50d59"
+    },
+    {
+      "file": "20261018030000_admin_maintenance_deletion_contract.sql",
+      "sha256": "64c06e9ca57f66b89255724f8f2043000d5b974533cf78249a31d7e3f5a22e96"
+    },
+    {
+      "file": "20261018040000_second_number_financial_safety.sql",
+      "sha256": "a798eed50e5871c601e2f6e883395343ce1c93a7731b042323db88227df2d57b"
+    },
+    {
+      "file": "20261018050000_unified_pricing_entitlement.sql",
+      "sha256": "5f41dc7d9c579b9c6bbbda5bcf70a484bfea8ac29724e107cc7a16c8068d2d75"
+    },
+    {
+      "file": "20261018060000_retail_ownership_contract.sql",
+      "sha256": "9e2821d2bd8b1975c3389e3acc33aa2ac0c2188bd5d5867975bbd8737e4d8c67"
+    },
+    {
+      "file": "20261018070000_scheduled_pricing_boundary.sql",
+      "sha256": "0b3e95a3c586e6fdebbdf037def15bc2fc7bc658b3a90bfc17296e6f5387c283"
+    },
+    {
+      "file": "20261018080000_offline_voucher_request_state.sql",
+      "sha256": "6b0cb9904a3f2ed19de0c5503e2640425105236a3aea6fbd40ff764cb1e8f2c2"
+    },
+    {
+      "file": "20261018090000_worker_fleet_monitoring.sql",
+      "sha256": "f76f3092821dffa00593bf527804c1786a4d0e02d2d349adce67da6730e5ea30"
+    }
+  ],
+  "excluded_sql": {
+    "20260825010000_m1_pin_voucher_fallback.sql": "partial review; reconcile current schema, do not replay",
+    "20260827000000_realtime_sim_lines_and_executions.sql": "partial publication review",
+    "20260828000000_sync_providers_comparison_matrices.sql": "data review; no production data rewrite authorized",
+    "20260906125518_harden_scheduled_jobs_health_authorization.sql": "superseded by scoped Task 3 containment",
+    "20260911040000_firsty_recovery_schema.sql": "deferred sandbox feature; do not enable",
+    "20260916080000_fix_forecast_anchor_null_recharge.sql": "superseded by Task 15; invalid legacy method",
+    "20261016205533_admin_provider_credentials.sql": "already recorded live; do not reapply"
+  },
+  "edge_candidates": [
+    "admin-telnyx-billing",
+    "create-paypal-order",
+    "capture-paypal-order",
+    "paypal-webhook",
+    "process-wallet-refund",
+    "process-voicemail",
+    "liveness-verification",
+    "liveness-verification-webhook",
+    "validate-sim-liveness",
+    "get-turn-credentials",
+    "make-call",
+    "telnyx-cdr",
+    "twilio-voice-webhook",
+    "sms-webhook",
+    "waba-webhook",
+    "manage-dids",
+    "second-number-lifecycle",
+    "purge-accounts",
+    "send-admin-email",
+    "health"
+  ],
+  "edge_modes": {
+    "admin-telnyx-billing": true,
+    "create-paypal-order": true,
+    "capture-paypal-order": true,
+    "paypal-webhook": false,
+    "process-wallet-refund": true,
+    "process-voicemail": true,
+    "liveness-verification": true,
+    "liveness-verification-webhook": false,
+    "validate-sim-liveness": null,
+    "get-turn-credentials": null,
+    "make-call": true,
+    "telnyx-cdr": false,
+    "twilio-voice-webhook": false,
+    "sms-webhook": false,
+    "waba-webhook": false,
+    "manage-dids": true,
+    "second-number-lifecycle": true,
+    "purge-accounts": false,
+    "send-admin-email": false,
+    "health": false
+  },
+  "edge_exclusions": [
+    "recovery-service: Firsty deferred; no activation",
+    "all non-selected slugs: retain existing runtime until separately reviewed"
+  ],
+  "worker_target": {
+    "host": "34.40.33.208",
+    "user": "abdal",
+    "directory": "/home/abdal/keepsims_backend/servers/",
+    "delivery": "direct SSH/SCP from ../backend-sync-wt; no Git pull",
+    "local_authority": "../backend-sync-wt",
+    "recorded_head": "c2d84997b691bc9171c327603de5f2e6ddf8e643",
+    "loaded_runtime_evidence": null
+  },
+  "worker_copy_set": [
+    "worker_instant_refill.js",
+    "worker_auto_mini_refill.js",
+    "worker_auto_custom_refill.js",
+    "worker_supplier_reconciliation.js",
+    "supplier_reconciliation.js",
+    "supplier_reconciliation.pm2.config.cjs",
+    "offer_validation.js",
+    "sim_liveness_service.js",
+    "refill_approval_quotes.js",
+    "providers/ding.js",
+    "providers/dtone.js",
+    "providers/esimaccess.js",
+    "providers/firsty.js",
+    "providers/reloadly.js",
+    "providers/zendit.js",
+    "worker_health.js",
+    "worker-fleet.json",
+    "worker-fleet.pm2.config.cjs",
+    "package.json",
+    "package-lock.json",
+    "server_baileys.js",
+    "worker_offers_cache.js",
+    "worker_esim_catalog.js",
+    "worker_esim_fulfillment.js",
+    "server_tg.js"
+  ],
+  "worker_processes_to_replace": [
+    "server_baileys",
+    "worker_instant_refill",
+    "worker_auto_mini_refill",
+    "worker_auto_custom_refill",
+    "worker_offers_cache",
+    "worker-esim-catalog",
+    "worker-esim-fulfillment",
+    "server_tg"
+  ],
+  "new_process_after_rpc_verification": "supplier-reconciliation",
+  "observed_processes_to_preserve_and_verify": [],
+  "unconfirmed_processes": "Task 23 candidate excludes voucher automation and alternate WhatsApp server; sim_liveness_service.js is an imported module. Confirm final manifest before release.",
+  "clients": {
+    "customer": {
+      "directory": "keep_sims",
+      "recorded_head": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+      "dirty_at_source_capture": true,
+      "pubspec_version": "0.1.0+1",
+      "source_lock_reference": "deployment/source-lock.json",
+      "signed_artifact_sha256": null,
+      "distribution_target": null,
+      "minimum_compatible_version": null
+    },
+    "admin": {
+      "directory": "keep_sims_admin",
+      "recorded_head": "93fc37e568ab8f7e13c1d62465703132b342a309",
+      "dirty_at_source_capture": true,
+      "pubspec_version": "1.0.0+1",
+      "source_lock_reference": "deployment/source-lock.json",
+      "signed_artifact_sha256": null,
+      "distribution_target": null,
+      "minimum_compatible_version": null
+    }
+  },
+  "read_only_preflights": [
+    "supabase/verification/coordinated_rollout_preflight.sql",
+    "supabase/verification/financial_remediation_preflight.sql",
+    "docs/reviews/wallet-legacy-reconciliation-20261017.sql",
+    "supabase/verification/call_budget_preflight.sql",
+    "supabase/verification/pricing_entitlement_preflight.sql",
+    "supabase/verification/retail_ownership_preflight.sql",
+    "supabase/verification/scheduled_pricing_preflight.sql",
+    "supabase/verification/offline_voucher_state_preflight.sql"
+  ],
+  "read_only_catalog_checks_zero_violations": [
+    "supabase/tests/admin_maintenance_contract_tests.sql",
+    "supabase/tests/liveness_verification_contract_tests.sql",
+    "supabase/tests/second_number_contract_tests.sql",
+    "supabase/tests/usage_forecast_contract_tests.sql",
+    "supabase/tests/notification_scheduler_contract_tests.sql",
+    "supabase/tests/pricing_entitlement_contract_tests.sql",
+    "supabase/tests/call_budget_contract_tests.sql"
+  ],
+  "prohibited_bulk_execution": [
+    "supabase/migrations",
+    "supabase/migration_archive",
+    "supabase/recovered",
+    "supabase/tests",
+    "supabase/verification"
+  ],
+  "containment_controls": [
+    {
+      "scope": "setup/plan/wallet mutations",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "instant/scheduled refills",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "deposits/captures",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "refund processing",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "eSIM/voucher purchases",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "paid verification",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "outgoing calls",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "DID purchase/renewal",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "money-affecting cron including newly created jobs",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    },
+    {
+      "scope": "purge/email automation",
+      "control": null,
+      "denial_evidence": null,
+      "restore_action": null
+    }
+  ],
+  "reconciliation": {
+    "fresh_snapshot": null,
+    "quiesced_snapshot": null,
+    "disposition_evidence": null,
+    "unexplained_wallet_differences_resolved": false,
+    "legacy_exclusions_proven": false
+  },
+  "observation": {
+    "window": null,
+    "queue_age_limits": null,
+    "approved_quarantine_counts": null,
+    "per_process_cycles_required": 2,
+    "required_cron_run_evidence": null
+  },
+  "blockers": [
+    {
+      "id": "full-baseline",
+      "detail": "No approved complete provisioning baseline: public export/routine evidence and bounded fixtures omit managed Auth/Storage/Vault/net/cron dependency contracts, application-owned cross-schema objects and owner/default-ACL replay."
+    },
+    {
+      "id": "full-upgrade",
+      "detail": "The entire ordered release has not been applied together to the complete current shape. Bounded subsystem tests cannot establish that convergence."
+    },
+    {
+      "id": "remote-history",
+      "detail": "23 original remote-only history rows lack original statements. Capture current contracts separately; never fabricate dates/statements or mark rows reverted because files moved."
+    },
+    {
+      "id": "live-definition-owners",
+      "detail": "Automatic approval review rejected full production SQL-definition/ownership export. Exact public body/signature comparisons are available; full current definitions/owners remain unverified."
+    },
+    {
+      "id": "worker-runtime",
+      "detail": "Fresh VM hashes differ from some repaired local sources. Runtime package/lock sources are recovered exactly, but installed dependency equivalence and a clean installation under the observed Node 22.23.1 runtime still require release verification."
+    },
+    {
+      "id": "config-seeds-cron",
+      "detail": "Required non-secret effective prices, routing/policy/config rows and safe cron templates are not an approved seed set. Hashes and config names do not provision values. Secrets must be provisioned separately."
+    },
+    {
+      "id": "edge-parity",
+      "detail": "Full deployed Edge source parity, explicit gateway settings for every source and exact remote dependency locks remain incomplete; live test-func-check has no versioned entrypoint."
+    },
+    {
+      "id": "release-gate",
+      "detail": "Task 24 pinned toolchain/application/API/provider checks and Task 25 operational approval are still required."
+    },
+    {
+      "id": "source-lock-drift",
+      "detail": "Source lock was refreshed concurrently; candidate/runtime sources continue changing. A reviewed successor freeze, retained dirty-source bundle and reverified candidate are required."
+    },
+    {
+      "id": "task23-fleet",
+      "detail": "Fleet SQL/health endpoint and nine-process instrumentation arrived concurrently. Final review, complete upgrade, installed runtime and operational acceptance remain pending."
+    },
+    {
+      "id": "task24-gate",
+      "detail": "Release-check tooling and app fixes arrived concurrently. Their final report and complete supported-target gate remain pending."
+    },
+    {
+      "id": "operational-authorization",
+      "detail": "No authorization tied to this manifest digest, target, window, operator, exact actions or test accounts/provider budget has been recorded."
+    },
+    {
+      "id": "backups-recovery",
+      "detail": "Backup/PITR identifiers, restore drill, recovery operators and approved recovery objectives are missing."
+    },
+    {
+      "id": "writer-containment",
+      "detail": "No verified global money kill switch; per-entry controls, in-flight drain and exclusion of newly installed cron jobs remain unproven."
+    },
+    {
+      "id": "legacy-reconciliation",
+      "detail": "Historical wallet-vs-signed-ledger difference and all legacy hold/submission/refund/reversal/call dispositions require fresh approved evidence."
+    },
+    {
+      "id": "client-artifacts",
+      "detail": "Customer/admin signed artifacts, target platforms, distribution/minimum-version and cache/offline compatibility are unverified."
+    },
+    {
+      "id": "pilot-acceptance",
+      "detail": "No approved provider account/environment, exposure cap, pilot runtime checks or observation thresholds; allowed spend remains USD 0."
+    },
+    {
+      "id": "base-manifest-freshness",
+      "detail": "Task 22 base manifest drift was observed during concurrent fleet/config edits; checker gate compares it with current generated source intent. Refresh/review that base before a release freeze."
+    }
+  ],
+  "finding_closure": {
+    "base_register": "docs/reviews/audit-baseline-20261016.md",
+    "ids": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12",
+      "F13",
+      "F14",
+      "F15",
+      "F16",
+      "F17",
+      "F18",
+      "F19",
+      "F20",
+      "F21",
+      "F22",
+      "F23",
+      "F24",
+      "F25",
+      "F26",
+      "F27",
+      "F28",
+      "F29",
+      "F30",
+      "F31",
+      "F32",
+      "F33",
+      "F34",
+      "F35",
+      "F36",
+      "F37",
+      "F38",
+      "F39",
+      "F40",
+      "F41",
+      "F42",
+      "F43",
+      "F44",
+      "F45",
+      "F46",
+      "F47",
+      "F48",
+      "F49",
+      "F50",
+      "F51",
+      "F52",
+      "A01",
+      "A02"
+    ],
+    "additional_findings_closed_by_this_task": [],
+    "deployed_versions_and_runtime_evidence": null
+  },
+  "pins": [
+    {
+      "component": "admin",
+      "path": "pubspec.lock",
+      "sha256": "1c365229e9122a8b47c6651fc889e04694b7fdad0767181b2fadb5e78deee17e"
+    },
+    {
+      "component": "admin",
+      "path": "pubspec.yaml",
+      "sha256": "e7f2a8f4b478ab04272421b200c68bcd11b9c42790941db5f70e58ab6460c61f"
+    },
+    {
+      "component": "backend",
+      "path": "offer_validation.js",
+      "sha256": "760f95db1dfb4812b9329920389dae6a636e56c8ec31813aa4ab4851403e521a"
+    },
+    {
+      "component": "backend",
+      "path": "package-lock.json",
+      "sha256": "bb9ed1de003378a4da3c6af8dfb351be500142f48793861e82faad4b7a4449a5"
+    },
+    {
+      "component": "backend",
+      "path": "package.json",
+      "sha256": "806d6362179b4e81adf721a0e061bafa52c51ac714bc25289a040b43c6eabe22"
+    },
+    {
+      "component": "backend",
+      "path": "providers/ding.js",
+      "sha256": "0a315485b53f1e09343cdc71d26f974241959b56583b2c667ceadfa8beedf982"
+    },
+    {
+      "component": "backend",
+      "path": "providers/dtone.js",
+      "sha256": "18a74c97a997e2877a1dff06b8aff35998008f789b21273003d6406a69dfd15c"
+    },
+    {
+      "component": "backend",
+      "path": "providers/esimaccess.js",
+      "sha256": "df1ad8336ec10ea0fd0cc968c3cc8935486de18507bd70dbe6ce75faa543d14a"
+    },
+    {
+      "component": "backend",
+      "path": "providers/firsty.js",
+      "sha256": "67cd285613687b66ccdae8e887ad765eaed14f25ea79437e27ffd2eb8d16e7bb"
+    },
+    {
+      "component": "backend",
+      "path": "providers/reloadly.js",
+      "sha256": "d086196674556128684967d342de44e3a105e5439ae44110b0b9f8d3a7d59134"
+    },
+    {
+      "component": "backend",
+      "path": "providers/zendit.js",
+      "sha256": "5f367c80b728fc41279439de94d3268ae34fbd3c982980c86fe70418c294f59a"
+    },
+    {
+      "component": "backend",
+      "path": "refill_approval_quotes.js",
+      "sha256": "db0621f9d86bc1fcdd864e8f5ffe6891b75adb8cc3e7061fe6a03ba5ec70b5c3"
+    },
+    {
+      "component": "backend",
+      "path": "server_baileys.js",
+      "sha256": "cbd05c62377aa7ff35948527fefec1f0a63f9650fc84621e81f8247216221d94"
+    },
+    {
+      "component": "backend",
+      "path": "server_tg.js",
+      "sha256": "e3b61b224f25ec2ca963eeb8c69920353cdd92e527b187c02f05219b3fb09744"
+    },
+    {
+      "component": "backend",
+      "path": "sim_liveness_service.js",
+      "sha256": "d2fd0e9527739cd2026669dd8cea1270bf2a79ed7f6621896b3415aa87500b23"
+    },
+    {
+      "component": "backend",
+      "path": "supplier_reconciliation.js",
+      "sha256": "47838ff38ae14607e0d3f83fa589e4a9853d8f9d765b4304468bb7896353e92a"
+    },
+    {
+      "component": "backend",
+      "path": "supplier_reconciliation.pm2.config.cjs",
+      "sha256": "5789478ca6666286ab07fabf9b325aba2542ae1538855353b3395a4e0a18ef38"
+    },
+    {
+      "component": "backend",
+      "path": "worker-fleet.json",
+      "sha256": "02bf69bda16f15fbdb4f8e7f6db5aee0e1f78d3fd717349df222a390c93579f3"
+    },
+    {
+      "component": "backend",
+      "path": "worker-fleet.pm2.config.cjs",
+      "sha256": "a766ad77b869d1fbfbe78ec821f79e9df0960fb4d188ac0b29fa57ce2b658019"
+    },
+    {
+      "component": "backend",
+      "path": "worker_auto_custom_refill.js",
+      "sha256": "2b1fa7d472222c01c685288eb133014bec5250240b5244997df2ff0c8d82cef1"
+    },
+    {
+      "component": "backend",
+      "path": "worker_auto_mini_refill.js",
+      "sha256": "a06ba78404b1f49cba0da8b61c36dad24d176d37b81878f125461123f909b0f5"
+    },
+    {
+      "component": "backend",
+      "path": "worker_esim_catalog.js",
+      "sha256": "8f4b86e6bde6be31445ee9b8ae831f61afb77afe817ce34e5cdbf09bd171ad32"
+    },
+    {
+      "component": "backend",
+      "path": "worker_esim_fulfillment.js",
+      "sha256": "217c2c8e224f3169ab556b8737772a1b75b045f9586d5455de4ab8df9f78da66"
+    },
+    {
+      "component": "backend",
+      "path": "worker_health.js",
+      "sha256": "9ce72379800a379ffd458cef476fc83a556c8ccf8cb3649743b4194b2173efb6"
+    },
+    {
+      "component": "backend",
+      "path": "worker_instant_refill.js",
+      "sha256": "0cfeac6fbaba932a1b5bc4687306a76922a455f9b8339b9da3e177415846ddf6"
+    },
+    {
+      "component": "backend",
+      "path": "worker_offers_cache.js",
+      "sha256": "28eb965bb8c51a5746d51b95dc80847b24fa9089c57b5a634de121e2a80525b9"
+    },
+    {
+      "component": "backend",
+      "path": "worker_supplier_reconciliation.js",
+      "sha256": "4276dd224ed3a5e51931c928cfb8ab7df9a5451c091991ceec02f2d48ec6cbb3"
+    },
+    {
+      "component": "customer",
+      "path": "deployment/manifest.json",
+      "sha256": "cd62e32af80e61bcd0d867e2b4876f7dc6d680e2e69b27390745cd29bcd3f293"
+    },
+    {
+      "component": "customer",
+      "path": "deployment/release-toolchains.json",
+      "sha256": "95e698c1b5c85bcdd3d1b0006d1fea70881cfc7cca66d18a131ce43755cbd411"
+    },
+    {
+      "component": "customer",
+      "path": "deployment/source-lock.json",
+      "sha256": "ad7d1a5e98d11ad5d74cd6e951a0b51350c048d3834f89d50072f5954fe464fa"
+    },
+    {
+      "component": "customer",
+      "path": "docs/reviews/coordinated-rollout-runbook-20261018.md",
+      "sha256": "1bf5f0ea3039cd8c1780dccfaf4c19b0298dfefb5dcb0357d4f6910e37c53943"
+    },
+    {
+      "component": "customer",
+      "path": "docs/reviews/wallet-legacy-reconciliation-20261017.sql",
+      "sha256": "243e8248da3638e0a8761b34572a0a4893a4c6840308a353c829dcd59f34d29e"
+    },
+    {
+      "component": "customer",
+      "path": "pubspec.lock",
+      "sha256": "4264b46d44ca01bf619de011342fca59ed1e21efa5e4149cdfd94a20740e2569"
+    },
+    {
+      "component": "customer",
+      "path": "pubspec.yaml",
+      "sha256": "d8cec13314d31bbb57a11d3905340318710149046da2b0243f972cfa7ae3b301"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/config.toml",
+      "sha256": "1ec2a2b8f8dac43bef6e6ae1309e79f588d2687fa55fc311fe93b81d932b5286"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/call-media.ts",
+      "sha256": "571352399a98bd4c18e108f587b545653a084098d5f161c193235645e7dd6102"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/endpoint-auth.ts",
+      "sha256": "8d5b55086227a6922d1cb2c633e87d95c65a96f084ac48f1a12add8e1f0d2f74"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/liveness-callback.ts",
+      "sha256": "ab91e6fcce209e5a3d399e796ca4a8a71fa81e035703b0e1bc96f126bfb97569"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/notification_delivery.ts",
+      "sha256": "62f563a3b35c89038b46901bbc29f914d763e0bbdb51a4d79c916abd8ea9370e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/paypal-capture.ts",
+      "sha256": "be3bf244e1f5da47eaf064b051147c0af2d02fba04ee113a35a013af721bbda4"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/provider-secrets.ts",
+      "sha256": "88824c6570ee7db39be70295ca8f1af29a2bccd7196f55bc3915146eef0c19c9"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/second-number.ts",
+      "sha256": "d427611b976016dc46b14e4f62af744656dc2cf55cbf9b7fbcfa2ac42cf7871a"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/turn-credentials.ts",
+      "sha256": "02dbeed64ab5ee2d9898206b795b00db714aef3f5f9ee4c25bb8187c18a9e63c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/wallet-refunds.ts",
+      "sha256": "7f89a01629c39f26d564e7fad91502f5434e3b97c72d0ec04fae4c8b321bd0d6"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/webhook-auth.ts",
+      "sha256": "ad5df4db00bc606124f66f91a0d3dc1ebcbdc23142a1d330f1039ca1d62ba2d3"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/webhook-events.ts",
+      "sha256": "e61558f9d9f50d39a9514ace671d60d9d6a16968338e21131f3048a0116f1423"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/whatsapp_profile.ts",
+      "sha256": "e9083c31d92ddca55d21ad4b3eb8c4458d47d8d81f9f42d796c7de03f8111b3e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/whatsapp_route.ts",
+      "sha256": "21336baf1dd9ad32833d31b948d617f2f3773ebe470c9e205911183e945514e8"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/_shared/whatsapp_router.ts",
+      "sha256": "ae75e0f73cf4abf1be3e31faa817bafd9549ccb1ddfd6166eb1ce8918c105c09"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/admin-telnyx-billing/index.ts",
+      "sha256": "7f1cbc2105e1d5aea246130edeb8be5f1389e3f358510a485f8fcd42b86cc1eb"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/capture-paypal-order/app_check.ts",
+      "sha256": "7f6180849dce99086a06bd87d2f6e25cb0b1e4595fed1004f8b79a02da035b8c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/capture-paypal-order/deno.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/capture-paypal-order/index.ts",
+      "sha256": "75a2b034cacd59255e1831e479fe2d051b280ff346b5a1b910fec9c48f23902c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/create-paypal-order/app_check.ts",
+      "sha256": "7f6180849dce99086a06bd87d2f6e25cb0b1e4595fed1004f8b79a02da035b8c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/create-paypal-order/deno.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/create-paypal-order/index.ts",
+      "sha256": "b85b15bfa8a146fae9c9e6cad327f3aca56370ec5f7f1e39b920822c64d62c60"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/get-turn-credentials/index.ts",
+      "sha256": "04346581cc2cd12ece090e6b6745e77f606d8034f27aead7abb7214e39026788"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/health/handler.ts",
+      "sha256": "e5f886d9422bf448a2f4b52a4573a810dbc8a95cd4e9a1f846e9809bf5cc5590"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/health/index.ts",
+      "sha256": "6a1c1d7a97ed3e3ea523d375cba533e844fa2f0e514f864787d17571c25a8005"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/liveness-verification-webhook/index.ts",
+      "sha256": "bc67ff81f4eb0024880aa3e1002d31b19fdcce4ed5942b6fa4e0210492b76c9a"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/liveness-verification/index.ts",
+      "sha256": "f5cfef666ad07e3a1e1d43f289b45328030a0cb68e8a77c61fba4338c2f21223"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/make-call/call-media.ts",
+      "sha256": "571352399a98bd4c18e108f587b545653a084098d5f161c193235645e7dd6102"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/make-call/index.ts",
+      "sha256": "9a61b7120e5cc27fd04b896e8869a4787db770fce78d9cdcf535331ed94f5ab7"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/manage-dids/index.ts",
+      "sha256": "b4c18f00f7b1b78536ba2700bc8ede7193c8cdab7b2c9d3a2a2ccf9ac274ed89"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/paypal-webhook/deno.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/paypal-webhook/index.ts",
+      "sha256": "9301b910d469d06eaa102dd521d176ece18a5d1359f5267989303a0a2ef2537e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/process-voicemail/index.ts",
+      "sha256": "6da5a999d0f1ba82e30152d5ac5c478c32280db63aa8cb01a6083e2920b3a272"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/process-wallet-refund/index.ts",
+      "sha256": "8a7c0eeb54b9ce8133d4eac1e469e0e4507b6a18c48687131b2127d42f9ce0d9"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/purge-accounts/deno.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/purge-accounts/index.ts",
+      "sha256": "5548b5c93eb94a5e9ebe5b70b5b4f5b2ae56e862d2530fbfb030b64c1832b650"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/second-number-lifecycle/index.ts",
+      "sha256": "1a1b149dcce232bbc181d2461f0d05cd078e638064f96a8833039eaf7c30f5ef"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/send-admin-email/index.ts",
+      "sha256": "29585ed7ffbc5a1236e653c5cce6f5f3a78e67f60f78f282edea2eca1d7d4483"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/sms-webhook/deno.json",
+      "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/sms-webhook/index.ts",
+      "sha256": "73d0a91283532b05697cc1a031d8b25f0c48a5c6ad713c68299ab5354239f22b"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/telnyx-cdr/call-media.ts",
+      "sha256": "571352399a98bd4c18e108f587b545653a084098d5f161c193235645e7dd6102"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/telnyx-cdr/index.ts",
+      "sha256": "8174cc1282bd88118353216eb9140bbeb41a81fac8a03540e5caefa4c0e15d9e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/telnyx-cdr/media-events.ts",
+      "sha256": "be598e4f2610178852ff87cc942df64843f1e5157669fbc9672ae735e8033501"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/twilio-voice-webhook/index.ts",
+      "sha256": "466baff99b9ef21c439fd50da414640fe9fbfff4d81a5c911b613be0dfaaec53"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/validate-sim-liveness/index.ts",
+      "sha256": "25cf98adf791854e74b14ac1a5924ad9c6dbf11043855b08392f3c5d0b6cdf9b"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/waba-webhook/deno.json",
+      "sha256": "5f1c69e365acfb48147f4f9c2806b4228ba91f920fc7723b25185e275bd29537"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/functions/waba-webhook/index.ts",
+      "sha256": "93024eedb23bf1f024eb871f9f00bdd9b2a0474ae5e3b0f2d63ae746dc9efa65"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016010000_financial_rpc_containment.sql",
+      "sha256": "9edd31f637c353cf6d42eb2c454bf93047ee3cacdc0497323a31c09cb4fb806e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016020000_wallet_funding_integrity.sql",
+      "sha256": "fae5f9ed6e5cb58fece805b62f6569d2034a8075ebbe271fddc382998d3a52f7"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016025000_instant_refill_submission_boundary.sql",
+      "sha256": "72ba34ef442325c51f0302125ef8a9bbbfc7cd74de06242b91ae08ff4f46db81"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016030000_compatible_sim_finalization.sql",
+      "sha256": "d8056202d65e71e937464a77b36823485ed6109163f6e4403c78b4279a3f3be0"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016040000_canonical_paid_pricing.sql",
+      "sha256": "553a13594315f17d400c5c93b807e3b786b91586aa7866b3a27e61bf042f1d1d"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016045000_canonical_esim_catalogue_prices.sql",
+      "sha256": "6cc81ae890490e56eee686b84021ea4d0462526394864caa14d811e82461bc2e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016050000_retail_customer_contracts.sql",
+      "sha256": "9e44d2c2305a6e58b51fe71124c7418dfee7b39855553341bc222a723508d3f3"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016060000_schedule_wallet_recovery.sql",
+      "sha256": "00208f5513ec04d7bd2fbe1c97e399494f02c41128037bb1d8e884f92b8ea7e0"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016210736_privileged_database_access.sql",
+      "sha256": "cb7ea968ef2e6f03f7dddc8a9f3668a1f5481a7146942e24357893612480c858"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261016235338_sim_setup_instant_settlement.sql",
+      "sha256": "4d3894846b0d650d478c75c8b01e0f17d1ed99651e43b8a2de0128d1bb84393d"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017024520_second_number_inbox_and_lifecycle.sql",
+      "sha256": "7a3d87e1002a624a8119fb1e48844344e64390eabe051675bb980fca52654d9c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017100000_endpoint_webhook_authentication.sql",
+      "sha256": "5ec42cd3fb3b33d2b5639ace4cf7d601f5f635e4f0b58b3b802517ef398af02b"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017110000_paypal_capture_fulfillment.sql",
+      "sha256": "b955ef40395b848d9b32b85250ba6108d02c0b9608316e7a7ba86144c494e9a1"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017164417_scheduled_refill_worker_contracts.sql",
+      "sha256": "be9e5223d86b7d17803b8466b175f7797469f67552e9171722dd3f102ea76bee"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017190000_supplier_outcome_recovery.sql",
+      "sha256": "46ffe79f94237309d24a2e7922240d0d5006aec4faaea9a7f9df1eea4fcce48c"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017201740_liveness_verification_contract.sql",
+      "sha256": "e18fa352647af362a42b2572fa757cda92b41e60a0ecffdb4c301774aa627f20"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261017203115_call_budget_contract.sql",
+      "sha256": "b24044d2d9e5ec76956ba744aca3e10ac50d442b83fde6d97b0b1db9939fa1f8"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018010000_notification_scheduler_contract.sql",
+      "sha256": "ac48dc60e2f635ba2ba52a17f8aaabaf50a073bc5a3c7c9770db90aadf684a86"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018020000_usage_forecast_schema_contract.sql",
+      "sha256": "72ab66dfab0abe630a5ffa3342bf4e2502a019e1829ed190305c8c5bbcb50d59"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018030000_admin_maintenance_deletion_contract.sql",
+      "sha256": "64c06e9ca57f66b89255724f8f2043000d5b974533cf78249a31d7e3f5a22e96"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018040000_second_number_financial_safety.sql",
+      "sha256": "a798eed50e5871c601e2f6e883395343ce1c93a7731b042323db88227df2d57b"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018050000_unified_pricing_entitlement.sql",
+      "sha256": "5f41dc7d9c579b9c6bbbda5bcf70a484bfea8ac29724e107cc7a16c8068d2d75"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018060000_retail_ownership_contract.sql",
+      "sha256": "9e2821d2bd8b1975c3389e3acc33aa2ac0c2188bd5d5867975bbd8737e4d8c67"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018070000_scheduled_pricing_boundary.sql",
+      "sha256": "0b3e95a3c586e6fdebbdf037def15bc2fc7bc658b3a90bfc17296e6f5387c283"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018080000_offline_voucher_request_state.sql",
+      "sha256": "6b0cb9904a3f2ed19de0c5503e2640425105236a3aea6fbd40ff764cb1e8f2c2"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/migrations/20261018090000_worker_fleet_monitoring.sql",
+      "sha256": "f76f3092821dffa00593bf527804c1786a4d0e02d2d349adce67da6730e5ea30"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/admin_maintenance_contract_tests.sql",
+      "sha256": "1ae99b8506f149078272901c0d9e18a187f8f214ea35b849524a5509610fd9db"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/call_budget_contract_tests.sql",
+      "sha256": "620186d965500559635a585096e00719b75d1bf2d0c5dd9ba06b4b3370497e75"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/liveness_verification_contract_tests.sql",
+      "sha256": "3caead1dd5e3a40f8c8a0c4340b2aa08ecd1c0b479867743e290ce77acb19fde"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/notification_scheduler_contract_tests.sql",
+      "sha256": "065789846bd85324791278e5c0da899660be501f0bcda36f45a0a9ec0dced0f7"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/pricing_entitlement_contract_tests.sql",
+      "sha256": "fc4937c7690560e6c69c52eb107d5ee8e283a3bc3b428409d3537b5aa20145cc"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/second_number_contract_tests.sql",
+      "sha256": "854de358da59ef2ce9bb3474b5fcdab3892d5f2d2354e93c0b66756870738ab4"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/tests/usage_forecast_contract_tests.sql",
+      "sha256": "599f234ea6a6366b13a526f0f4e95ef10457820e41db049e1ee23267bd3652a0"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/call_budget_preflight.sql",
+      "sha256": "4de76041812de63ec87f2a76c86afe51f1f499aac042d0d2f88c758efa774d35"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/coordinated_rollout_preflight.sql",
+      "sha256": "3cd27841b0c0b30f0f4356bf5c2a7841980bafbc235a452a82e2a7d8bf7d5e8e"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/financial_remediation_preflight.sql",
+      "sha256": "a1c43943a017fc0d73e83208540fe4c70b5ca8c61454a7373e6e8e145d52e216"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/offline_voucher_state_preflight.sql",
+      "sha256": "e98c5ff272d15ccaae73605f1ae443c37a4c00eec4bbe98a38e89c42636834aa"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/pricing_entitlement_preflight.sql",
+      "sha256": "a11e9d4d01ef2fc38f543eebffcb1bb065f072a9ceff4f9ad95396cad88187ec"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/retail_ownership_preflight.sql",
+      "sha256": "b637b9545e0630414267878ddffa1a6f4ef04f79d642120a19c1d47d6bce4422"
+    },
+    {
+      "component": "customer",
+      "path": "supabase/verification/scheduled_pricing_preflight.sql",
+      "sha256": "52d7d358adfe359093f046313ac79f80835714ac1177bc125852484eecfaf1aa"
+    },
+    {
+      "component": "customer",
+      "path": "tools/check_coordinated_rollout.py",
+      "sha256": "e5c06cd3cdeaa87961497b84a95515ed40aed4d47a9479e60752817b8ab71a73"
+    },
+    {
+      "component": "customer",
+      "path": "tools/financial-tests/rollout-preflight.mjs",
+      "sha256": "149faf86b820b7fd8f977d935a5046e30b2d9375ea3fd8718eb62bdeafc337e0"
+    },
+    {
+      "component": "customer",
+      "path": "tools/release_checks.py",
+      "sha256": "a13956c340c8e2c02f3d8a451486a14b902e42ad6658eb9a5c71171da0e1bba5"
+    },
+    {
+      "component": "customer",
+      "path": "tools/test_coordinated_rollout.py",
+      "sha256": "99e6390346bee61d7448714ed6d00c87644429f03b073766bbd3a002d9582da9"
+    }
+  ],
+  "supplemental_migrations_pending_review": [
+    {
+      "file": "20261018090000_worker_fleet_monitoring.sql",
+      "sha256": "f76f3092821dffa00593bf527804c1786a4d0e02d2d349adce67da6730e5ea30"
+    }
+  ],
+  "pending_dependency_review": "Task 23 candidate appended after Task 21; full verification and final source freeze required. Task 22 excludes this file from its original base scope.",
+  "review_envelope": "Outside the three-repository source lock; retained separately beside the source bundle to avoid circular lock/manifest hashes."
+}

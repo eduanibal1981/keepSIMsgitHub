@@ -2,6 +2,7 @@ import { createProductionTables, installProductionFunctions, installProductionSe
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import migrationSource from '../migration-source.cjs';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 export async function exec(db,label,sql) {
@@ -14,7 +15,7 @@ export async function bootstrapProductionBaseline(db) {
   await createProductionTables(db);
   await installProductionFunctions(db);
   await installProductionSecurityAndTriggers(db);
-  await exec(db,'captured media-session dependency',read('supabase/migration_archive/20261016/applied_history/20260917182910_calling_media_sessions.sql').split("-- Ensure 'declined'")[0]);
+  await exec(db,'captured media-session dependency',migrationSource('20260917182910_calling_media_sessions.sql').split("-- Ensure 'declined'")[0]);
   console.log('PASS captured production tables, constraints, functions, grants, policies and financial triggers');
 }
 export function financialMigrationFiles() {

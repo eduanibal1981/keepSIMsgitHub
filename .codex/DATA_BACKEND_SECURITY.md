@@ -1,5 +1,22 @@
 # Data, Backend, and Security
 
+## Required worker fleet monitoring — Task 23, 2026-10-18 (local, undeployed)
+
+`20261018090000_worker_fleet_monitoring.sql` keeps fleet requirements/runtime/probes/cron/observation/incidents private. Telemetry uses explicit service execution plus an in-body service check, exact lane/field validation and instance/sequence fencing. Raw queue queries and snapshots remain private; the public Edge endpoint gets only consistent aggregate status/counts, while detailed component/age/backlog/source versions use service or assert-admin APIs. Worker liveness is read fresh; financial queue aggregates are measured by the existing ten-minute cron checker and cached, with absent/15-minute-old evidence failing closed. Unknown schema/probe/run-history states never become healthy zeroes. A transaction lock and persistent incident key enforce six-hour alert cooldown across concurrency/flapping, without suppressing retries after alert-storage failure. Monitoring never releases/retries financial/provider work or enables dormant services. All 50 isolated SQL/concurrency and 137 focused worker/Edge/admin tests pass; production release and controlled runtime acceptance remain pending. See [Task 23 evidence](../docs/reviews/worker-fleet-monitoring-20261018.md).
+
+## Source reproducibility — Task 22 (2026-10-18, local tools only)
+
+`supabase/recovered/20261018` contains exact deployed legacy SQL/Edge evidence,
+not migrations or an approved fresh baseline. Never replay it over the reviewed
+forward repairs. `deployment/manifest.json` classifies every active SQL file and
+keeps full fresh/upgrade gates blocked; default grants, owners, Auth/Storage/Vault/
+net/cron and required configuration still need complete provisioning proof.
+Three-repository source locks include dirty bytes via a separately retained,
+hash-verified bundle. Only explicitly required historical SQL test dependencies
+are distributed; the complete immutable archive stays preserved locally.
+See `docs/reviews/source-reproducibility-20261018.md` before any baseline/history
+reconciliation. No remote history repair, bulk push or deployment was performed.
+
 ## Schedule mutation boundary — Task 20 (2026-10-18, local/undeployed)
 
 Forward `20261018070000_scheduled_pricing_boundary.sql` revokes schedule table and column mutations and replaces permissive ALL policies with owner/household SELECT RLS. Customer save/control RPCs derive owner, canonical prices, fees, tier, provider, units and engine/version, validate ownership/suspension/paid automation and check the reviewed ceiling. Internal identity/sync helpers are private; the yearly queue is a non-callable tombstone. Worker claims require validated parent/child versions and matching ownership, while NOWAIT control locks avoid worker/control lock-order deadlocks. Legacy configurations pause for review; uncertain financial/provider work remains unclaimed for reconciliation. Setup capture explicitly revalidates old parents and establishes major-currency future airtime targets from the bound provider/SKU; missing target data rolls finalization back. Admin schedule inspection uses a guarded view and immediate polling. Both copied offline queues use reminder allowlists and preserve other-account operations. Fresh live metadata still exposes the old API/grants. All 36 native SQL/concurrency/real local API scenarios, 60 customer, two admin and 62 backend tests pass locally; see [Task 20 review](../docs/reviews/scheduled-pricing-boundary-20261018.md) and the read-only scheduled-pricing preflight. No production repair was applied.

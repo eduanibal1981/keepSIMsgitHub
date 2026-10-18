@@ -213,8 +213,9 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
         gradient: bgGradient,
         boxShadow: [
           BoxShadow(
-            color: (isDefault ? context.primaryColor : Colors.black)
-                .withValues(alpha: isDark ? 0.25 : 0.08),
+            color: (isDefault ? context.primaryColor : Colors.black).withValues(
+              alpha: isDark ? 0.25 : 0.08,
+            ),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -557,7 +558,7 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
               ),
               Switch.adaptive(
                 value: _autoFundEnabled,
-                activeColor: isDark
+                activeThumbColor: isDark
                     ? AppColors.secondary
                     : AppColors.lightSecondary,
                 activeTrackColor:

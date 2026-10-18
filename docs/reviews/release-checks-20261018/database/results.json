@@ -1,0 +1,188 @@
+{
+  "format": 1,
+  "profile": "database",
+  "started_utc": "2026-10-18T19:26:14.092609+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.9.6",
+  "toolchains": {
+    "format": 1,
+    "flutter": "3.47.7",
+    "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5",
+    "node": "26.11.1",
+    "ci_python": "3.12.8",
+    "minimum_python": "3.9",
+    "deno": "2.5.6",
+    "postgrest": "16.4",
+    "database_dependencies": "tools/financial-tests/package-lock.json",
+    "pglite": "0.5.10",
+    "embedded_postgres": "18.4.0-beta.17",
+    "ci_os": "macos-15",
+    "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+  },
+  "checks": [
+    {
+      "name": "sql-fixture",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-fixture.log",
+      "seconds": 1.319,
+      "log_sha256": "431594d82b6040da7e7ae76b36dd4a6e7e33c80a45dcc7217b5144f4fe9b7006"
+    },
+    {
+      "name": "sql-run",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-run.log",
+      "seconds": 2.084,
+      "log_sha256": "47a975dd57911385a6cda9a535cbf61d67e0ae9da2b9202912bd17bdefbc4790"
+    },
+    {
+      "name": "sql-credentials",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-credentials.log",
+      "seconds": 0.948,
+      "log_sha256": "bdd3297c0baebaf94c8e74d6c636e7fb3b738fb01bff772986e02d72c0631b7e"
+    },
+    {
+      "name": "sql-privileges",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-privileges.log",
+      "seconds": 2.124,
+      "log_sha256": "a463b6d219b95a32a09977fd507b9ac8a3e0d4db947a53bf46d01a2432dfc87c"
+    },
+    {
+      "name": "sql-paypal",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-paypal.log",
+      "seconds": 2.138,
+      "log_sha256": "060f7506c0cbd4ff6c7d04155928aadeefe8e2349a61e4609b6a4f7e6b2bcb7f"
+    },
+    {
+      "name": "sql-webhook-auth",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-webhook-auth.log",
+      "seconds": 1.039,
+      "log_sha256": "35292fa14364e05ac0545043a58467128ba9db0fd26c20cfe7dc617860252f9d"
+    },
+    {
+      "name": "sql-concurrency",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-concurrency.log",
+      "seconds": 2.682,
+      "log_sha256": "04b7fbd9227f2bbb837433fe7b443f76c3be007c772c04b88de966366aa2fedd"
+    },
+    {
+      "name": "sql-paypal-concurrency",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-paypal-concurrency.log",
+      "seconds": 1.493,
+      "log_sha256": "88daa15f193fef2d6d5bb0425293591933f23df4a76c4fcf1eab63ef04dd309b"
+    },
+    {
+      "name": "sql-webhook-auth-concurrency",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-webhook-auth-concurrency.log",
+      "seconds": 1.046,
+      "log_sha256": "b127f342bb861eb1d8cb2bf3ae5a809288dcab7f87550a1da965c88f418e4e87"
+    },
+    {
+      "name": "sql-notifications",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-notifications.log",
+      "seconds": 1.295,
+      "log_sha256": "055afb0afa15e46f4075452f21f125e864210727ca85210b96088cbf45cecb4b"
+    },
+    {
+      "name": "sql-forecasts",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-forecasts.log",
+      "seconds": 0.94,
+      "log_sha256": "78872a5ecc20772da45e03a918472ca25bf25226eaa26ddc7fa6fc3041fab168"
+    },
+    {
+      "name": "sql-maintenance",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-maintenance.log",
+      "seconds": 1.138,
+      "log_sha256": "9ee0d2f04dc08874533ec026caee000fde4eb8e6d59a0aa9a7a9dbf0a05e5d0b"
+    },
+    {
+      "name": "sql-second-number",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-second-number.log",
+      "seconds": 2.831,
+      "log_sha256": "f4b3af59527a795760d4903f88e9d4adbba8c43b8a383bf6fd26339a6dd99ed5"
+    },
+    {
+      "name": "sql-pricing",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-pricing.log",
+      "seconds": 3.405,
+      "log_sha256": "fa48b3c766c9af868fbde29347597895d9859713a89b43edf0ba5fe17f5405a9"
+    },
+    {
+      "name": "sql-retail",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-retail.log",
+      "seconds": 2.526,
+      "log_sha256": "24df85c5e347582930156a852de691e2010177c09e8071021cacfc1a4731ea87"
+    },
+    {
+      "name": "sql-schedules",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-schedules.log",
+      "seconds": 3.553,
+      "log_sha256": "82a5e8dd14822e775d7407bc6d30765a540b575975f2fcb0d06c10283a70cb4c"
+    },
+    {
+      "name": "sql-vouchers",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-vouchers.log",
+      "seconds": 2.252,
+      "log_sha256": "d9f683353aa2daccacce7f7b10a528337ab6a960bffc3f6a213f38133044d6de"
+    },
+    {
+      "name": "sql-fleet",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-fleet.log",
+      "seconds": 2.789,
+      "log_sha256": "db0134cf98d450bc52f91afb85518458ae98c3ff43138da275c59d5863297ef1"
+    },
+    {
+      "name": "sql-source-recovery",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-source-recovery.log",
+      "seconds": 3.205,
+      "log_sha256": "c973b657e99796b53391e229351a97564a683b701425d8e5599399bd44c9b054"
+    },
+    {
+      "name": "sql-scheduled-http",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "sql-scheduled-http.log",
+      "seconds": 2.768,
+      "log_sha256": "b6925ffb0c495d4f70c0ea3499b1626680bed968082b52b1cb3179619af64c38"
+    }
+  ],
+  "evidence": "local checks only; no provider sandbox or live smoke certification",
+  "status": "passed",
+  "release_approved": false
+}

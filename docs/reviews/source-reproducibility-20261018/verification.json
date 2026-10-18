@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-18",
+  "status": "LOCAL SOURCE RECONSTRUCTION; COMPLETE DEPLOYMENT REPRODUCIBILITY BLOCKED",
+  "checks": [
+    {
+      "name": "public export/live signatures and exact body hashes",
+      "passed": 369,
+      "failed": 0
+    },
+    {
+      "name": "immutable original archive and explicit retained revision",
+      "passed": 254,
+      "archived": 240,
+      "explicit_pending_revisions": 1
+    },
+    {
+      "name": "Python source-tooling regressions",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "name": "Node archive-loader regressions",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "name": "isolated clean/upgrade recovery scenarios",
+      "passed": 5,
+      "failed": 0,
+      "scope": "bounded production-shaped public fixture; full shape blocked"
+    },
+    {
+      "name": "financial production catalog fidelity and three safeguard blocks",
+      "status": "passed"
+    },
+    {
+      "name": "financial SQL blocks",
+      "passed": 107,
+      "failed": 0,
+      "environment": "PGlite"
+    },
+    {
+      "name": "focused worker boundary/recovery tests in original repositories",
+      "passed": 76,
+      "failed": 0
+    },
+    {
+      "name": "backend test-directory suite in restored three-repository snapshot",
+      "passed": 137,
+      "failed": 0
+    },
+    {
+      "name": "full historical archive source bundle",
+      "status": "blocked before writing",
+      "reason": "pre-existing credential-shaped literal in immutable historical source"
+    },
+    {
+      "name": "scoped source bundle round trip",
+      "status": "passed",
+      "scope": "deployment/test files and six required historical dependencies"
+    },
+    {
+      "name": "complete fresh provisioning and complete current-shape coordinated upgrade",
+      "status": "BLOCKED"
+    },
+    {
+      "name": "production deployment/history/provider/account/balance writes",
+      "status": "not performed"
+    },
+    {
+      "name": "Flutter version query",
+      "status": "blocked",
+      "reason": "SDK cache write outside workspace permissions; no app build/test claim"
+    },
+    {
+      "name": "changed Second Number historical source resolver",
+      "passed": 17,
+      "failed": 0,
+      "environment": "PGlite"
+    },
+    {
+      "name": "fresh VM metadata",
+      "status": "read-only verified",
+      "processes": 8,
+      "source_hashes": 24,
+      "dependency_files_recovered": 2,
+      "installed_module_equivalence": "unverified"
+    },
+    {
+      "name": "final customer embedded-source scan",
+      "status": "passed active source gate",
+      "active_findings": 0,
+      "historical_inventory_findings": 1,
+      "history_scan": "not performed",
+      "credential_revocation": "not performed"
+    },
+    {
+      "name": "later frozen snapshot including concurrent worker-health work",
+      "passed": 147,
+      "failed": 1,
+      "total": 148,
+      "failing_test": "test/worker_health_test.js \u2014 out of order/fenced responses do not trigger worker purchase retries",
+      "observed": "sequence 6 versus expected 7",
+      "status": "BLOCKING; no suppression or assertion change"
+    },
+    {
+      "name": "final working-tree manifest check",
+      "status": "drift detected after concurrent source changes",
+      "frozen_snapshot_manifest": "passed exact regeneration check",
+      "release_implication": "BLOCKING: capture and verify a new source set after concurrent work settles"
+    }
+  ],
+  "toolchains_observed": {
+    "node": "26.11.1",
+    "python": "3.9.6",
+    "PGlite": "0.5.10",
+    "live_postgres": "17.6",
+    "backend_runtime_from_20261016_evidence": "22.23.1"
+  },
+  "release_toolchain_qualification": "BLOCKED: recorded tool versions are evidence, not qualification of all release targets",
+  "snapshot": {
+    "bundle": "/private/tmp/keepsims-task22-source-verified.tar",
+    "sha256": "b259a2f8f3df43e675409a7a0aebd60f96fe92a321b1d497f821ae6b4bfc6b17",
+    "checkout": "/private/tmp/keepsims-task22-checkout-verified",
+    "source_tooling_tests_passed": 12,
+    "node_resolver_tests_passed": 2,
+    "source_recovery_scenarios_passed": 5,
+    "deployment_manifest_reproduced": true,
+    "current_tree": "concurrently changing; source-lock identifies the frozen bundle, not later edits"
+  }
+}

@@ -73,7 +73,7 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
                     return _buildDangerZone(context, isDark);
                   },
                   loading: () => _buildDangerZone(context, isDark),
-                  error: (_, __) => _buildDangerZone(context, isDark),
+                  error: (_, _) => _buildDangerZone(context, isDark),
                 ),
               ],
             ),

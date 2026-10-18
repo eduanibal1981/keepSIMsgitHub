@@ -1,0 +1,55 @@
+{
+  "note": "Source observations, not a live exploit/provider test. No source credential values retained.",
+  "probes": [
+    {
+      "slug": "capture-paypal-order",
+      "version": 5,
+      "bundle_sha256": "e23ce9e144b6978efdc38d17f6329fbe56c1214762f9341ee01d721aa383d8ca",
+      "has_capture_id_order_id_fallback": true,
+      "has_signature_reference": false,
+      "has_header_presence_guard": true,
+      "references_supplied_user_id": true,
+      "references_legacy_esim_heartbeat": false
+    },
+    {
+      "slug": "paypal-webhook",
+      "version": 11,
+      "bundle_sha256": "70836d20fe8ef9150be330d1241a667dab728f172b652f9f1595001cc436b4ae",
+      "has_capture_id_order_id_fallback": false,
+      "has_signature_reference": true,
+      "has_header_presence_guard": false,
+      "references_supplied_user_id": true,
+      "references_legacy_esim_heartbeat": false
+    },
+    {
+      "slug": "liveness-verification-webhook",
+      "version": 6,
+      "bundle_sha256": "ada0feeace5a06ff77463de72e855a81c841268db62f37369b4e7e865b988907",
+      "has_capture_id_order_id_fallback": false,
+      "has_signature_reference": false,
+      "has_header_presence_guard": false,
+      "references_supplied_user_id": false,
+      "references_legacy_esim_heartbeat": false
+    },
+    {
+      "slug": "process-voicemail",
+      "version": 2,
+      "bundle_sha256": "a837ec6e961e1b4b742f0ee42a47d345f0261312b03d2584c31bab2abe0ec0d5",
+      "has_capture_id_order_id_fallback": false,
+      "has_signature_reference": false,
+      "has_header_presence_guard": true,
+      "references_supplied_user_id": true,
+      "references_legacy_esim_heartbeat": false
+    },
+    {
+      "slug": "health",
+      "version": 3,
+      "bundle_sha256": "72a9ebe1f467283b398fea31bde02b13e88606ce94c1dcc32478810cf41e27a7",
+      "has_capture_id_order_id_fallback": false,
+      "has_signature_reference": false,
+      "has_header_presence_guard": false,
+      "references_supplied_user_id": false,
+      "references_legacy_esim_heartbeat": true
+    }
+  ]
+}

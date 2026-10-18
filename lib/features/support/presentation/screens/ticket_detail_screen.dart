@@ -143,7 +143,7 @@ class _TicketDetailScreenState extends ConsumerState<TicketDetailScreen> {
               );
             },
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
         ],
       ),

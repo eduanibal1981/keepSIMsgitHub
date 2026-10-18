@@ -114,22 +114,6 @@ class DashboardController extends _$DashboardController {
     }
   }
 
-  DashboardState _loadingState() {
-    return const DashboardState(
-      totalLines: 0,
-      walletBalance: 0.0,
-      nextTopUpDays: 0,
-      nextTopUpTotalDays: 30,
-      overallHealthScore: 100,
-      recentActivities: [],
-      nextTopUpId: null,
-      nextTopUpPhone: null,
-      nextTopUpNickname: null,
-      nextTopUpDate: null,
-      nextTopUpStatus: null,
-    );
-  }
-
   /// Aggregates real wallet and sim line state values.
   DashboardState _fetchDashboardData(
     WalletState walletState,

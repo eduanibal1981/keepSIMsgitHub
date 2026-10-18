@@ -49,7 +49,7 @@ void main() {
     });
 
     test('identifies FunctionException with jwt in reasonPhrase', () {
-      final ex = FunctionException(
+      const ex = FunctionException(
         status: 401,
         reasonPhrase: 'JWT expired or invalid',
       );

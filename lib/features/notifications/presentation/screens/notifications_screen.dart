@@ -101,6 +101,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             tooltip: 'Alert Preferences',
             onPressed: () async {
               await HapticHelper.lightTick();
+              if (!context.mounted) return;
               context.push('/notifications/settings');
             },
           ),
@@ -212,6 +213,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                 TextButton.icon(
                   onPressed: () async {
                     await HapticHelper.mediumImpact();
+                    if (!context.mounted) return;
                     _confirmClearAll(context);
                   },
                   icon: const Icon(Icons.delete_sweep_outlined, size: 18),
@@ -545,7 +547,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             ),
             onPressed: () async {
               await HapticHelper.lightTick();
-              Navigator.pop(ctx);
+              if (ctx.mounted) Navigator.pop(ctx);
             },
           ),
           ElevatedButton(
@@ -561,7 +563,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
             onPressed: () async {
               await HapticHelper.mediumImpact();
               ref.read(notificationsControllerProvider.notifier).clearAll();
-              Navigator.pop(ctx);
+              if (ctx.mounted) Navigator.pop(ctx);
               await HapticHelper.successFeedback();
             },
           ),

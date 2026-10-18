@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/testing.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +21,40 @@ import 'package:keep_sims/features/wallet/model/wallet_model.dart';
 import 'package:keep_sims/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await Supabase.initialize(
+      url: 'https://notification-fixture.invalid',
+      publishableKey: 'test-publishable-key',
+      authOptions: const FlutterAuthClientOptions(
+        autoRefreshToken: false,
+        detectSessionInUri: false,
+        localStorage: EmptyLocalStorage(),
+      ),
+      httpClient: MockClient((request) async {
+        if (request.url.path !=
+            '/functions/v1/notification-email-verification') {
+          return http.Response(
+            '[]',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        expect(jsonDecode(request.body), {'action': 'status'});
+        return http.Response(
+          jsonEncode({
+            'account_email': 'account@example.invalid',
+            'account_email_verified': true,
+            'current_email': 'account@example.invalid',
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
+  });
+  tearDownAll(() => Supabase.instance.dispose());
   const paidLine = SimLine(
     id: 'line-paid-1',
     userId: 'user-1',
@@ -127,12 +166,12 @@ void main() {
 
       // 1. Push Notifications should be ACTIVE
       expect(find.text('Push Notifications'), findsOneWidget);
-      expect(find.text('ACTIVE'), findsOneWidget);
+      expect(find.text('ACTIVE'), findsNWidgets(2));
 
-      // 2. Email Alerts has empty email -> NOT SET
+      // 2. Email readiness uses the shared alert-preference contract
       expect(find.text('Email Alerts'), findsOneWidget);
-      expect(find.text('NOT SET'), findsOneWidget);
-      expect(find.text('No email configured · Tap to setup'), findsOneWidget);
+      expect(find.text('NOT SET'), findsNothing);
+      expect(find.text('Managed in Alert preferences'), findsOneWidget);
 
       // 3. WhatsApp Alerts is globally disabled -> PAUSED
       expect(find.text('WhatsApp Alerts'), findsOneWidget);
@@ -151,9 +190,17 @@ void main() {
       // Open the same editor directly, keeping Auto-Notify underneath.
       await tester.tap(find.text('Email Alerts'));
       await tester.pumpAndSettle();
+      // No authenticated session: let the bounded status lookup settle before
+      // closing its editor, and verify that confirmation remains required.
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
       expect(find.text('Email alerts'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Save Settings'), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'account@example.invalid',
+      );
+      expect(find.text('Confirm account email'), findsOneWidget);
       expect(find.byType(ScheduledTopupSheet), findsOneWidget);
       await tester.tap(find.byTooltip('Close').last);
       await tester.pumpAndSettle();
@@ -222,7 +269,8 @@ void main() {
 
 class _MockAuthController extends AuthController {
   @override
-  FutureOr<UserProfile?> build() => null;
+  FutureOr<UserProfile?> build() =>
+      const UserProfile(id: 'user-1', email: 'account@example.invalid');
 }
 
 class _MockAlarmController extends DeviceAlarmController {

@@ -1,0 +1,9 @@
+{
+  "source_file": "test/fixtures/offline_voucher_state_payloads.json",
+  "expected_sha256": "21078d07da149eff722433aa7ea957d0e68d7a81296dabc5502999eda04815a1",
+  "after_database_suite_sha256": "19570709aec923d83369d6aaeecd5463bd9777db5fbfb3bf62f5ab2498397b91",
+  "changed_fields": [
+    "revealed.lines[0].grant.id"
+  ],
+  "original_restored": true
+}

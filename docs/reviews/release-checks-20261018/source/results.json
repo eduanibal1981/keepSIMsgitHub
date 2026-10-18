@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "profile": "source",
+  "started_utc": "2026-10-18T19:33:17.404917+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.9.6",
+  "toolchains": {
+    "format": 1,
+    "flutter": "3.47.7",
+    "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5",
+    "node": "26.11.1",
+    "ci_python": "3.12.8",
+    "minimum_python": "3.9",
+    "deno": "2.5.6",
+    "postgrest": "16.4",
+    "database_dependencies": "tools/financial-tests/package-lock.json",
+    "pglite": "0.5.10",
+    "embedded_postgres": "18.4.0-beta.17",
+    "ci_os": "macos-15",
+    "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+  },
+  "checks": [
+    {
+      "name": "archive",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "archive.log",
+      "seconds": 0.077,
+      "log_sha256": "c0617256342891433da102466ee251d82997f0e83536f6acfe6f995b1e3498b7"
+    },
+    {
+      "name": "source-tool-tests",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "source-tool-tests.log",
+      "seconds": 1.265,
+      "log_sha256": "dee42816db759a697968427efc3b24ed59f9b93ced4838130b4b625668c15f3d"
+    },
+    {
+      "name": "migration-edge-manifest",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "migration-edge-manifest.log",
+      "seconds": 0.078,
+      "log_sha256": "31700490224c475dba35994afa9b38fd4be064e74c35566954f8fecbbeee1f73"
+    },
+    {
+      "name": "source-bytes",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "source-bytes.log",
+      "seconds": 0.241,
+      "log_sha256": "1ed383e00526cadbce7149fbd3d9352d73469301c389280dcab20d33c2446ea7"
+    },
+    {
+      "name": "secrets",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "secrets.log",
+      "seconds": 7.044,
+      "log_sha256": "9a88550e59f31cae70f122635e9688c75792e5b25acc0e8fb2d944d433f98c7e"
+    }
+  ],
+  "evidence": "local checks only; no provider sandbox or live smoke certification",
+  "source_lock_sha256": "b2642c309f675e12ce911dcfa349290a383028af10ad98bcee6e42491ea3cc7c",
+  "repository_heads": {
+    "customer": "a7f9b191aa8b6f626b09eac72475ed6250a6721b",
+    "admin": "93fc37e568ab8f7e13c1d62465703132b342a309",
+    "backend": "c2d84997b691bc9171c327603de5f2e6ddf8e643"
+  },
+  "status": "passed",
+  "release_approved": false
+}

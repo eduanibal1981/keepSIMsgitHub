@@ -1,5 +1,15 @@
 # Isolated financial regression tests
 
+Task 22 adds `npm run test:source-recovery --prefix tools/financial-tests`.
+It verifies 17 recovered signatures/bodies and their captured API ACLs on clean
+and existing-identity/wallet **bounded** fixtures, then applies the real financial
+forward repairs and checks retirement of obsolete overloads. Five scenarios pass;
+this is not a complete Supabase reset/upgrade. `SOURCE_RECOVERY_REPORT` saves its
+structured evidence. Historical SQL dependencies now use the archive resolver.
+For three-repository source packaging/checkouts and the explicitly blocked full
+baseline/history/deployment gate, see
+[Task 22](../../docs/reviews/source-reproducibility-20261018.md).
+
 From the repository root:
 
 ```sh
@@ -284,3 +294,31 @@ data-free extension with `capture-schedule-fixture.py <schema-export.sql>`;
 function bodies must match the independent catalogue. Health/notification/risk
 adapters and external provider behavior remain fixture limits. See
 [Task 20 evidence and coordinated release](../../docs/reviews/scheduled-pricing-boundary-20261018.md).
+
+Task 21 adds `test:vouchers` (`vouchers.mjs`), an isolated PGlite suite using the
+captured production financial baseline plus `offline_voucher_baseline.sql`.
+Regenerate the data-free extension with
+`capture-voucher-fixture.py <schema-export.sql>`; both original RPC bodies must
+match the independent catalogue hashes. It reproduces the old open-request bug,
+applies the targeted repair, and checks every lifecycle state, role/ownership
+boundaries, secret-free projection and existing admin filters. Successful SQL
+runs regenerate `test/fixtures/offline_voucher_state_payloads.json`, consumed by
+customer cache/model/widget tests. Set `PGLITE_MODULE_PATH` for an existing pinned
+dependency cache and `FINANCIAL_TEST_REPORT` to save results. No network, real
+stock, voucher mutations, provider purchase or recovery endpoints are exercised.
+See [Task 21 evidence](../../docs/reviews/offline-voucher-state-repair-20261018.md).
+
+Task 23 adds `test:fleet` (`fleet.mjs`). It reconstructs the financial baseline,
+pricing/voucher table contracts and the captured fleet extension, applies the
+actual monitoring migration, and exercises every required worker's stopped and
+stalled states plus queue/claim/reconciliation failures, grants, role denials,
+secret-free projection, probe-cache freshness, alert retry/deduplication and the
+real Node reporter-to-SQL contract. Set `FLEET_NATIVE=1` and
+`EMBEDDED_POSTGRES_MODULE_PATH` for isolated native PostgreSQL (port 56560,
+override `FLEET_TEST_PORT`); native mode also tests independent concurrent alert
+sweeps. PGlite uses `PGLITE_MODULE_PATH`. `FLEET_TEST_REPORT` records outcomes.
+Regenerate the extra table fixture with `capture-fleet-fixture.py <schema.sql>`.
+The fixture's cron relations are adapters with real `job`/`job_run_details`
+column names, not an installed scheduler. No live service is stopped or started,
+and no payment, provider or messaging API is called. See
+[Task 23 verification](../../docs/reviews/worker-fleet-monitoring-20261018.md).

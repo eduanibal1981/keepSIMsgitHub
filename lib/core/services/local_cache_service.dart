@@ -40,7 +40,7 @@ class LocalCacheService {
     if (prefs == null) return false;
     try {
       final encodedValue = jsonEncode(json);
-      return prefs.setString(key, encodedValue);
+      return await prefs.setString(key, encodedValue);
     } catch (_) {
       return false;
     }

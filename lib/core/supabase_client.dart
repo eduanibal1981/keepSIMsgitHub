@@ -30,7 +30,7 @@ const supabasePublishableKey = String.fromEnvironment(
 Future<void> initSupabase() async {
   await Supabase.initialize(
     url: supabaseProjectUrl,
-    anonKey: supabasePublishableKey,
+    publishableKey: supabasePublishableKey,
     authOptions: const FlutterAuthClientOptions(
       authFlowType: AuthFlowType.pkce,
     ),

@@ -1,0 +1,50 @@
+name: Exact release workspace
+# The calling job has already checked out the customer at keep_sims/.
+description: Check out the two companion repositories at the recorded source revisions
+inputs:
+  token:
+    required: true
+    description: Read-only checkout token with access to all three repositories
+outputs:
+  flutter:
+    value: ${{ steps.pins.outputs.flutter }}
+  node:
+    value: ${{ steps.pins.outputs.node }}
+  python:
+    value: ${{ steps.pins.outputs.python }}
+  deno:
+    value: ${{ steps.pins.outputs.deno }}
+runs:
+  using: composite
+  steps:
+    - id: pins
+      shell: bash
+      run: |
+        python3 - <<'PY'
+        import json, os, re
+        from pathlib import Path
+        lock=json.loads(Path('keep_sims/deployment/source-lock.json').read_text())
+        pins=json.loads(Path('keep_sims/deployment/release-toolchains.json').read_text())
+        with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+            for name in ('admin','backend'):
+                sha=lock['repositories'][name]['head']
+                if not re.fullmatch('[0-9a-f]{40}',sha): raise SystemExit('Invalid companion revision')
+                print(name+'='+sha,file=out)
+            for name in ('flutter','node','deno'):
+                print(name+'='+pins[name],file=out)
+            print('python='+pins['ci_python'],file=out)
+        PY
+    - uses: actions/checkout@v4
+      with:
+        repository: eduanibal1981/keepsims_admin
+        ref: ${{ steps.pins.outputs.admin }}
+        path: keep_sims_admin
+        token: ${{ inputs.token }}
+        persist-credentials: false
+    - uses: actions/checkout@v4
+      with:
+        repository: eduanibal1981/keepsims-backend
+        ref: ${{ steps.pins.outputs.backend }}
+        path: backend-sync-wt
+        token: ${{ inputs.token }}
+        persist-credentials: false

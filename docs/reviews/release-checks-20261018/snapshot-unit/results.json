@@ -1,0 +1,266 @@
+{
+  "format": 1,
+  "profile": "unit",
+  "started_utc": "2026-10-18T19:30:51.817084+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.9.6",
+  "toolchains": {
+    "format": 1,
+    "flutter": "3.47.7",
+    "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5",
+    "node": "26.11.1",
+    "ci_python": "3.12.8",
+    "minimum_python": "3.9",
+    "deno": "2.5.6",
+    "postgrest": "16.4",
+    "database_dependencies": "tools/financial-tests/package-lock.json",
+    "pglite": "0.5.10",
+    "embedded_postgres": "18.4.0-beta.17",
+    "ci_os": "macos-15",
+    "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+  },
+  "checks": [
+    {
+      "name": "edge-contracts",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "edge-contracts.log",
+      "seconds": 18.07,
+      "log_sha256": "0fd601859b0a5f6b619ef17f460f4df3b623276f31f18b08aa241de44c8f7347"
+    },
+    {
+      "name": "worker-contracts",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "worker-contracts.log",
+      "seconds": 0.46,
+      "log_sha256": "53a0303df3061450b8823cd369ce4c628aa8b1696c8417675683870c0ce89e2a"
+    },
+    {
+      "name": "syntax-durable_whatsapp_queue.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-durable_whatsapp_queue.js.log",
+      "seconds": 0.132,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-durable_whatsapp_receipts.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-durable_whatsapp_receipts.js.log",
+      "seconds": 0.124,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-offer_validation.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-offer_validation.js.log",
+      "seconds": 0.125,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-offer_validation.test.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-offer_validation.test.js.log",
+      "seconds": 0.13,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-refill_approval_quotes.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-refill_approval_quotes.js.log",
+      "seconds": 0.128,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-server_baileys.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-server_baileys.js.log",
+      "seconds": 0.132,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-server_tg.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-server_tg.js.log",
+      "seconds": 0.131,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-server_ww.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-server_ww.js.log",
+      "seconds": 0.125,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-sim_liveness_service.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-sim_liveness_service.js.log",
+      "seconds": 0.126,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-supplier_reconciliation.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-supplier_reconciliation.js.log",
+      "seconds": 0.126,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-voucher_pin_test.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-voucher_pin_test.js.log",
+      "seconds": 0.126,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-whatsapp_inbound_commands.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-whatsapp_inbound_commands.js.log",
+      "seconds": 0.133,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_auto_custom_refill.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_auto_custom_refill.js.log",
+      "seconds": 0.133,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_auto_mini_refill.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_auto_mini_refill.js.log",
+      "seconds": 0.132,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_esim_catalog.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_esim_catalog.js.log",
+      "seconds": 0.127,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_esim_fulfillment.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_esim_fulfillment.js.log",
+      "seconds": 0.124,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_health.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_health.js.log",
+      "seconds": 0.13,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_instant_refill.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_instant_refill.js.log",
+      "seconds": 0.124,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_offers_cache.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_offers_cache.js.log",
+      "seconds": 0.129,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_supplier_reconciliation.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_supplier_reconciliation.js.log",
+      "seconds": 0.133,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-worker_voucher_stock.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-worker_voucher_stock.js.log",
+      "seconds": 0.126,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-ding.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-ding.js.log",
+      "seconds": 0.127,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-dtone.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-dtone.js.log",
+      "seconds": 0.124,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-esimaccess.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-esimaccess.js.log",
+      "seconds": 0.119,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-firsty.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-firsty.js.log",
+      "seconds": 0.125,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-reloadly.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-reloadly.js.log",
+      "seconds": 0.132,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "syntax-providers-zendit.js",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "syntax-providers-zendit.js.log",
+      "seconds": 0.13,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "evidence": "local checks only; no provider sandbox or live smoke certification",
+  "source_lock_sha256": "168b26280add7b81f4eeb3737cf10eb8709393205daf0463271789b24619fbe7",
+  "repository_heads": {
+    "customer": null,
+    "admin": null,
+    "backend": null
+  },
+  "status": "passed",
+  "release_approved": false
+}

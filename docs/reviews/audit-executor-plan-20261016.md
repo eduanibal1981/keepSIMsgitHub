@@ -372,6 +372,8 @@ Repair offline_voucher_state to use actual offline_voucher_requests lifecycle va
 Done when all request states have focused SQL/client coverage and the customer sees the correct active request. Do not activate unverified recovery endpoints, seed fake production stock, or expand the offline feature as part of this repair.
 ```
 
+Task 21 local completion record (2026-10-18): [offline-voucher state repair](offline-voucher-state-repair-20261018.md). The state RPC now joins the actual `open` lifecycle; fulfilled, cancelled and absent requests project no active promise. Request/grant owner checks and secret-free fields are preserved. All 18 isolated SQL and 41 offline-recharge Flutter tests pass, including SQL-response-driven widget deadlines and guarded admin filters. No deployment, feature activation, production stock or recovery endpoint changes occurred; fresh live verification remains pending.
+
 ### 22. Make migrations and deployment sources reproducible
 
 **Priority:** Required before claiming a repeatable release. Depends on Task 1; incorporate final contracts from earlier tasks.
@@ -383,6 +385,8 @@ Respect the archive manifest: active migrations are a review queue, not a reset 
 
 Done when required functions and dependencies are reproducible without resurrecting unsafe definitions, deployment manifests name source versions/configuration, and both fresh and upgrade verification pass or remaining gaps are explicitly blocking.
 ```
+
+Task 22 source reconstruction record (2026-10-18): [database/deployment reproducibility](source-reproducibility-20261018.md). Seventeen missing signatures and active email v2 are recovered as evidence; fresh catalog hashes match all 369 public export routines. Archive provenance, explicit candidate manifests and three-repository source checkout/test tooling are implemented locally. Full clean provisioning and complete current-shape upgrade remain explicitly BLOCKED on platform/non-public/owner/configuration/history/Edge/worker-runtime evidence. Scoped local tests pass; no deployment or history repair occurred. Task 23 may use the candidate inventory, while full release prerequisites remain unmet.
 
 ### 23. Monitor the full required worker fleet
 
@@ -396,6 +400,8 @@ Add per-worker heartbeats and meaningful health for queue age/backlog, stale cla
 Done when stopping/stalling each required process is detected, reconciler backlogs are visible, alerts are bounded/deduplicated, and the health endpoint distinguishes partial failure from a healthy fleet. Test with local/isolated adapters before any authorized VM exercise.
 ```
 
+Task 23 local completion record (2026-10-18): [required fleet and reconciliation monitoring](worker-fleet-monitoring-20261018.md). Fresh sanitized PM2 inventory confirms eight active services; the manifest also requires the pending supplier reconciler and excludes dormant voucher/alternative messaging scripts. Per-process and work-lane telemetry, 24 aggregate queue/reconciliation probes, 23 cron requirements, cached queue freshness, bounded incident alerts, full-fleet public health and guarded admin detail are implemented locally. All 50 isolated native SQL/concurrency, 125 focused backend, 10 health-handler and two admin tests pass. Focused analysis/syntax checks pass. No production deployment, process stop/restart, provider action or controlled live failure exercise occurred; coordinated release and runtime acceptance remain required.
+
 ### 24. Establish a clean release gate
 
 **Priority:** Release blocker. Depends on the relevant completed repairs.
@@ -408,9 +414,23 @@ Fix remaining failures according to approved contracts rather than deleting asse
 Done when the supported release targets build and the required gates pass with no unexplained failure suppression. Clearly separate mocked, isolated database, real API, provider sandbox and live smoke evidence; none substitutes for another.
 ```
 
+Task 24 local verification record (2026-10-18): [test repairs and release checks](release-checks-20261018.md). All 893 customer, 32 admin, 232 Edge and 206 authoritative worker tests pass, alongside all 20 isolated database suites. A pinned release runner and CI now require strict analysis, source/security consistency, native concurrency, real local API calls, runtime checks and builds. Customer iOS compilation and admin macOS/web builds pass. **Clean-gate acceptance remains OPEN:** 33 customer analysis advisories, 196 admin diagnostics (including 53 previously excluded copied-source errors), absent Android signing, Edge dependency/runtime and hosted-CI/platform/deployment evidence still block release. No rollout or provider action occurred; Task 25 activation prerequisites are unsatisfied.
+
 ### 25. Prepare and perform a coordinated rollout when authorized
 
 **Priority:** Final closure, not permission implied by this review. Requires preceding applicable gates.
+
+Task 25 preparation record (2026-10-18):
+[coordinated rollout runbook](coordinated-rollout-runbook-20261018.md) and
+[blocked operational manifest](coordinated-rollout-manifest-20261018.json)
+pin the SQL/Edge/worker/client inputs, explicitly include the concurrent Task 23
+dependency, and specify containment, read-only reconciliation, deployment order,
+runtime acceptance and forward recovery. Six local artifact-safety tests and four
+isolated old/repaired-schema preflight scenarios pass. Source drift, final
+Tasks 22–24 evidence, backups, legacy reconciliation and scoped operational
+authorization remain blockers. No rollout, restart, provider spend or production
+finding closure was performed. See
+[actual verification results](coordinated-rollout-results-20261018.json).
 
 ```text
 Prepare a concrete release manifest and runbook for the reviewed patches. Identify the exact target environment, backups/recovery evidence, allowed test accounts/provider budget, temporary money-processing restrictions, migration order, Edge/worker/client versions, API cache handling, observability checks and compatible rollback/forward-fix procedure. Use the existing October 16 rollout review as the starting point, updated for all new changes.

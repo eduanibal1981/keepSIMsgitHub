@@ -1473,19 +1473,22 @@ class _SimLineFormScreenState extends ConsumerState<SimLineFormScreen> {
                         ),
                       )
                     else
-                      Radio<String>(
-                        value: tier['key']!,
+                      RadioGroup<String>(
                         groupValue: _selectedTier,
-                        activeColor: isDark
-                            ? AppColors.primaryLight
-                            : AppColors.lightPrimary,
-                        onChanged: isDisabled || _isCheckingLiveness
-                            ? null
-                            : (val) {
-                                if (val != null) {
-                                  _onTierSelected(val);
-                                }
-                              },
+                        onChanged: (value) {
+                          if (value != null &&
+                              !isDisabled &&
+                              !_isCheckingLiveness) {
+                            _onTierSelected(value);
+                          }
+                        },
+                        child: Radio<String>(
+                          value: tier['key']!,
+                          enabled: !isDisabled && !_isCheckingLiveness,
+                          activeColor: isDark
+                              ? AppColors.primaryLight
+                              : AppColors.lightPrimary,
+                        ),
                       ),
                     const SizedBox(width: 8),
                     Expanded(

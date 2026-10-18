@@ -7,7 +7,9 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 
 void main() {
   group('PayPalCheckoutScreen & Quote Parity Unit Tests', () {
-    testWidgets('renders payment title and secure pay button correctly', (widgetTester) async {
+    testWidgets('renders payment title and secure pay button correctly', (
+      widgetTester,
+    ) async {
       await widgetTester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
@@ -52,40 +54,39 @@ void main() {
       expect(find.text('\$2.50'), findsOneWidget);
     });
 
-    test(r'Standard plan PayPal grossUpTotal matches SQL calculation ($3.10)', () {
-      final grossUp = RefillPricing.grossUpTotal(
-        net: 2.50,
-        gatewayFeePercentage: 3.4,
-        gatewayFeeFixed: 0.49,
-      );
-      expect(grossUp, 3.10);
-    });
+    test(
+      r'Standard plan PayPal grossUpTotal matches SQL calculation ($3.10)',
+      () {
+        final grossUp = RefillPricing.grossUpTotal(
+          net: 2.50,
+          gatewayFeePercentage: 3.4,
+          gatewayFeeFixed: 0.49,
+        );
+        expect(grossUp, 3.10);
+      },
+    );
 
-    // Under the Pay-Per-Refill architecture, Premium initial charge covers
-    // 1st qualifying refill ($4.30) + $2.50 annual fee = $6.80 net,
-    // grossed up to $7.55 for PayPal. Future refills are billed from wallet as due.
-    test(r'Premium plan initial charge for Orange Egypt (override $4.30 + $2.50 fee) matches SQL ($7.55)', () {
-      final perRefill = RefillPricing.premiumRefillPrice(
-        minimumTopupAmount: 3.59,
-        appFeePercent: 3.0,
-        premiumMarginPercent: 5.0,
-        premiumMarginPerRefillUsd: 0.324,
-        inappPricingOverride: 4.30,
+    test('Premium payment uses a validated server breakdown', () {
+      final quote = PremiumInitialBreakdown.fromJson({
+        'currency': 'USD',
+        'annual_fee_usd': 7.50,
+        'first_refill_cost_usd': 4.30,
+        'total_charge_usd': 11.80,
+        'upgrade_credit_usd': 0,
+        'full_annual_fee_usd': 7.50,
+        'refill_interval_days': 76,
+        'is_upgrade': false,
+      });
+      expect(quote.totalDueNowUsd, 11.80);
+      expect(quote.firstRefillUsd, 4.30);
+      expect(
+        RefillPricing.grossUpTotal(
+          net: quote.totalDueNowUsd,
+          gatewayFeePercentage: 3.4,
+          gatewayFeeFixed: 0.49,
+        ),
+        12.72,
       );
-      expect(perRefill, 4.30);
-
-      final total = RefillPricing.premiumYearlyTotal(
-        baseServiceFeeUsd: 2.50,
-        minimumTopupAmount: 3.59,
-        inactivityLimitDays: 90,
-        appFeePercent: 3.0,
-        premiumMarginPercent: 5.0,
-        premiumMarginPerRefillUsd: 0.324,
-        gatewayFeePercentage: 3.4,
-        gatewayFeeFixed: 0.49,
-        inappPricingOverride: 4.30,
-      );
-      expect(total, 7.55);
     });
   });
 }

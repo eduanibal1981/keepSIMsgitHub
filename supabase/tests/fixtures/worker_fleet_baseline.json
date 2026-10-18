@@ -1,0 +1,16 @@
+{
+  "tables": [
+    "notification_dispatch_jobs",
+    "notification_channel_targets",
+    "offline_voucher_purchase_jobs",
+    "admin_emails",
+    "whatsapp_provider_profiles",
+    "whatsapp_message_attempts",
+    "supplier_policy",
+    "refill_approval_quotes",
+    "account_purge_jobs"
+  ],
+  "omitted_foreign_keys": [],
+  "account_purge_source_sha256": "4e3f8e834634a6dafab18b0b83d77848db1d91974d919c5e5cf25bb8fdfaa07e",
+  "limits": "Exact bounded table shapes and constraints. Database cron relations and Supabase Auth remain isolated adapters. No full trigger, REST/pg_cron scheduler, runtime dependency or provider parity claim."
+}

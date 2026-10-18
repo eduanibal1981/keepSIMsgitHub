@@ -1,5 +1,30 @@
 # Current Status and Roadmap
 
+## Task 23 update — 2026-10-18 (local, undeployed)
+
+The required-fleet manifest in `../backend-sync-wt/worker-fleet.json` names eight freshly confirmed PM2 services plus the required, not-running supplier reconciler. Dormant voucher/alternative messaging scripts are excluded. Shared service-only telemetry separates 30-second liveness from successful work lanes, fences old reports/instances, and reports source fingerprints. Receipt-drop evidence persists across restarts. `20261018090000_worker_fleet_monitoring.sql` adds private status/requirements/cache/incidents, 24 aggregate queue/reconciliation probes and 23 cron requirements. The existing ten-minute checker measures queues and emits bounded/deduplicated alerts; public/API polls use current worker/cron status with cached queue measurements and fail closed when measurements are absent/older than 15 minutes. The public health Edge function exposes aggregate counts only; admin reads and the polling panel show component/backlog/age/version detail. All 50 isolated native SQL/concurrency, 125 focused backend, 10 health-handler and two admin tests pass; focused analysis and syntax checks pass. No deploy, provider actions or live stop/stall/restart exercise occurred. SQL/worker/Edge/admin coordinated release, production probe-cost checks, full API/scheduler parity and controlled runtime failure acceptance remain required. See [Task 23 review](../docs/reviews/worker-fleet-monitoring-20261018.md).
+
+## Task 25 update — 2026-10-18 (prepared; rollout blocked)
+
+The [coordinated rollout runbook](../docs/reviews/coordinated-rollout-runbook-20261018.md)
+and pinned operational manifest inventory the financial SQL/Edge/worker/client
+cutover, including the concurrently arriving fleet dependency. They specify
+per-entry containment, backup/restore evidence, legacy/provider reconciliation,
+API/cache/cron checks, scoped pilot acceptance and forward recovery. Six artifact
+safety tests and four isolated preflight scenarios pass; these do not establish
+the complete upgrade, release gate or deployed behavior. Concurrent source-lock/
+manifest changes, final Tasks 22–24 evidence, approved recovery/dispositions and
+separate scoped operational authorization remain blocking. No production rollout,
+VM restart, purchase/payout, balance repair or additional finding closure occurred.
+
+## Task 22 update — 2026-10-18 (source tooling local; full release blocked)
+
+The 17 missing SQL signatures and deployed admin-email v2 source are versioned as historical evidence outside migrations. All 369 supplied-export public routine bodies/signatures match fresh live hashes; 543 historical constraints, 65 public triggers, 137 policy expressions and 22 cron contracts match prior evidence. Source manifests, explicit pending-file revision provenance and deterministic customer/admin/authoritative-backend checkout tooling are implemented. Fresh VM evidence covers eight processes/24 hashes; exact runtime package/lock files were recovered into backend source. Complete provisioning/current-shape upgrade remain blocked on non-public/platform/owner dependencies, original history, approved config/seeds/cron, Edge parity/imports and installed-runtime equivalence. Automatic review rejected full production definition/ownership export; body hashes are not substituted for that missing proof. The full historical archive contains an existing credential-shaped literal, so only six required historical test dependencies enter scoped source bundles. No deployment/history/customer/provider operation occurred. See [Task 22 evidence and procedure](../docs/reviews/source-reproducibility-20261018.md); Task 23 may use the candidate inventory, while full release prerequisites remain unmet.
+
+## Task 21 update — 2026-10-18 (local, undeployed)
+
+`20261018080000_offline_voucher_request_state.sql` replaces nonexistent pending/processing request filters with `open`. Fulfilled/cancelled history and no request return `request:null`; the existing customer card therefore renders a deadline only for an active promise. Both request and grant joins require the line owner's UID; the response remains secret-free and raw voucher tables remain private. The admin queue already defaults to open and retains guarded terminal/history filters. All 18 isolated PGlite SQL scenarios and 41 customer offline-recharge tests pass, including SQL-response-driven model/cache serialization and widget coverage. Focused voucher analysis is clean; broader onboarding analysis retains five existing warnings/lints. No deployment, feature activation, stock load or recovery endpoint change occurred. Fresh live metadata/API verification is pending; see [Task 21 evidence](../docs/reviews/offline-voucher-state-repair-20261018.md).
+
 ## Task 20 update — 2026-10-18 (local, undeployed)
 
 Legacy yearly queue calls are replaced in creation and upgrade; schedule writes now use owner-checked canonical pricing/entitlement RPCs, single-next-occurrence synchronization and version-gated claims. Existing paid schedules pause for reauthorization, with held/provider evidence retained. Both apps' offline reminder paths and the guarded admin monitor are aligned. Funded setup explicitly revalidates legacy parents and rejects missing future airtime-unit data. Verification: 36 native SQL/concurrency/real PostgREST scenarios, 60 customer Flutter, two admin and 62 authoritative backend tests pass. Both apps regenerated; focused analysis has no errors, with existing warnings/lints. One unrelated notification-channel UI test still expects old email readiness behavior; no broad test/build pass is claimed. Fresh live metadata shows the old writable schedule fields and callable legacy queue; coordinated release, reconciliation and controlled provider/API acceptance remain pending. See [Task 20 review](../docs/reviews/scheduled-pricing-boundary-20261018.md). Task 21 was not started.

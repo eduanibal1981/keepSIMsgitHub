@@ -107,7 +107,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text(r'$7.50'), findsNWidgets(2));
-      expect(find.text('≈ OMR 2.888'), findsNWidgets(2));
+      expect(find.text('≈ OMR 2.888'), findsOneWidget);
       expect(find.text(r'Continue to Payment • $7.50 USD'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },

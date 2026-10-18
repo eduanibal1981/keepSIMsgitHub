@@ -1,0 +1,12 @@
+{
+  "purpose": "Explicit revisions of retained, undeployed review-queue files. Archived/applied sources cannot be overridden.",
+  "revisions": [
+    {
+      "file": "20261016020000_wallet_funding_integrity.sql",
+      "original_sha256": "9653e73aff389427f58a974a309e84460fcd0eb8ae1b6b210a9b004e442cdf57",
+      "sha256": "fae5f9ed6e5cb58fece805b62f6569d2034a8075ebbe271fddc382998d3a52f7",
+      "review": "docs/reviews/source-reproducibility-20261018.md",
+      "reason": "The retained pending wallet repair was completed after the October 16 manifest (Tasks 7/8). Task 22 records its current tested bytes explicitly; the Task 6 report describes the earlier hash and is not evidence for this revision. This is not an alteration of applied history."
+    }
+  ]
+}

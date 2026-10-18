@@ -7,6 +7,8 @@ import 'package:keep_sims/core/providers/app_config_provider.dart';
 import 'package:keep_sims/features/notifications/presentation/controllers/notification_settings_controller.dart';
 import 'package:keep_sims/features/profile/presentation/ui/onboarding_screen.dart';
 import 'package:keep_sims/features/sim_lines/data/models/sim_line_model.dart';
+import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
+import 'package:keep_sims/features/sim_lines/domain/refill_pricing.dart';
 import 'package:keep_sims/features/sim_lines/data/models/country_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_model.dart';
 import 'package:keep_sims/features/sim_lines/data/models/carrier_rule_model.dart';
@@ -70,6 +72,21 @@ void main() {
           ProviderScope(
             overrides: [
               fxControllerProvider.overrideWith(() => fx),
+              premiumDisplayQuoteProvider((
+                ruleId: 'rule',
+                lineId: null,
+              )).overrideWith(
+                (ref) async => PremiumInitialBreakdown.fromJson({
+                  'currency': 'USD',
+                  'annual_fee_usd': 7.5,
+                  'first_refill_cost_usd': 1.0,
+                  'total_charge_usd': 8.5,
+                  'upgrade_credit_usd': 0,
+                  'full_annual_fee_usd': 7.5,
+                  'refill_interval_days': 310,
+                  'is_upgrade': false,
+                }),
+              ),
               supportedCountriesProvider.overrideWith(
                 (ref) async => const [
                   Country(
@@ -157,7 +174,7 @@ void main() {
           await tester.tap(find.text('Test Carrier').last);
           await tester.pumpAndSettle();
           expect(find.text(r'$8.50 USD'), findsOneWidget);
-          // Ordinary estimates retain the existing floating-point rounding.
+          // This converts the supplied server quote for display only.
           expect(find.text('≈ OMR 3.272'), findsOneWidget);
         } else {
           expect(

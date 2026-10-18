@@ -118,6 +118,18 @@ def scan_text(content: str, path: str, category: str = "active", *, check_assign
     ):
         for match in pattern.finditer(content):
             key, value = match.group("key"), match.group("value")
+            # Captured catalog fixtures store routine SHA-256 digests under
+            # names such as get_internal_secret. Only this structural shape is
+            # metadata; credential-shaped fixed rules above still always run.
+            if path.endswith("_baseline.json") and "/fixtures/" in path:
+                import json
+                try:
+                    functions = json.loads(content).get("functions", {})
+                except (ValueError, AttributeError):
+                    functions = {}
+                if (isinstance(functions, dict) and functions.get(key) == value
+                        and re.fullmatch(r"[a-f0-9]{64}", value)):
+                    continue
             if PUBLIC_NAME.search(key) or not SECRET_NAME.search(key):
                 continue
             if is_placeholder(value):

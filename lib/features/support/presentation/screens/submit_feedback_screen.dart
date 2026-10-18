@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
 import 'package:keep_sims/core/theme/app_text_styles.dart';
 import 'package:keep_sims/core/utils/build_context_extension.dart';
-import 'package:keep_sims/l10n/app_localizations.dart';
 
 import '../providers/support_providers.dart';
 import '../../data/repositories/support_repository_impl.dart';

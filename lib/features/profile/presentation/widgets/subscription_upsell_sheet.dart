@@ -199,6 +199,7 @@ class SubscriptionUpsellSheet extends ConsumerWidget {
             child: ElevatedButton(
               onPressed: () async {
                 await HapticHelper.mediumImpact();
+                if (!context.mounted) return;
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(

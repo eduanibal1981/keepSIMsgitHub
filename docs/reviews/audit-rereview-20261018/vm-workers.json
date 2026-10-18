@@ -1,0 +1,86 @@
+{
+  "node": "v22.23.1",
+  "pm2_running": true,
+  "processes": [
+    {
+      "name": "server_baileys",
+      "pid": 446884,
+      "status": "online",
+      "restarts": 8,
+      "script": "/home/abdal/keepsims_backend/servers/server_baileys.js",
+      "cwd": "/home/abdal"
+    },
+    {
+      "name": "worker_instant_refill",
+      "pid": 446918,
+      "status": "online",
+      "restarts": 1,
+      "script": "/home/abdal/keepsims_backend/servers/worker_instant_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers"
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "pid": 446900,
+      "status": "online",
+      "restarts": 1,
+      "script": "/home/abdal/keepsims_backend/servers/worker_auto_mini_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers"
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "pid": 446892,
+      "status": "online",
+      "restarts": 1,
+      "script": "/home/abdal/keepsims_backend/servers/worker_auto_custom_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers"
+    },
+    {
+      "name": "worker_offers_cache",
+      "pid": 446943,
+      "status": "online",
+      "restarts": 1,
+      "script": "/home/abdal/keepsims_backend/servers/worker_offers_cache.js",
+      "cwd": "/home/abdal/keepsims_backend/servers"
+    },
+    {
+      "name": "worker-esim-catalog",
+      "pid": 805,
+      "status": "online",
+      "restarts": 0,
+      "script": "/home/abdal/keepsims_backend/servers/worker_esim_catalog.js",
+      "cwd": "/home/abdal/keepsims_backend"
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "pid": 447302,
+      "status": "online",
+      "restarts": 18,
+      "script": "/home/abdal/keepsims_backend/servers/worker_esim_fulfillment.js",
+      "cwd": "/home/abdal/keepsims_backend"
+    },
+    {
+      "name": "server_tg",
+      "pid": 65425,
+      "status": "online",
+      "restarts": 1,
+      "script": "/home/abdal/keepsims_backend/servers/server_tg.js",
+      "cwd": "/home/abdal/keepsims_backend/servers"
+    }
+  ],
+  "hashes": {
+    "worker_instant_refill.js": "05d584716727868edf71c3bb00f5619a903e56096caec879b7759c72d9f75fc2",
+    "worker_auto_mini_refill.js": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de",
+    "worker_auto_custom_refill.js": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d",
+    "worker_supplier_reconciliation.js": null,
+    "worker_health.js": null,
+    "worker-fleet.json": null
+  },
+  "local_hashes": {
+    "worker_instant_refill.js": "0cfeac6fbaba932a1b5bc4687306a76922a455f9b8339b9da3e177415846ddf6",
+    "worker_auto_mini_refill.js": "a06ba78404b1f49cba0da8b61c36dad24d176d37b81878f125461123f909b0f5",
+    "worker_auto_custom_refill.js": "2b1fa7d472222c01c685288eb133014bec5250240b5244997df2ff0c8d82cef1",
+    "worker_supplier_reconciliation.js": "4276dd224ed3a5e51931c928cfb8ab7df9a5451c091991ceec02f2d48ec6cbb3",
+    "worker_health.js": "9ce72379800a379ffd458cef476fc83a556c8ccf8cb3649743b4194b2173efb6",
+    "worker-fleet.json": "02bf69bda16f15fbdb4f8e7f6db5aee0e1f78d3fd717349df222a390c93579f3"
+  }
+}

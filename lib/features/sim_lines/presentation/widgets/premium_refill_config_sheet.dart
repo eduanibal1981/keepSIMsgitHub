@@ -460,8 +460,9 @@ class _PremiumRefillConfigSheetState
                           onPressed: _isSaving
                               ? null
                               : () {
-                                  if (schedule == null || currentLine == null)
+                                  if (schedule == null || currentLine == null) {
                                     return;
+                                  }
                                   final frequencyDays = schedule.frequencyDays;
                                   final nextTopupDue = currentLine.nextTopupDue;
 

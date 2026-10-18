@@ -110,6 +110,8 @@ deployed legacy instant worker before retiring its old status RPCs. See
 
 ## Offline vouchers
 
+- Request state uses the actual `open` / `fulfilled` / `cancelled` lifecycle. The customer status API projects only an owned open request as `{due_at, reason}`; closed history and no request are null. Deadlines describe active promises only. Request/grant owner checks and secret-free status responses are mandatory; bearer PINs remain in the secure voucher vault. Task 21 source is locally repaired and undeployed; see [state repair evidence](../docs/reviews/offline-voucher-state-repair-20261018.md).
+
 - Offline recovery is wallet-funded and server-authorized; the offline client does not bypass accounting.
 - Entitlement currently includes Standard and Premium lines (later tier expansion supersedes older Premium-only comments).
 - Exposure is structurally capped to one live voucher grant per eligible SIM line.

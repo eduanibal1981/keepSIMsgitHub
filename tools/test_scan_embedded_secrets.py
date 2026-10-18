@@ -67,6 +67,15 @@ const emptySecret = "";
 '''
         self.assertEqual(scanner.scan_text(source, "example.json"), [])
 
+    def test_catalog_hash_metadata_is_structural_and_credentials_still_fail(self):
+        import json
+        path = 'supabase/tests/fixtures/admin_maintenance_baseline.json'
+        digest = 'a1' * 32
+        self.assertEqual(scanner.scan_text(json.dumps({'functions': {'get_internal_secret': digest}}), path), [])
+        self.assertTrue(scanner.scan_text(json.dumps({'PAYPAL_CLIENT_SECRET': digest}), path))
+        provider = 'KEY' + 'a' * 30
+        self.assertTrue(scanner.scan_text(json.dumps({'functions': {'get_internal_secret': provider}}), path))
+
     def test_real_private_key_material_required(self):
         begin = "-----BEGIN " + "PRIVATE KEY-----"
         end = "-----END " + "PRIVATE KEY-----"

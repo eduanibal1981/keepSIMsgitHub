@@ -1,0 +1,128 @@
+name: Release checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    name: ${{ matrix.profile }}
+    runs-on: macos-15
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [source, unit, database, apps, edge-runtime]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: keep_sims
+          persist-credentials: false
+      - id: workspace
+        uses: ./keep_sims/.github/actions/release-workspace
+        with:
+          token: ${{ secrets.RELEASE_SOURCE_READ_TOKEN || github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ steps.workspace.outputs.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.workspace.outputs.node }}
+      - uses: subosito/flutter-action@v2
+        if: matrix.profile == 'apps'
+        with:
+          flutter-version: ${{ steps.workspace.outputs.flutter }}
+          channel: stable
+      - uses: denoland/setup-deno@v2
+        if: matrix.profile == 'edge-runtime'
+        with:
+          deno-version: ${{ steps.workspace.outputs.deno }}
+      - name: Install only locked database dependencies
+        if: matrix.profile == 'database' || matrix.profile == 'unit'
+        working-directory: keep_sims
+        run: npm ci --prefix tools/financial-tests
+      - name: Install verified local API test executable
+        if: matrix.profile == 'database'
+        working-directory: keep_sims
+        run: python3 tools/install_release_postgrest.py --output "$RUNNER_TEMP/postgrest"
+      - name: Restore exact application dependencies
+        if: matrix.profile == 'apps'
+        run: |
+          cd keep_sims
+          flutter pub get --enforce-lockfile
+          cd ../keep_sims_admin
+          flutter pub get --enforce-lockfile
+      - name: Run required profile
+        working-directory: keep_sims
+        env:
+          RELEASE_PROFILE: ${{ matrix.profile }}
+        run: |
+          if [ "$RELEASE_PROFILE" = database ]; then
+            export POSTGREST_BINARY="$RUNNER_TEMP/postgrest"
+            export POSTGREST_LIBRARY_PATH="$PWD/tools/financial-tests/node_modules/@embedded-postgres/$(node -p 'process.platform+"-"+process.arch')/native/lib"
+          fi
+          python3 tools/release_checks.py "$RELEASE_PROFILE" --output "$RUNNER_TEMP/release-results"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-${{ matrix.profile }}
+          path: ${{ runner.temp }}/release-results
+          if-no-files-found: error
+  builds:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: keep_sims
+          persist-credentials: false
+      - id: workspace
+        uses: ./keep_sims/.github/actions/release-workspace
+        with:
+          token: ${{ secrets.RELEASE_SOURCE_READ_TOKEN || github.token }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.workspace.outputs.flutter }}
+          channel: stable
+      - name: Verify admin release compilation
+        run: |
+          cd keep_sims_admin
+          flutter pub get --enforce-lockfile
+          flutter build web --release --no-pub
+          flutter build macos --release --no-pub
+      - name: Verify customer iOS compilation without signing
+        run: |
+          cd keep_sims
+          flutter pub get --enforce-lockfile
+          flutter build ios --release --no-codesign --no-pub
+      - name: Require the customer Android release signing guard
+        run: |
+          cd keep_sims
+          flutter build appbundle --release --no-pub
+      # Signed customer Android/iOS artifacts and admin distribution remain a
+      # separately configured protected release job. CI compilation isn't signing.
+  readiness:
+    runs-on: ubuntu-24.04
+    needs: [checks, builds]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: keep_sims
+          persist-credentials: false
+      - uses: ./keep_sims/.github/actions/release-workspace
+        with:
+          token: ${{ secrets.RELEASE_SOURCE_READ_TOKEN || github.token }}
+      - name: Require every quality job and the deployment evidence gate
+        working-directory: keep_sims
+        env:
+          CHECKS_RESULT: ${{ needs.checks.result }}
+          BUILDS_RESULT: ${{ needs.builds.result }}
+        run: |
+          test "$CHECKS_RESULT" = success
+          test "$BUILDS_RESULT" = success
+          python3 tools/build_deployment_manifest.py --gate

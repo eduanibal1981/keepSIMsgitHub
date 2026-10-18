@@ -1,0 +1,2749 @@
+{
+  "format": 1,
+  "project_id": "zwxswagokhgbuzrrbnhr",
+  "evidence_date": "2026-10-18",
+  "input_sha256": "9bd78ae434a7fdf7e1c51c53c9c8754ae35db38efe79ed861ebdf019765a9e0d",
+  "scope": "Historical deployed contracts as evidence. Not a migration or an approved provisioning baseline.",
+  "functions": [
+    {
+      "name": "bind_telegram_bot",
+      "types": "uuid, text",
+      "identity": "p_user_id uuid, p_chat_id text",
+      "purpose": "Telegram binding helper",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "2517f782bc828c89d4d985ac9d1ee95759ef483722a514e2ac038c47da4bcd93",
+      "normalized_body_sha256": "618058d0a23ee5c6c3356b5245ff8d25ec841e8514477467411bec4cd017b541",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"bind_telegram_bot\"(\"p_user_id\" \"uuid\", \"p_chat_id\" \"text\") RETURNS \"void\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  -- Attempt to update the existing telegram channel record\n  UPDATE notification_channels\n  SET \n    is_enabled = true,\n    config = jsonb_set(COALESCE(config, '{}'::jsonb), '{chat_id}', to_jsonb(p_chat_id))\n  WHERE user_id = p_user_id AND channel_type = 'telegram';\n  \n  -- If the record doesn't exist yet, insert it\n  IF NOT FOUND THEN\n    INSERT INTO notification_channels (user_id, channel_type, is_enabled, config)\n    VALUES (p_user_id, 'telegram', true, jsonb_build_object('chat_id', p_chat_id));\n  END IF;\nEND;\n$$;"
+    },
+    {
+      "name": "check_refill_pipeline_health",
+      "types": "",
+      "identity": "",
+      "purpose": "scheduled pipeline health",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "054add3e5b319b42027b937fc3b453ad4aae3e5bfcd8a6b377e09bbc80ad2a81",
+      "normalized_body_sha256": "68c890fdd5c312de78ce34a34372e92f1a11e4011bcfbf3caccfe93b9064da5d",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"check_refill_pipeline_health\"() RETURNS \"void\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nDECLARE\n  v_overdue_pending integer;\n  v_stale_routing integer;\n  v_failed_24h integer;\n  v_success_24h integer;\nBEGIN\n  SELECT count(*) INTO v_overdue_pending\n  FROM public.topup_executions\n  WHERE status = 'pending' AND execution_time < now() - interval '2 hours';\n\n  SELECT count(*) INTO v_stale_routing\n  FROM public.topup_executions\n  WHERE status = 'routing' AND created_at < now() - interval '30 minutes';\n\n  IF v_overdue_pending > 0 OR v_stale_routing > 0 THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.system_alerts\n      WHERE kind = 'refill_queue_backed_up' AND created_at > now() - interval '6 hours'\n    ) THEN\n      INSERT INTO public.system_alerts (kind, message, details)\n      VALUES (\n        'refill_queue_backed_up',\n        'Refill queue is backing up: ' || v_overdue_pending || ' pending execution(s) overdue by 2h+, '\n          || v_stale_routing || ' routing execution(s) unclaimed for 30m+. Are the PM2 workers running?',\n        jsonb_build_object('overdue_pending', v_overdue_pending, 'stale_routing', v_stale_routing)\n      );\n    END IF;\n  END IF;\n\n  SELECT count(*) FILTER (WHERE status = 'failed'),\n         count(*) FILTER (WHERE status = 'success')\n  INTO v_failed_24h, v_success_24h\n  FROM public.topup_executions\n  WHERE COALESCE(completed_at, executed_at) > now() - interval '24 hours';\n\n  IF v_failed_24h > 0 AND v_success_24h = 0 THEN\n    IF NOT EXISTS (\n      SELECT 1 FROM public.system_alerts\n      WHERE kind = 'refill_zero_success' AND created_at > now() - interval '6 hours'\n    ) THEN\n      INSERT INTO public.system_alerts (kind, message, details)\n      VALUES (\n        'refill_zero_success',\n        'Every refill execution in the last 24h failed (' || v_failed_24h || ' failure(s), 0 successes).',\n        jsonb_build_object('failed_24h', v_failed_24h, 'success_24h', v_success_24h)\n      );\n    END IF;\n  END IF;\nEND;\n$$;"
+    },
+    {
+      "name": "claim_instant_executions",
+      "types": "text, integer",
+      "identity": "p_execution_type text, p_limit integer",
+      "purpose": "legacy instant-worker claim",
+      "successor": "20261018070000_scheduled_pricing_boundary.sql",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": false,
+      "source_sha256": "0741759fb69469947f27a2d905c47ccbb2d52d4903797a6ee3ea0c3b8e0463b0",
+      "normalized_body_sha256": "b2af988d9506e70cfc07801bd6d2622268cf04e3526804337710e8b7c890ea18",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"claim_instant_executions\"(\"p_execution_type\" \"text\", \"p_limit\" integer) RETURNS SETOF \"public\".\"topup_executions\"\n    LANGUAGE \"sql\"\n    SET \"search_path\" TO ''\n    AS $$\n  UPDATE public.topup_executions\n  SET status = 'processing',\n      processing_since = NOW(),\n      pre_processing_status = 'routing'\n  WHERE id IN (\n    SELECT id FROM public.topup_executions\n    WHERE status = 'routing'\n      AND execution_type = p_execution_type\n    ORDER BY created_at ASC\n    LIMIT p_limit\n    FOR UPDATE SKIP LOCKED\n  )\n  RETURNING *;\n$$;"
+    },
+    {
+      "name": "credit_wallet",
+      "types": "uuid, numeric, text, text, text",
+      "identity": "p_user_id uuid, p_amount numeric, p_type text, p_description text, p_reference_id text",
+      "purpose": "legacy wallet credit helper",
+      "successor": "20261016020000_wallet_funding_integrity.sql",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "5fc7d7c6d7e47e0db7891b8fcac897aefeb8dbf56bcd7b5ee73b0b11c0a7a107",
+      "normalized_body_sha256": "a3dd09043eaf7a396512846e741be018d44f4ef0ee6a28608f992ede9937bcca",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"credit_wallet\"(\"p_user_id\" \"uuid\", \"p_amount\" numeric, \"p_type\" \"text\" DEFAULT 'deposit'::\"text\", \"p_description\" \"text\" DEFAULT 'Wallet deposit'::\"text\", \"p_reference_id\" \"text\" DEFAULT NULL::\"text\") RETURNS \"uuid\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nDECLARE\n  v_wallet_id UUID;\n  v_balance_before NUMERIC;\n  v_balance_after NUMERIC;\n  v_txn_id UUID;\nBEGIN\n  SELECT id, balance INTO v_wallet_id, v_balance_before\n  FROM public.wallets\n  WHERE user_id = p_user_id\n  FOR UPDATE;\n\n  IF v_wallet_id IS NULL THEN\n    RAISE EXCEPTION 'Wallet not found for user %', p_user_id;\n  END IF;\n\n  v_balance_after := v_balance_before + p_amount;\n\n  UPDATE public.wallets\n  SET balance = v_balance_after,\n      total_deposited = total_deposited + p_amount\n  WHERE id = v_wallet_id;\n\n  INSERT INTO public.wallet_transactions (\n    wallet_id, user_id, type, amount, balance_before, balance_after,\n    description, reference_id, status\n  ) VALUES (\n    v_wallet_id, p_user_id, p_type, p_amount, v_balance_before, v_balance_after,\n    p_description, p_reference_id, 'completed'\n  ) RETURNING id INTO v_txn_id;\n\n  RETURN v_txn_id;\nEND;\n$$;"
+    },
+    {
+      "name": "get_current_context",
+      "types": "",
+      "identity": "",
+      "purpose": "request context helper",
+      "successor": null,
+      "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": false,
+      "source_sha256": "276adf72037216e911f6a89fb18e6961a34a301c0dbf16d56ec9bce4255397f4",
+      "normalized_body_sha256": "785ece2cc01c727e35be579a022c598c035c456076edff24c4034618550ae7e0",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"get_current_context\"() RETURNS json\n    LANGUAGE \"plpgsql\"\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  RETURN json_build_object(\n    'current_user', current_user,\n    'session_user', session_user,\n    'current_role', current_setting('role', true),\n    'auth_role', auth.role(),\n    'auth_uid', auth.uid(),\n    'row_security', current_setting('row_security', true)\n  );\nEND;\n$$;"
+    },
+    {
+      "name": "handle_new_household_member",
+      "types": "",
+      "identity": "",
+      "purpose": "household membership trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "6a81cca6d0d4d253963da2ff64c8a5400139214adf8f5c9a5dd224be1d752880",
+      "normalized_body_sha256": "a12f5299f1d3fa2bff79f406ace51d15ec37b30459c54b8cc3e5f0eec8bb0502",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"handle_new_household_member\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  -- Auto-populate member_id if a profile with member_email exists\n  SELECT id INTO NEW.member_id\n  FROM public.profiles\n  WHERE LOWER(email) = LOWER(NEW.member_email);\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "handle_new_user",
+      "types": "",
+      "identity": "",
+      "purpose": "Auth signup/profile bootstrap trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "126d349db968e5ed87f6b967c3b3435326de480920a8ce1459c78a5c28acb2a8",
+      "normalized_body_sha256": "5e3e54d42225c4f8c3e46d674cae0b6f1c0bc415b64b9a0cfc118e906831e89e",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"handle_new_user\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nDECLARE\n  _referral_code TEXT;\nBEGIN\n  -- Generate a unique referral code\n  _referral_code := 'SS' || UPPER(SUBSTR(REPLACE(gen_random_uuid()::text, '-', ''), 1, 8));\n\n  -- Create profile\n  INSERT INTO public.profiles (id, email, full_name, avatar_url, referral_code)\n  VALUES (\n    NEW.id,\n    NEW.email,\n    COALESCE(NEW.raw_user_meta_data ->> 'full_name', NEW.raw_user_meta_data ->> 'name', ''),\n    COALESCE(NEW.raw_user_meta_data ->> 'avatar_url', NEW.raw_user_meta_data ->> 'picture', ''),\n    _referral_code\n  );\n\n  -- Create wallet\n  INSERT INTO public.wallets (user_id, currency)\n  VALUES (NEW.id, 'USD');\n\n  -- Create default preferences\n  INSERT INTO public.user_preferences (user_id)\n  VALUES (NEW.id);\n\n  -- Create default push notification channel\n  INSERT INTO public.notification_channels (user_id, channel_type, is_enabled)\n  VALUES (NEW.id, 'push', TRUE);\n\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "is_user_suspended",
+      "types": "",
+      "identity": "",
+      "purpose": "JWT suspension helper",
+      "successor": null,
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": false,
+      "source_sha256": "8401603e44ad270adb13796e9efc170d5c65042cb68368ca87d57fa6cd03f267",
+      "normalized_body_sha256": "a9c366f3f43325aaf30ce7bdebdbbfa106bf2a5f4fd83f523c23a55a970431f0",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"is_user_suspended\"() RETURNS boolean\n    LANGUAGE \"plpgsql\" STABLE\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  RETURN COALESCE((auth.jwt() -> 'app_metadata' ->> 'is_suspended')::boolean, false);\nEND;\n$$;"
+    },
+    {
+      "name": "resolve_pending_household_invites",
+      "types": "",
+      "identity": "",
+      "purpose": "signup household invite resolution",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "92da45158c309896a17ad09c4389dd2cd274ea549f916339ccf992e348d3e2cf",
+      "normalized_body_sha256": "e5810e6977ca298a420d80bc2902814142744dbd04c87cdb098de34ea4b30c0b",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"resolve_pending_household_invites\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  UPDATE public.household_members\n  SET member_id = NEW.id\n  WHERE LOWER(member_email) = LOWER(NEW.email);\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "schedule_delayed_notification",
+      "types": "uuid, text, text, text, integer",
+      "identity": "p_user_id uuid, p_category text, p_title text, p_body text, p_delay_minutes integer",
+      "purpose": "legacy notification queue producer",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "aaa4b93a6909db8cfd8a48e511685ec5ad26420d855b0c02de01b33d9fa29199",
+      "normalized_body_sha256": "884bb2acc50d799284e155daa5f58541b3b35ca47a1dc7600d460e4d0e6695b1",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"schedule_delayed_notification\"(\"p_user_id\" \"uuid\", \"p_category\" \"text\", \"p_title\" \"text\", \"p_body\" \"text\", \"p_delay_minutes\" integer) RETURNS \"text\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nDECLARE\n  v_run_time TIMESTAMPTZ;\n  v_cron_expr TEXT;\n  v_job_name TEXT;\n  v_job_id BIGINT;\nBEGIN\n  -- 1. Calculate future timestamp in UTC (Supabase operates in UTC)\n  v_run_time := (NOW() AT TIME ZONE 'UTC') + (p_delay_minutes || ' minutes')::INTERVAL;\n  \n  -- 2. Construct standard cron expression: 'min hour day month *'\n  v_cron_expr := EXTRACT(MINUTE FROM v_run_time) || ' ' ||\n                 EXTRACT(HOUR FROM v_run_time) || ' ' ||\n                 EXTRACT(DAY FROM v_run_time) || ' ' ||\n                 EXTRACT(MONTH FROM v_run_time) || ' *';\n                 \n  -- 3. Create a unique job name\n  v_job_name := 'delayed_alert_' || REPLACE(p_user_id::TEXT, '-', '_') || '_' || EXTRACT(EPOCH FROM NOW())::BIGINT;\n  \n  -- 4. Schedule the job in pg_cron\n  v_job_id := cron.schedule(\n    v_job_name,\n    v_cron_expr,\n    format(\n      'INSERT INTO public.notifications (user_id, category, title, body, action_url, sim_line_id, delivered_via, is_read) ' ||\n      'VALUES (%L, %L, %L, %L, %L, NULL, ARRAY[%L], false); ' ||\n      'SELECT cron.unschedule(%L);',\n      p_user_id,\n      p_category,\n      p_title,\n      p_body,\n      '/notifications',\n      'push',\n      v_job_name\n    )\n  );\n  \n  RETURN v_job_name;\nEND;\n$$;"
+    },
+    {
+      "name": "sync_power_user_claim",
+      "types": "",
+      "identity": "",
+      "purpose": "Auth admin-claim trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "f0dcf21aa7ec32fb8ea9ebaf83bdf613e4633564f48cf367e3cc8619dedffe51",
+      "normalized_body_sha256": "2bd676b275d8ca3fe014b961f017a33462d67c9371fe44ed1a5099c7f9aa6b76",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"sync_power_user_claim\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  IF (TG_OP = 'INSERT' OR NEW.is_power_user IS DISTINCT FROM OLD.is_power_user) THEN\n    UPDATE auth.users\n    SET raw_app_meta_data = \n      COALESCE(raw_app_meta_data, '{}'::jsonb) || \n      jsonb_build_object('is_power_user', NEW.is_power_user)\n    WHERE id = NEW.id;\n  END IF;\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "sync_suspended_claim",
+      "types": "",
+      "identity": "",
+      "purpose": "Auth suspension-claim trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": true,
+      "source_sha256": "110f93c562f0ba3fee51388f97c8e59b6f60f31e77783df637a872304f6c3e89",
+      "normalized_body_sha256": "88bacf41dd4007ee41dceb0231432e8ea48143ffc9c3e1e1165e0d955d279a0f",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"sync_suspended_claim\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  IF (TG_OP = 'INSERT' OR NEW.is_suspended IS DISTINCT FROM OLD.is_suspended) THEN\n    UPDATE auth.users\n    SET raw_app_meta_data = \n      COALESCE(raw_app_meta_data, '{}'::jsonb) || \n      jsonb_build_object('is_suspended', NEW.is_suspended)\n    WHERE id = NEW.id;\n  END IF;\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "update_execution_failed",
+      "types": "uuid, text",
+      "identity": "p_id uuid, p_reason text",
+      "purpose": "legacy execution failure",
+      "successor": "20261017190000_supplier_outcome_recovery.sql",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "4fa15d4f4d4c6a0342e1e32aedc393f764acacc19439525f73a2140b4581f35d",
+      "normalized_body_sha256": "6aad7b2f10deb52c12ad68725e8c852fba3b367d4d52c0fe339e35d80a3f63d7",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"update_execution_failed\"(\"p_id\" \"uuid\", \"p_reason\" \"text\") RETURNS \"void\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = 'failed',\n      failure_reason = p_reason,\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$$;"
+    },
+    {
+      "name": "update_execution_status",
+      "types": "uuid, text, text",
+      "identity": "p_id uuid, p_status text, p_reloadly_transaction_id text",
+      "purpose": "legacy worker settlement overload",
+      "successor": "20261017164417_scheduled_refill_worker_contracts.sql",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "46a4ac5eae50aa131dd0bae0d62e735474c0ab19e953826a4093ec60c6b9c17a",
+      "normalized_body_sha256": "6b42014b429882872a5297e74e18797c3952ef684eb473f64c1498b84e35aae2",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"update_execution_status\"(\"p_id\" \"uuid\", \"p_status\" \"text\", \"p_reloadly_transaction_id\" \"text\") RETURNS \"void\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = p_status,\n      reloadly_transaction_id = p_reloadly_transaction_id,\n      executed_at = NOW(),\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$$;"
+    },
+    {
+      "name": "update_execution_status",
+      "types": "uuid, text, text, text, text, text",
+      "identity": "p_id uuid, p_status text, p_reloadly_transaction_id text, p_pin_code text, p_pin_serial text, p_redeem_instructions text",
+      "purpose": "legacy worker settlement overload",
+      "successor": "20261017164417_scheduled_refill_worker_contracts.sql",
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=\"\""
+      ],
+      "security_definer": true,
+      "source_sha256": "928c0df609315fdab2a4258b50a6becafca4830f918f2515a590b8177a1909bf",
+      "normalized_body_sha256": "27304a30095ed0e7972f9861b125cb10f4c932e8abf70f8baaf9acec5bb76124",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"update_execution_status\"(\"p_id\" \"uuid\", \"p_status\" \"text\", \"p_reloadly_transaction_id\" \"text\", \"p_pin_code\" \"text\" DEFAULT NULL::\"text\", \"p_pin_serial\" \"text\" DEFAULT NULL::\"text\", \"p_redeem_instructions\" \"text\" DEFAULT NULL::\"text\") RETURNS \"void\"\n    LANGUAGE \"plpgsql\" SECURITY DEFINER\n    SET \"search_path\" TO ''\n    AS $$\nBEGIN\n  UPDATE public.topup_executions\n  SET status = p_status,\n      reloadly_transaction_id = p_reloadly_transaction_id,\n      pin_code = COALESCE(p_pin_code, pin_code),\n      pin_serial = COALESCE(p_pin_serial, pin_serial),\n      redeem_instructions = COALESCE(p_redeem_instructions, redeem_instructions),\n      executed_at = NOW(),\n      completed_at = NOW()\n  WHERE id = p_id;\nEND;\n$$;"
+    },
+    {
+      "name": "update_line_health",
+      "types": "",
+      "identity": "",
+      "purpose": "SIM health trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": false,
+      "source_sha256": "2bf032c58c9e0bb0523e09a45e4800324e4eb1b0ee1f263bade1d0d9edf1ca59",
+      "normalized_body_sha256": "f801ed9e12eb9f0d4dedb068fda8bf0727f6426ca7d71d7cabf47a6834355add",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"update_line_health\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\"\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  NEW.health_score := public.calculate_health_score(\n    NEW.id,\n    NEW.status,\n    NEW.last_topup_at\n  );\n  NEW.updated_at := NOW();\n  RETURN NEW;\nEND;\n$$;"
+    },
+    {
+      "name": "update_updated_at",
+      "types": "",
+      "identity": "",
+      "purpose": "shared timestamp trigger",
+      "successor": null,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "settings": [
+        "search_path=public"
+      ],
+      "security_definer": false,
+      "source_sha256": "c10d3ecdb68d176c4ef7b01c3a1e54694ef57ab9c5da8db855e50997e3dfff31",
+      "normalized_body_sha256": "f27d597a0be8910116114f41bfe69e8903391265966be04213db9114e6f2a750",
+      "definition": "CREATE OR REPLACE FUNCTION \"public\".\"update_updated_at\"() RETURNS \"trigger\"\n    LANGUAGE \"plpgsql\"\n    SET \"search_path\" TO 'public'\n    AS $$\nBEGIN\n  NEW.updated_at = NOW();\n  RETURN NEW;\nEND;\n$$;"
+    }
+  ],
+  "export_live_comparison": [
+    {
+      "name": "admin_add_voucher_stock",
+      "types": "uuid, jsonb, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_adjust_wallet",
+      "types": "uuid, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_affiliate_overview",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_alert_clock_scheduler_status",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.job",
+        "cron.job_run_details"
+      ]
+    },
+    {
+      "name": "admin_cancel_voucher_purchase_job",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_cancel_voucher_request",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_complete_manual_refill",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_confirm_provider_credential_rotation",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "vault.secrets"
+      ]
+    },
+    {
+      "name": "admin_delete_affiliate_offer",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_delete_offline_endpoint",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_delete_whatsapp_profile",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_fail_refill",
+      "types": "uuid, text, boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_get_alert_clock_overview",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_get_carrier_alert_rule",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_get_scheduled_jobs_overview",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.job_run_details"
+      ]
+    },
+    {
+      "name": "admin_get_ticket",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_get_user",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_affiliate_offers",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "admin_list_affiliate_partners",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_alert_clocks",
+      "types": "text, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_app_fee_rules",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_audit",
+      "types": "integer, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_campaigns",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_carrier_provider_map",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_carrier_self_service",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_carrier_voucher_redemption",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_carriers",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_channels",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_configs",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_country_verification_prices",
+      "types": "text, boolean, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_emails",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "admin_list_esim_suppliers",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_line_verification_attempts",
+      "types": "uuid, text, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_notification_dispatch_incidents",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_offline_endpoints",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_provider_credentials",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "vault.secrets"
+      ]
+    },
+    {
+      "name": "admin_list_provider_offers",
+      "types": "text, text, text, uuid, boolean, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_refill_scripts",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_refund_requests",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_service_providers",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_supplier_policy",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_tickets",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_users",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_users_extended",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_voucher_grants",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_voucher_purchase_jobs",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_voucher_requests",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_voucher_stock",
+      "types": "uuid, text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_whatsapp_attempts",
+      "types": "uuid, text, text, text, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_whatsapp_profiles",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_list_whatsapp_routes",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_log",
+      "types": "text, text, text, jsonb, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_notification_dispatch_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_notification_health",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_override_provider_offer",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_overview",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.job"
+      ]
+    },
+    {
+      "name": "admin_preview_carrier_alert_rule",
+      "types": "uuid, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_prune_database_logs",
+      "types": "integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_publish_app_fee_rule",
+      "types": "text, numeric, numeric, numeric, numeric, numeric, numeric, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_purge_user_account",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "admin_queue_ding_voucher_purchase",
+      "types": "uuid, integer, text, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_record_whatsapp_probe",
+      "types": "uuid, text, text, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_refresh_provider_offers",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_reply_ticket",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_retry_notification_dispatch_job",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_rotate_provider_credential",
+      "types": "text, text, text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "vault.create_secret",
+        "vault.secrets",
+        "vault.update_secret"
+      ]
+    },
+    {
+      "name": "admin_save_draft_app_fee_rule",
+      "types": "text, numeric, numeric, numeric, numeric, numeric, numeric, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_save_whatsapp_profile",
+      "types": "uuid, text, text, text, boolean, jsonb, jsonb, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_send_campaign",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_send_email",
+      "types": "text[], text, text, text[], text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_set_alert_clock_scheduler_enabled",
+      "types": "boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_set_config",
+      "types": "text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_set_ticket_status",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_set_user_flags",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_set_vault_secret",
+      "types": "text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "vault.create_secret",
+        "vault.secrets",
+        "vault.update_secret"
+      ]
+    },
+    {
+      "name": "admin_switch_gateway_to_manual",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_sync_affiliate_network",
+      "types": "integer, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_sync_alert_clocks",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_sync_esim_catalogue",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_update_carrier",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_update_carrier_rule",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_update_channel",
+      "types": "text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_update_country_verification_prices",
+      "types": "uuid, numeric, numeric, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_update_supplier_policy",
+      "types": "text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_update_whatsapp_route",
+      "types": "uuid, text, uuid, integer, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_affiliate_offer",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_upsert_affiliate_partner",
+      "types": "text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_upsert_campaign",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_carrier_provider_map",
+      "types": "uuid, text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_carrier_rule",
+      "types": "uuid, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_carrier_self_service",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_carrier_voucher_redemption",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_upsert_esim_supplier",
+      "types": "text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_offline_endpoint",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_refill_script",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_upsert_service_provider",
+      "types": "text, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_void_voucher_stock",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "admin_voucher_overview",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "admin_write_off_voucher_grant",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "answer_voip_session",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "app_check_should_enforce",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "app_check_summary",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "apply_referral",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid",
+        "auth.users"
+      ]
+    },
+    {
+      "name": "approve_refill_execution",
+      "types": "uuid, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "approve_refill_execution_quote",
+      "types": "uuid, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "assert_admin",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "assess_device_risk",
+      "types": "uuid, text, text, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "attach_device_money_reference",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "begin_notification_email_verification",
+      "types": "uuid, text, text, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "bind_telegram_bot",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "bind_telegram_bot_token",
+      "types": "text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "build_balance_reply",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "calculate_health_score",
+      "types": "uuid, text, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "calculate_sim_line_alert_clock",
+      "types": "uuid, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "calculate_topup_fees",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "campaign_audience",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "cancel_account_deletion",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "cancel_sim_setup_order",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "cancel_topup_execution",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "capture_sim_setup_holds",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "capture_wallet_hold",
+      "types": "uuid, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "carrier_qualifying_topup_amount",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "carrier_refill_offer",
+      "types": "uuid, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "check_auth_user_exists",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "check_rate_limit_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "check_refill_pipeline_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "check_scheduled_jobs_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.job_run_details"
+      ]
+    },
+    {
+      "name": "check_topup_rate_limit",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "check_worker_heartbeat_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "choose_supplier_for_offer",
+      "types": "uuid, text, text[]",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_due_executions",
+      "types": "character varying, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_instant_executions",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_notification_channel_target",
+      "types": "uuid, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_notification_dispatch_jobs",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_pending_household_invites",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_refill_approval_quotes",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_voucher_purchase_job",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "claim_whatsapp_message_attempt",
+      "types": "text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "classify_inbound_command",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "compare_esim_filter_bounds",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "compare_esim_offers",
+      "types": "text, text, bigint, integer, numeric, boolean, text[], text, integer, integer, bigint, bigint[], integer, integer[], numeric",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "compute_usage_forecasts",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "config_numeric",
+      "types": "text, numeric, numeric, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "confirm_line_verification",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "consume_notification_email_verification",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "consume_rate_limit",
+      "types": "text, text, integer, numeric, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "create_sim_setup_order",
+      "types": "text, text, uuid, text, text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "create_telegram_bind_token",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "credit_wallet",
+      "types": "uuid, numeric, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "credit_wallet_for_deposit",
+      "types": "uuid, numeric, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "credit_wallet_for_refund",
+      "types": "uuid, numeric, text, text, uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "debit_wallet_for_call",
+      "types": "uuid, uuid, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "debit_wallet_for_topup",
+      "types": "uuid, uuid, numeric, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "defer_notification_dispatch_job",
+      "types": "uuid, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "delete_auth_user_by_id",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "detect_offer_price_drops",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "device_risk_config",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "device_risk_shadow_report",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "device_velocity",
+      "types": "text, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "dismiss_promo",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "dispatch_sim_setup_verification",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "emit_carrier_self_service_advice",
+      "types": "boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_forecast_depletion_alerts",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_line_setup_event",
+      "types": "uuid, uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_missing_recharge_date_reminders",
+      "types": "timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_setup_after_paid_confirmation",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_setup_after_schedule",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_upcoming_refill_low_balance_reminders",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_urgent_deactivation_alerts",
+      "types": "boolean, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "emit_weekly_notification_digests",
+      "types": "timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "enforce_rate_limit",
+      "types": "text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "ensure_wallet_v2",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "export_user_data",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "fallback_sim_setup_to_reminders",
+      "types": "uuid, uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "finalize_sim_setup_order",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "finalize_sim_setup_order",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "finish_media_call",
+      "types": "uuid, timestamp with time zone, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "finish_notification_channel_target",
+      "types": "uuid, text, text, uuid, text, boolean, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "finish_notification_dispatch_job",
+      "types": "uuid, text, text, jsonb, boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "finish_whatsapp_message_attempt",
+      "types": "uuid, uuid, text, boolean, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "format_sim_line_tier_defaults",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_active_promos",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_active_return_trip_for_line",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_authoritative_refill_quote",
+      "types": "uuid, numeric, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_call_rate_for_number",
+      "types": "text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_current_context",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.role",
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_fx_display_context",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_internal_secret",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "get_return_trip_history_for_line",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_return_trip_packages_for_line",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_supported_carriers_divert",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_user_calling_rates",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "get_user_dids",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_user_voicemails",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_voip_call_history",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_wallet_forecast",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "get_wallet_summary",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "guard_money_action",
+      "types": "text, numeric, text, text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "guard_notification_paid_entitlement",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "handle_inbound_command",
+      "types": "text, text, text, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "handle_new_household_member",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "handle_new_user",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "has_paid_premium_entitlement",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "household_spend_check",
+      "types": "uuid, uuid, numeric, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "household_spend_mtd",
+      "types": "uuid, uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "household_spend_summary",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "ingest_offline_refill",
+      "types": "text, text, text, text, numeric, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "interpolate_offer_value",
+      "types": "numeric, numeric, numeric, numeric, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "invite_household_member",
+      "types": "text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.jwt",
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "is_power_user",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.jwt"
+      ]
+    },
+    {
+      "name": "is_user_suspended",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.jwt"
+      ]
+    },
+    {
+      "name": "kick_admin_email",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "kick_affiliate_sync",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "kick_esim_catalogue_sync",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "kick_fx_refresh",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "label_my_device",
+      "types": "text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "leave_household",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "list_carrier_offers",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "list_refill_offers",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "log_app_check_result",
+      "types": "uuid, text, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "lookup_voip_contact_by_phone",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "mark_voicemail_read",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "mark_voip_session_connected",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "my_devices",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "my_household_allowances",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "my_roaming_carriers",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "normalize_device_id",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "notification_channel_eligible",
+      "types": "uuid, uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "offer_watch_metrics",
+      "types": "integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "offline_voucher_amount_due",
+      "types": "numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "offline_voucher_source_for_carrier",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "offline_voucher_state",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "open_offline_voucher_request",
+      "types": "uuid, uuid, uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "pay_plan_fee_from_wallet",
+      "types": "text, uuid, text, text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "pick_best_refill_offer",
+      "types": "uuid, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "plan_price_net",
+      "types": "text, uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "preserve_whatsapp_legacy_flags",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "process_due_notifications",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "project_whatsapp_delivery",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "protect_caller_id_verification_fields",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "protect_is_power_user",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "protect_notification_channel_config",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "provision_offline_voucher",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "prune_database_logs",
+      "types": "integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.job_run_details"
+      ]
+    },
+    {
+      "name": "prune_offer_price_history",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "prune_rate_limit_data",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "purge_deleted_accounts",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "net.http_post",
+        "vault.decrypted_secrets"
+      ]
+    },
+    {
+      "name": "queue_premium_refill_executions",
+      "types": "uuid, uuid, timestamp with time zone, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "quote_line_verification",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "quote_plan_price",
+      "types": "uuid, text, text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "quote_premium_breakdown",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "quote_sim_setup",
+      "types": "text, text, uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "quote_wallet_refund",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "reap_stale_esim_orders",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "reap_stuck_executions",
+      "types": "integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "record_affiliate_click",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "record_manual_external_recharge",
+      "types": "uuid, timestamp with time zone, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "record_voucher_purchase_result",
+      "types": "uuid, jsonb, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "redeem_referral_points",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "refill_interval_days",
+      "types": "integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "refills_per_year",
+      "types": "integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "refresh_fx_rates",
+      "types": "jsonb, timestamp with time zone, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "refresh_offer_price_watch",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "refresh_own_sim_line_alert_clock",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "refresh_provider_offers",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "refresh_usage_forecasts",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "release_sim_setup_holds",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "release_wallet_hold",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "report_device_block",
+      "types": "text, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "report_offline_voucher_reveal",
+      "types": "uuid, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_account_deletion",
+      "types": "text, boolean",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid",
+        "auth.users"
+      ]
+    },
+    {
+      "name": "request_esim_purchase",
+      "types": "text, integer, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_instant_refill",
+      "types": "uuid, text, text, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_notification_event",
+      "types": "text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_notification_test",
+      "types": "text, uuid, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_refill_approval_quote",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "request_wallet_refund",
+      "types": "uuid, numeric, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "reschedule_mini_refill",
+      "types": "uuid, timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "reserve_sim_setup_holds",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "reserve_wallet_funds",
+      "types": "uuid, numeric, text, text, text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "reset_mini_refill_to_default",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "resolve_account_commerce_benefit",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_app_fee",
+      "types": "text, text, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_country_by_phone",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_esim_offer_price",
+      "types": "numeric, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_free_call_recipient",
+      "types": "text, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid",
+        "auth.users"
+      ]
+    },
+    {
+      "name": "resolve_household_payer",
+      "types": "uuid, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_line_entitlement",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_pending_household_invites",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "resolve_sender_user",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "respond_to_household_invite",
+      "types": "uuid, boolean",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.jwt",
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "resume_awaiting_funds_executions",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "retry_execution_at_next_supplier",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "retry_topup_execution",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "revoke_my_device",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "roam_or_esim_quote",
+      "types": "text, integer, bigint, uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "route_topup_execution",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "run_auto_rescue",
+      "types": "boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "save_voip_offer",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "schedule_delayed_notification",
+      "types": "uuid, text, text, text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "cron.schedule",
+        "cron.unschedule"
+      ]
+    },
+    {
+      "name": "script_claim_next_execution",
+      "types": "text, integer",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "script_complete_execution",
+      "types": "uuid, boolean, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "seed_default_alert_settings",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "set_household_member_cap",
+      "types": "uuid, numeric, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "set_line_rescue_policy",
+      "types": "uuid, numeric, integer, integer",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "set_user_caller_id_preference",
+      "types": "uuid, uuid, boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "settle_call_wallet_hold",
+      "types": "uuid, numeric, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "settle_line_verification_attempt",
+      "types": "uuid, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "settle_offline_voucher",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "settle_successful_execution",
+      "types": "uuid, text, uuid, text, text, text, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "snapshot_esim_usage",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "supplier_candidates",
+      "types": "uuid, text, text[]",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "supplier_effective_cost",
+      "types": "text, numeric",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "sweep_offline_voucher_requests",
+      "types": "boolean",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "sync_all_sim_line_alert_clocks",
+      "types": "timestamp with time zone",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "sync_auto_price_watches",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "sync_offline_endpoint_configs",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "sync_power_user_claim",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "sync_suspended_claim",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.users"
+      ]
+    },
+    {
+      "name": "terminate_voip_session",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "touch_user_device",
+      "types": "text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "tr_fx_rate_sanity",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "transfer_wallet_credit",
+      "types": "text, numeric, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid",
+        "auth.users"
+      ]
+    },
+    {
+      "name": "trg_fn_affiliate_offer_normalise",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_apply_plan_tier_from_payment",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_award_referral_points",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_cancel_executions_on_schedule_delete",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_carrier_map_provider_sells_topup",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_default_notification_channel_email",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_dispatch_notification",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_esim_offer_country_count",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_floor_forecast_suggestion",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_household_cap_requires_manager",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_household_member_id_matches_email",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_log_topup_activity",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_notify_system_alert",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_notify_topup_result",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_notify_wallet_credit",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_prevent_sim_line_plan_tampering",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_prune_line_activity_log",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_record_esim_price_history",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_record_topup_price_history",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_refresh_alert_clocks_on_rule",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_resume_awaiting_funds",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_supplier_failover",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_support_ticket_messages_process",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_sync_alert_clock_on_activity",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_sync_alert_clock_on_sim_line",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_sync_custom_refill_queue",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_sync_offline_endpoints",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_fn_sync_sim_line_health_and_due",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "trg_scheduled_topup_health_sync",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_did_forwarding",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "update_execution_failed",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_execution_status",
+      "types": "uuid, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_execution_status",
+      "types": "uuid, text, text, text, text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_line_health",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_mini_refill_dates",
+      "types": "uuid, jsonb",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "auth.uid"
+      ]
+    },
+    {
+      "name": "update_sim_line_last_topup_at",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_test_cases_updated_at",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "update_updated_at",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "url_encode",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "validate_config_value",
+      "types": "text, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "voucher_decrypt_pin",
+      "types": "bytea",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "extensions.pgp_sym_decrypt"
+      ]
+    },
+    {
+      "name": "voucher_encrypt_pin",
+      "types": "text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "extensions.pgp_sym_encrypt"
+      ]
+    },
+    {
+      "name": "voucher_pin_fingerprint",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": [
+        "extensions.digest"
+      ]
+    },
+    {
+      "name": "whatsapp_attempt_send_allowed",
+      "types": "uuid, text",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "whatsapp_refill_healthy",
+      "types": "uuid",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    },
+    {
+      "name": "whatsapp_state_monotonic",
+      "types": "",
+      "exact_body_match": true,
+      "non_public_static_references": []
+    }
+  ]
+}

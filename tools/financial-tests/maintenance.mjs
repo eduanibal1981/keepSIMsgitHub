@@ -36,13 +36,13 @@ function integratedPurge(kind='purge'){
   },storage:{from(){return {async list(){return {data:[],error:null};},async remove(){throw Error('No files in this fixture');}};}},
   auth:{admin:{async deleteUser(id){assert.equal(id,target);await query('DELETE FROM auth.users WHERE id=$1',[id]);return {error:null};}}}};
   const mod=loadEdge('supabase/functions/'+(kind==='email'?'send-admin-email':'purge-accounts')+'/index.ts',{serve:()=>{},createClient:()=>client,
-    env:{SUPABASE_URL:'https://project.invalid',SUPABASE_SERVICE_ROLE_KEY:'synthetic-service',RESEND_API_KEY:'synthetic-provider'},
+    env:{SUPABASE_URL:'https://project.invalid',SUPABASE_SERVICE_ROLE_KEY:'synthetic-service',RESEND_API_KEY:'test-provider'},
     fetch:(url)=>{assert.equal(kind,'email');assert.equal(url,'https://api.resend.com/emails');return Response.json({id:'synthetic-provider-acceptance'});}});
   return kind==='email'?mod.handleAdminEmail:mod.handlePurgeRequest;
 }
 const seed=`INSERT INTO auth.users(id,email) VALUES('${admin}','admin@example.invalid'),('${target}','target@example.invalid');
 INSERT INTO public.profiles(id,email) VALUES('${admin}','admin@example.invalid'),('${target}','target@example.invalid');
-INSERT INTO vault.decrypted_secrets(name,decrypted_secret) VALUES('dispatch_shared_secret','synthetic-purge-secret'),('admin_email_secret','synthetic-mail-secret');`;
+INSERT INTO vault.decrypted_secrets(name,decrypted_secret) VALUES('dispatch_shared_secret','test-purge-secret'),('admin_email_secret','test-mail-secret');`;
 try{
   await server.initialise();await server.start();db=await connect();
   await query(await read('supabase/tests/fixtures/notification_scheduler_baseline.sql'));
@@ -203,7 +203,7 @@ try{
   });
   await scenario('actual Edge handler uses exact named SQL RPCs and completes only after isolated Auth removal/audit',async()=>{
     const r=await request(),handle=integratedPurge();
-    const response=await handle(new Request('https://project.invalid/purge',{method:'POST',headers:{'x-keep-sims-secret':'synthetic-purge-secret'},body:JSON.stringify({job_id:r.job_id})}));
+    const response=await handle(new Request('https://project.invalid/purge',{method:'POST',headers:{'x-keep-sims-secret':'test-purge-secret'},body:JSON.stringify({job_id:r.job_id})}));
     assert.equal(response.status,200);assert.equal((await response.json()).status,'completed');
     assert.equal(await value('SELECT count(*)::int AS value FROM auth.users WHERE id=$1',[target]),0);
     assert.equal(await value("SELECT count(*)::int AS value FROM public.admin_audit_log WHERE action='user.purge_completed' AND actor_id=$1",[admin]),1);
@@ -213,14 +213,14 @@ try{
     await query(`CREATE FUNCTION public.fixture_completion_audit_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
       IF NEW.action IN ('user.purge_completed','user.purge_failed') THEN RAISE EXCEPTION 'Synthetic audit outage' USING ERRCODE='23514'; END IF; RETURN NEW; END $$;
       CREATE TRIGGER fixture_audit BEFORE INSERT ON public.admin_audit_log FOR EACH ROW EXECUTE FUNCTION public.fixture_completion_audit_failure()`);
-    const response=await integratedPurge()(new Request('https://project.invalid/purge',{method:'POST',headers:{'x-keep-sims-secret':'synthetic-purge-secret'},body:JSON.stringify({job_id:r.job_id})}));
+    const response=await integratedPurge()(new Request('https://project.invalid/purge',{method:'POST',headers:{'x-keep-sims-secret':'test-purge-secret'},body:JSON.stringify({job_id:r.job_id})}));
     assert.equal(response.status,503);assert.equal(await value('SELECT state AS value FROM public.account_purge_jobs'),'processing');
     assert.equal(await value('SELECT count(*)::int AS value FROM auth.users WHERE id=$1',[target]),0);
     assert.equal(await value("SELECT count(*)::int AS value FROM public.admin_audit_log WHERE action='user.purge_completed'"),0);
   });
   await scenario('actual replacement email handler claims and records a synthetic provider acceptance through exact named SQL RPCs',async()=>{
     const id=await value("INSERT INTO public.admin_emails(created_by,from_address,to_addresses,subject,body_text) VALUES($1,'from@example.invalid',ARRAY['to@example.invalid'],'Synthetic','Body') RETURNING id AS value",[admin]);
-    const response=await integratedPurge('email')(new Request('https://project.invalid/email',{method:'POST',headers:{'x-sync-secret':'synthetic-mail-secret'},body:JSON.stringify({email_id:id})}));
+    const response=await integratedPurge('email')(new Request('https://project.invalid/email',{method:'POST',headers:{'x-sync-secret':'test-mail-secret'},body:JSON.stringify({email_id:id})}));
     assert.equal(response.status,200);assert.equal((await response.json()).status,'accepted_by_provider');
     assert.equal(await value('SELECT provider_message_id AS value FROM public.admin_emails'),'synthetic-provider-acceptance');
   });

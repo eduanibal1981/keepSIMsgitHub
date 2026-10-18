@@ -16,7 +16,7 @@ void main() {
     String currency = 'EGP',
     String requestedCurrency = 'EGP',
     double rate = 50.693486,
-    String symbol = '£',
+    String symbol = 'E£',
     int decimalDigits = 2,
     String? asOf = '2026-07-30T00:02:31Z',
     bool stale = false,

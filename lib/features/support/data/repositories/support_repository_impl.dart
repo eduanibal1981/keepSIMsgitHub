@@ -213,7 +213,7 @@ class SupportRepositoryImpl implements SupportRepository {
       await _supabase.storage.from('ticket-attachments').uploadBinary(
             path,
             fileBytes,
-            fileOptions: FileOptions(
+            fileOptions: const FileOptions(
               cacheControl: '3600',
               upsert: true,
             ),

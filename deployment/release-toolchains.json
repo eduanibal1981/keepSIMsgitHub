@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "flutter": "3.47.7",
+  "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+  "dart": "3.13.5",
+  "node": "26.11.1",
+  "ci_python": "3.12.8",
+  "minimum_python": "3.9",
+  "deno": "2.5.6",
+  "postgrest": "16.4",
+  "database_dependencies": "tools/financial-tests/package-lock.json",
+  "pglite": "0.5.10",
+  "embedded_postgres": "18.4.0-beta.17",
+  "ci_os": "macos-15",
+  "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+}

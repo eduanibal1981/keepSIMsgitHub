@@ -1,5 +1,6 @@
 import 'package:keep_sims/features/sim_lines/domain/line_refill_quote.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
@@ -321,8 +322,8 @@ class SimLinesRepositoryImpl implements SimLinesRepository {
             countries.add(c);
           }
         } catch (e) {
-          print(
-            '[getSupportedCountries] Error parsing country: $e, item: $item',
+          debugPrint(
+            '[getSupportedCountries] Skipped an invalid country record.',
           );
         }
       }

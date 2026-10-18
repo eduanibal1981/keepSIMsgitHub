@@ -1,0 +1,32 @@
+{
+  "environment": "isolated PGlite, production-shaped bounded public fixture",
+  "full_fresh_provisioning": "BLOCKED: no approved complete baseline or non-public dependencies",
+  "full_current_shape_upgrade": "BLOCKED: not covered by this bounded fixture",
+  "results": [
+    {
+      "mode": "clean captured public subset",
+      "name": "17 exact signatures and bodies restored in isolation",
+      "status": "passed"
+    },
+    {
+      "mode": "clean captured public subset",
+      "name": "forward repairs retire legacy overloads and retain service-only claims",
+      "status": "passed"
+    },
+    {
+      "mode": "upgrade captured public subset with existing identity/wallet",
+      "name": "17 exact signatures and bodies restored in isolation",
+      "status": "passed"
+    },
+    {
+      "mode": "upgrade captured public subset with existing identity/wallet",
+      "name": "forward repairs retire legacy overloads and retain service-only claims",
+      "status": "passed"
+    },
+    {
+      "mode": "upgrade captured public subset with existing identity/wallet",
+      "name": "existing identity and zero-balance wallet preserved without fabricated funding",
+      "status": "passed"
+    }
+  ]
+}

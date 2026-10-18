@@ -1,0 +1,11 @@
+{
+  "purpose": "Historical test dependencies only. Never replay as a deployment list. Preserve the complete immutable archive in the original repository; unrelated historical credential-bearing SQL is not distributed in a test source bundle.",
+  "files": [
+    "20260915030000_phase1_atomic_settlement_and_recovery.sql",
+    "20260915070000_phase4_safe_product_replacement_and_supplier_failover.sql",
+    "20260917182910_calling_media_sessions.sql",
+    "20260921020000_virtual_did_numbers.sql",
+    "20261014212438_resolve_free_call_recipient_exact.sql",
+    "20261014214959_protect_caller_id_verification_fields.sql"
+  ]
+}

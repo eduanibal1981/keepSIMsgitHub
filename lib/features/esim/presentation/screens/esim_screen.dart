@@ -304,7 +304,7 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isActive ? Colors.teal.withOpacity(0.5) : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          color: isActive ? Colors.teal.withValues(alpha: 0.5) : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
           width: isActive ? 1.5 : 1.0,
         ),
       ),
@@ -319,7 +319,7 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.teal.withOpacity(0.12),
+                      color: Colors.teal.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.sim_card, color: Colors.teal, size: 20),
@@ -345,7 +345,7 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isActive ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                  color: isActive ? Colors.green.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -381,7 +381,7 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
             child: LinearProgressIndicator(
               value: pct,
               minHeight: 8,
-              backgroundColor: Colors.grey.withOpacity(0.2),
+              backgroundColor: Colors.grey.withValues(alpha: 0.2),
               color: pct > 0.2 ? Colors.teal : Colors.deepOrange,
             ),
           ),

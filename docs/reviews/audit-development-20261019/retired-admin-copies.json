@@ -1,0 +1,15 @@
+{
+  "reason": "No import/export from retained source/tests, no route or dynamic registration; disconnected copied customer flows reference nonexistent customer-only modules. Active admin analytics, models, repository and server financial APIs retained.",
+  "retired": {
+    "lib/features/sim_lines/presentation/screens/sim_line_detail_screen.dart": "152e92b8b717042174dfc2e93695099b0a4794320ea29b2d01d6775616914691",
+    "lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart": "fab1fc3d7b4aa9b10d052b094d6988be42957086136e3da9aa1a9026325fd5c1",
+    "lib/features/sim_lines/presentation/screens/sim_line_executions_history_screen.dart": "b55c660c089ab3fdb9d411d92fc606ee49dfb48f08714621743b2766d6c7fcf1",
+    "lib/features/sim_lines/presentation/screens/sim_lines_list_screen.dart": "46e44fd07e914bc2cc55675a13198a8fc488ba642ae529a4158ac5459ebabe1e",
+    "lib/features/sim_lines/presentation/widgets/number_verification_dialog.dart": "91a78ea0be8aec4163521a05ae45259b390d7b6aaedf001f18720c3531eb1858",
+    "lib/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart": "83808d27fabfa4956fdf8b309dfd8e1d11c2f587b00b92f425c59fad9fe506d6",
+    "lib/features/sim_lines/presentation/widgets/sim_line_card.dart": "425246c86537139bc95b1fa3b05264245f20f7b7392896de51940617c74b8331",
+    "lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart": "8604c6e567615a118066c56cd57c1dc93f758511a07190fa6bba0817fab8596c",
+    "lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart": "f1f0be55706c8b71dbf0b614e44e0c091b708c59bf5e45ae5bfc07cff0f679d0",
+    "lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.g.dart": "e0eabcc79f875b55853d146dfa46160e9574bbd272eb1ce6218a4a0a2d9d763f"
+  }
+}

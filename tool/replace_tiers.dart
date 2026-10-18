@@ -8,38 +8,41 @@ void main() {
 
   content = content.replaceAll(
     RegExp(
-      r'\|\|\s*\(\s*user\s*!=\s*null\s*&&\s*user\.subscriptionTier\.toLowerCase\(\)\s*==\s*\' "'" +
-          r'premium' +
-          "'" +
-          r'\s*\)',
+      r'\|\|\s*\(\s*user\s*!=\s*null\s*&&\s*user\.subscriptionTier\.toLowerCase\(\)\s*==\s*\'
+      "'"
+      r'premium'
+      "'"
+      r'\s*\)',
     ),
     '',
   );
 
   content = content.replaceAll(
     RegExp(
-      r'\|\|\s*\(\s*userProfile\s*!=\s*null\s*&&\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*==\s*\' "'" +
-          r'premium' +
-          "'" +
-          r'\s*\)',
+      r'\|\|\s*\(\s*userProfile\s*!=\s*null\s*&&\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*==\s*\'
+      "'"
+      r'premium'
+      "'"
+      r'\s*\)',
     ),
     '',
   );
 
   content = content.replaceAll(
     RegExp(
-      r'&&\s*\(\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*!=\s*\' "'" +
-          r'premium' +
-          "'" +
-          r'\s*&&\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*!=\s*\' +
-          "'" +
-          r'standard' +
-          "'" +
-          r'\s*\)',
+      r'&&\s*\(\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*!=\s*\'
+      "'"
+      r'premium'
+      "'"
+      r'\s*&&\s*userProfile\.subscriptionTier\.toLowerCase\(\)\s*!=\s*\'
+      "'"
+      r'standard'
+      "'"
+      r'\s*\)',
     ),
     '',
   );
 
   file.writeAsStringSync(content);
-  print('Done modifying sim_line_detail_screen.dart');
+  stdout.writeln('Done modifying sim_line_detail_screen.dart');
 }

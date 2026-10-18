@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "profile": "apps",
+  "started_utc": "2026-10-18T19:26:17.691350+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.9.6",
+  "toolchains": {
+    "format": 1,
+    "flutter": "3.47.7",
+    "flutter_revision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5",
+    "node": "26.11.1",
+    "ci_python": "3.12.8",
+    "minimum_python": "3.9",
+    "deno": "2.5.6",
+    "postgrest": "16.4",
+    "database_dependencies": "tools/financial-tests/package-lock.json",
+    "pglite": "0.5.10",
+    "embedded_postgres": "18.4.0-beta.17",
+    "ci_os": "macos-15",
+    "notes": "Candidate validation toolchain, not proof of VM or managed Supabase runtime parity. Native database binary is selected by the committed npm lock for each OS."
+  },
+  "checks": [
+    {
+      "name": "customer-dependencies",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "customer-dependencies.log",
+      "seconds": 3.064,
+      "log_sha256": "3e97fab3f367f3be5458386a68c339be7248b14243ef189e946698f7010ecfaa"
+    },
+    {
+      "name": "customer-analysis",
+      "status": "failed",
+      "exit_code": 1,
+      "log": "customer-analysis.log",
+      "seconds": 9.48,
+      "log_sha256": "4346ae9f5e419910c1603b535516be9d5abb12a7d66bbbe5765ad4291e6c809f"
+    },
+    {
+      "name": "customer-tests",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "customer-tests.log",
+      "seconds": 39.405,
+      "log_sha256": "06460968311bec5ed652e31258ba61fa559d8cf4822a089ed7d20e786d424c92"
+    },
+    {
+      "name": "admin-dependencies",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "admin-dependencies.log",
+      "seconds": 1.746,
+      "log_sha256": "5262268bc453ce7dd45b45351ddcf60d7855f9007c0133e0206ff91896ea53dd"
+    },
+    {
+      "name": "admin-analysis",
+      "status": "failed",
+      "exit_code": 1,
+      "log": "admin-analysis.log",
+      "seconds": 4.146,
+      "log_sha256": "582f690b59aafd9a56c6ba196442808ffec78757a71b2fbdfe6b3cd66190bee1"
+    },
+    {
+      "name": "admin-tests",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "admin-tests.log",
+      "seconds": 4.597,
+      "log_sha256": "05dd355f087031cb1327c81edae74b587c274d1835b0551989642fb4d05cfd93"
+    }
+  ],
+  "evidence": "local checks only; no provider sandbox or live smoke certification",
+  "status": "failed",
+  "release_approved": false
+}

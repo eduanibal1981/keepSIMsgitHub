@@ -23,7 +23,10 @@
     "test:second-number": "node second-number.mjs",
     "test:pricing": "node pricing.mjs",
     "test:retail": "node retail.mjs",
-    "test:schedules": "node schedules.mjs"
+    "test:schedules": "node schedules.mjs",
+    "test:vouchers": "node vouchers.mjs",
+    "test:source-recovery": "node source-recovery.mjs",
+    "test:fleet": "node fleet.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

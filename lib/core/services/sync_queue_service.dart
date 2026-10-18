@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:keep_sims/features/scheduled_topups/model/schedule_mutation_request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -141,13 +142,11 @@ class SyncQueue extends _$SyncQueue {
         await removeFromQueue(op.id);
       } on PostgrestException catch (e) {
         // If there's a database constraint or issue, log and skip/remove to avoid blocking
-        print(
-          'Offline Sync Queue POSTGREST Exception [Op: ${op.id}]: ${e.message}',
-        );
+        debugPrint('Offline sync rejected by database (${e.code}).');
         await removeFromQueue(op.id);
       } catch (e) {
         // Network failures should pause the sync queue processing
-        print('Offline Sync Queue general error [Op: ${op.id}]: $e');
+        debugPrint('Offline sync paused after a connection failure.');
         break;
       }
     }

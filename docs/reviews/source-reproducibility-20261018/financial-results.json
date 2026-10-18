@@ -1,0 +1,432 @@
+{
+  "results": [
+    {
+      "name": "mixed promotional and paid reversal restores exact original provenance across type aliases",
+      "status": "passed"
+    },
+    {
+      "name": "remaining provenance prevents referral gifting after the original cash was spent",
+      "status": "passed"
+    },
+    {
+      "name": "foreign-wallet and currency-corrupt lots or holds cannot be spent",
+      "status": "passed"
+    },
+    {
+      "name": "expired or quarantined original cash is restored without gaining refund eligibility",
+      "status": "passed"
+    },
+    {
+      "name": "stale unsubmitted claims are fenced while stale submitted claims never authorize a second POST",
+      "status": "passed"
+    },
+    {
+      "name": "provider success survives a financial rollback and then settles exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "partial failure releases only unused exposure while the other provider refund is pending",
+      "status": "passed"
+    },
+    {
+      "name": "refund binding and provider identity cannot be redirected between users",
+      "status": "passed"
+    },
+    {
+      "name": "refunded call retries cannot return a different users call transaction",
+      "status": "passed"
+    },
+    {
+      "name": "all new internal refund functions deny customer and anonymous execution",
+      "status": "passed"
+    },
+    {
+      "name": "admin retries retain one signed correction and reject conflicting operation terms",
+      "status": "passed"
+    },
+    {
+      "name": "ledger status updates and financial field edits cannot bypass insert-time funding",
+      "status": "passed"
+    },
+    {
+      "name": "pending entries of every supported type remain outside completed reconciliation",
+      "status": "passed"
+    },
+    {
+      "name": "new request keys and support operation keys preserve owner and admin boundaries",
+      "status": "passed"
+    },
+    {
+      "name": "a purchase reversal after unused cash was paid out restores only its unrefunded original allocation",
+      "status": "passed"
+    },
+    {
+      "name": "refund payout settles once under the real ledger discriminator CHECK",
+      "status": "passed"
+    },
+    {
+      "name": "valid eSIM purchase reversal restores the original refundable funding source",
+      "status": "passed"
+    },
+    {
+      "name": "supported call reversal discriminator preserves original funding and retry identity",
+      "status": "passed"
+    },
+    {
+      "name": "verified paid liveness settlement uses a production-supported ledger discriminator",
+      "status": "passed"
+    },
+    {
+      "name": "wallet accounting block 1",
+      "status": "passed"
+    },
+    {
+      "name": "wallet accounting block 2",
+      "status": "passed"
+    },
+    {
+      "name": "wallet accounting block 3",
+      "status": "passed"
+    },
+    {
+      "name": "wallet accounting block 4",
+      "status": "passed"
+    },
+    {
+      "name": "wallet accounting block 5",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 1",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 2",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 3",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 4",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 5",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 6",
+      "status": "passed"
+    },
+    {
+      "name": "financial remediation block 7",
+      "status": "passed"
+    },
+    {
+      "name": "setup API catalog has one compatible overload and restrictive internal grants",
+      "status": "passed"
+    },
+    {
+      "name": "Premium setup with balance 6 charges one fee/refill and supports both finalizer call shapes",
+      "status": "passed"
+    },
+    {
+      "name": "Premium setup with balance 20 charges one fee/refill and supports both finalizer call shapes",
+      "status": "passed"
+    },
+    {
+      "name": "completed/failed orders reject foreign owner and foreign or differently bound line before returns",
+      "status": "passed"
+    },
+    {
+      "name": "before-submit failure releases safely; Standard/free fallback uses current canonical interface",
+      "status": "passed"
+    },
+    {
+      "name": "ambiguous submission rejects stale failure, cancellation, finalizer release and fallback",
+      "status": "passed"
+    },
+    {
+      "name": "fallback insufficient funds remains retryable without retaining old reservations",
+      "status": "passed"
+    },
+    {
+      "name": "reservation rejects wrong owner/wallet/currency/amount/purpose/reference/released/expired/legacy before submission",
+      "status": "passed"
+    },
+    {
+      "name": "settlement requires committed submission and revalidates the hold on delivery",
+      "status": "passed"
+    },
+    {
+      "name": "fee/receipt/schedules rollback together when schedule write fails, then retry once",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled RPC catalog has one settlement signature and service-only grants",
+      "status": "passed"
+    },
+    {
+      "name": "refill_mini prepares, submits and captures exactly once with PIN fields",
+      "status": "passed"
+    },
+    {
+      "name": "refill_custom prepares, submits and captures exactly once with PIN fields",
+      "status": "passed"
+    },
+    {
+      "name": "missing holds and unproven external/prepaid funding cannot submit or settle",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects wrong payer",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects wrong wallet",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects wrong currency",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects insufficient amount",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects excess amount",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects wrong purpose",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects wrong execution",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects released hold",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects legacy hold",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects expired hold",
+      "status": "passed"
+    },
+    {
+      "name": "scheduled submission rejects missing hold",
+      "status": "passed"
+    },
+    {
+      "name": "route/price disagreement, authorization and stale prepared snapshots fail before submission",
+      "status": "passed"
+    },
+    {
+      "name": "unfunded lot allocations and reused holds cannot authorize a purchase",
+      "status": "passed"
+    },
+    {
+      "name": "settlement revalidates hold and submission bindings and preserves ambiguous money",
+      "status": "passed"
+    },
+    {
+      "name": "safe pre-submission stops release once; later attempts use a fresh bound reservation",
+      "status": "passed"
+    },
+    {
+      "name": "settlement rolls back capture when the execution write fails, then retries once",
+      "status": "passed"
+    },
+    {
+      "name": "insufficient available funds leave no partial reservation or route write",
+      "status": "passed"
+    },
+    {
+      "name": "recovery queue and RPCs deny customers, foreign users and direct provenance forgery",
+      "status": "passed"
+    },
+    {
+      "name": "refill_instant recovers delivery after worker crash and captures exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "refill_mini recovers delivery after worker crash and captures exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "refill_custom recovers delivery after worker crash and captures exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "confirmed failed submission releases once and cannot later be captured",
+      "status": "passed"
+    },
+    {
+      "name": "unknown after crash immediately before purchase remains reserved and cannot resubmit",
+      "status": "passed"
+    },
+    {
+      "name": "pending after crash immediately before purchase remains reserved and cannot resubmit",
+      "status": "passed"
+    },
+    {
+      "name": "lost lookup completion is leased, then reclaimed; old token cannot settle",
+      "status": "passed"
+    },
+    {
+      "name": "binding drift and delivery settlement errors retain all money with one operator alert",
+      "status": "passed"
+    },
+    {
+      "name": "conflicting failure after ordinary worker delivery cannot release or downgrade",
+      "status": "passed"
+    },
+    {
+      "name": "bounded retries including repeated crashes surface one operator item",
+      "status": "passed"
+    },
+    {
+      "name": "legacy false flags and legacy holds never authorize retry, release or new submission",
+      "status": "passed"
+    },
+    {
+      "name": "safe pre-submission expiry releases valid holds and preserves mismatched reservations",
+      "status": "passed"
+    },
+    {
+      "name": "cron-role reaper bounds, safe retries and submitted rows never requeue",
+      "status": "passed"
+    },
+    {
+      "name": "active call and pending refund reservations stay held with deduplicated operator evidence",
+      "status": "passed"
+    },
+    {
+      "name": "an unresolved sibling submission blocks a different execution on the same line",
+      "status": "passed"
+    },
+    {
+      "name": "customer and anonymous roles cannot self-confirm, settle, bind, reserve attempts or mutate evidence",
+      "status": "passed"
+    },
+    {
+      "name": "quote rejects anonymous impersonation and foreign users; free plans cannot gain legacy premium allowance",
+      "status": "passed"
+    },
+    {
+      "name": "paid SMS captures once, preserves ledger/funding/reconciliation and earns only 25 verification points",
+      "status": "passed"
+    },
+    {
+      "name": "verified health preserves the notify and recent-refill pillars instead of fabricating a perfect score",
+      "status": "passed"
+    },
+    {
+      "name": "failed wallet capture rolls back evidence, ledger, balance and verification together",
+      "status": "passed"
+    },
+    {
+      "name": "ring evidence settles voice; no-answer and normal clearing alone cannot verify",
+      "status": "passed"
+    },
+    {
+      "name": "free corridor and annual allowance success charge no wallet money; allowance is consumed once",
+      "status": "passed"
+    },
+    {
+      "name": "failure releases only its exact allowance or hold; repeated release and delayed success cannot award verification",
+      "status": "passed"
+    },
+    {
+      "name": "provider/resource/method/outcome mismatches cannot settle another attempt or release its funds",
+      "status": "passed"
+    },
+    {
+      "name": "idempotent start adopts one reservation; key mismatch and insufficient funds cannot create extra attempts",
+      "status": "passed"
+    },
+    {
+      "name": "unknown dispatch remains blocked after expiry and cannot be repeated or implicitly released",
+      "status": "passed"
+    },
+    {
+      "name": "foreign hold or allowance binding makes settlement atomic and leaves line unverified",
+      "status": "passed"
+    },
+    {
+      "name": "arbitrary verification prose and legacy succeeded attempts cannot earn health points",
+      "status": "passed"
+    },
+    {
+      "name": "identity edits during pending verification are blocked; later edits clear verification",
+      "status": "passed"
+    },
+    {
+      "name": "direct invoker trigger prevents forged client fields on insert/update while preserving nickname updates",
+      "status": "passed"
+    },
+    {
+      "name": "call budget APIs deny anonymous, ordinary, foreign and power-user clients",
+      "status": "passed"
+    },
+    {
+      "name": "five minutes of funding never authorizes sixty minutes from posted funds",
+      "status": "passed"
+    },
+    {
+      "name": "exact fee/increment/cent boundaries use one formula including unanswered and partial calls",
+      "status": "passed"
+    },
+    {
+      "name": "owned session and authoritative tariff are required; failures roll back call and hold",
+      "status": "passed"
+    },
+    {
+      "name": "answered call settles one increment and ledger/funding/balance agree on the actual debit",
+      "status": "passed"
+    },
+    {
+      "name": "unanswered decline releases its hold once without charging a connection fee",
+      "status": "passed"
+    },
+    {
+      "name": "hangup before bridge retains funds then late bridge settles from original provider times",
+      "status": "passed"
+    },
+    {
+      "name": "app hangup cannot prematurely release a submitted destination or trigger another dial",
+      "status": "passed"
+    },
+    {
+      "name": "submission markers fence retries and expired/unknown calls keep their holds",
+      "status": "passed"
+    },
+    {
+      "name": "pre-submission cancellation releases once; post-submission cancellation retains money",
+      "status": "passed"
+    },
+    {
+      "name": "settlement failure preserves committed evidence, funding and recoverable active hold",
+      "status": "passed"
+    },
+    {
+      "name": "provider overrun is capped to the reserved money and recorded for reconciliation",
+      "status": "passed"
+    },
+    {
+      "name": "foreign hold binding and conflicting terminal evidence cannot settle or steal money",
+      "status": "passed"
+    },
+    {
+      "name": "legacy calls require reconciliation and never debit unreserved funds",
+      "status": "passed"
+    }
+  ]
+}

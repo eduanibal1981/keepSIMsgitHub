@@ -1,0 +1,207 @@
+{
+  "environment": "isolated native PostgreSQL",
+  "passed": 50,
+  "failed": 0,
+  "results": [
+    {
+      "name": "versioned manifest exactly matches all required SQL process and lane thresholds",
+      "status": "passed"
+    },
+    {
+      "name": "a green legacy eSIM heartbeat never conceals the rest of the missing fleet",
+      "status": "passed"
+    },
+    {
+      "name": "all fresh successful workers, empty probes and successful cron runs yield healthy",
+      "status": "passed"
+    },
+    {
+      "name": "stopping server_baileys is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker_instant_refill is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker_auto_mini_refill is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker_auto_custom_refill is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker_offers_cache is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker-esim-catalog is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping worker-esim-fulfillment is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping server_tg is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stopping supplier-reconciliation is detected independently",
+      "status": "passed"
+    },
+    {
+      "name": "stalling server_baileys is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker_instant_refill is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker_auto_mini_refill is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker_auto_custom_refill is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker_offers_cache is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker-esim-catalog is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling worker-esim-fulfillment is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling server_tg is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "stalling supplier-reconciliation is detected despite fresh heartbeats",
+      "status": "passed"
+    },
+    {
+      "name": "a stalled usage lane cannot be hidden by fulfillment progress",
+      "status": "passed"
+    },
+    {
+      "name": "actual Node reporter and PostgreSQL RPC agree on successful progress and failed cycles",
+      "status": "passed"
+    },
+    {
+      "name": "real client roles cannot report health or read private state, even if an RPC grant regresses",
+      "status": "passed"
+    },
+    {
+      "name": "JWT power users can read detailed fleet state through the guarded admin API",
+      "status": "passed"
+    },
+    {
+      "name": "initial running cycles without a successful observation never report healthy",
+      "status": "passed"
+    },
+    {
+      "name": "fresh heartbeats without a new successful cycle eventually become stalled",
+      "status": "passed"
+    },
+    {
+      "name": "reordered heartbeats and superseded process instances cannot resurrect old success",
+      "status": "passed"
+    },
+    {
+      "name": "arbitrary payload fields, secret-bearing versions and unknown workers are rejected",
+      "status": "passed"
+    },
+    {
+      "name": "public/API polls use cached queue measurements, live worker state and fail closed on stale measurements",
+      "status": "passed"
+    },
+    {
+      "name": "probe failures and missing cron metadata fail closed independently",
+      "status": "passed"
+    },
+    {
+      "name": "overdue queues, stale refill claims and future work have distinct behavior",
+      "status": "passed"
+    },
+    {
+      "name": "operator supplier reconciliation and expired leases remain visible with fresh reconciler",
+      "status": "passed"
+    },
+    {
+      "name": "overdue voucher requests and failed manual-stock jobs are visible without starting purchases",
+      "status": "passed"
+    },
+    {
+      "name": "failed billing email and ambiguous WhatsApp sends degrade fleet without exposing payloads",
+      "status": "passed"
+    },
+    {
+      "name": "failed or paused required cron jobs degrade health and recovery is immediate",
+      "status": "passed"
+    },
+    {
+      "name": "alerts are bounded per component across repeated sweeps and flapping recovery",
+      "status": "passed"
+    },
+    {
+      "name": "catalogue freshness checks only explicitly active suppliers and routes",
+      "status": "passed"
+    },
+    {
+      "name": "failed approval pricing work cannot be hidden by later idle polling",
+      "status": "passed"
+    },
+    {
+      "name": "failed notification targets and expired dispatcher claims remain visible",
+      "status": "passed"
+    },
+    {
+      "name": "stale eSIM fulfillment and failed purge jobs are distinct visible backlogs",
+      "status": "passed"
+    },
+    {
+      "name": "failed payout and reconciliation-required payout records stay visible",
+      "status": "passed"
+    },
+    {
+      "name": "DID purchase ambiguity is reported without a provider lookup or purchase",
+      "status": "passed"
+    },
+    {
+      "name": "ledger drift is observable without publishing balances",
+      "status": "passed"
+    },
+    {
+      "name": "cron run failures, missing runs and hung jobs never count as healthy",
+      "status": "passed"
+    },
+    {
+      "name": "alert cooldown survives state changes and permits a bounded later reminder",
+      "status": "passed"
+    },
+    {
+      "name": "failed alert storage cannot suppress a later healthy storage retry",
+      "status": "passed"
+    },
+    {
+      "name": "independent sweeps serialize and insert one incident alert",
+      "status": "passed"
+    },
+    {
+      "name": "fleet tables and raw snapshot stay private; observation APIs have explicit grants",
+      "status": "passed"
+    },
+    {
+      "name": "ordinary authenticated users cannot inspect detailed worker health",
+      "status": "passed"
+    }
+  ]
+}

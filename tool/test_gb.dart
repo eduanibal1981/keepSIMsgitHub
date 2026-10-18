@@ -13,18 +13,19 @@ void main() async {
   }
 
   final uri = Uri.parse('https://api.esim-go.com/v2.4/catalogue?countries=GB');
-  final response = await http.get(uri, headers: {
-    'X-API-Key': apiKey ?? '',
-    'Accept': 'application/json',
-  });
+  final response = await http.get(
+    uri,
+    headers: {'X-API-Key': apiKey ?? '', 'Accept': 'application/json'},
+  );
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> jsonMap = jsonDecode(response.body);
-    print('Keys in response: ${jsonMap.keys.toList()}');
+    stdout.writeln('Keys in response: ${jsonMap.keys.toList()}');
     final List<dynamic> bundles = jsonMap['bundles'] ?? [];
-    print('Total plans overall for GB query: ${bundles.length}');
-    if (bundles.isNotEmpty) print('First plan: ${bundles.first['name']}');
+    stdout.writeln('Total plans overall for GB query: ${bundles.length}');
+    if (bundles.isNotEmpty)
+      stdout.writeln('First plan: ${bundles.first['name']}');
   } else {
-    print('Error: ${response.statusCode} - ${response.body}');
+    stdout.writeln('Error: ${response.statusCode} - ${response.body}');
   }
 }

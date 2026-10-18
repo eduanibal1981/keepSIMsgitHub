@@ -1,0 +1,10 @@
+{
+  "version": "16.4",
+  "release": "https://github.com/PostgREST/postgrest/releases/tag/v16.4",
+  "archives": {
+    "darwin-arm64": ["postgrest-v16.4-macos-aarch64.tar.xz", "5720fbde4a19ade9fb189791615c84beb9f0e58201b1b6d17fe3b698faf60776"],
+    "darwin-x64": ["postgrest-v16.4-macos-x86-64.tar.xz", "9c50547cddf94ede6abf42dacc586caa18e17db4557aee386c6e45e6806aaed2"],
+    "linux-x64": ["postgrest-v16.4-linux-static-x86-64.tar.xz", "b47ecc82fce1dcebbbc4183d839e52f07f7630c9d7ad0f54db753d1939299354"],
+    "linux-arm64": ["postgrest-v16.4-linux-static-aarch64.tar.xz", "bf544f94f305a1ff37d82f5ef1298d584f1f98b51dfd8182d1437a02073d8731"]
+  }
+}

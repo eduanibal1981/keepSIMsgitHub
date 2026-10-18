@@ -1,0 +1,8 @@
+BLOCKING: full-baseline — No approved complete provisioning baseline: public export/routine evidence and bounded fixtures omit managed Auth/Storage/Vault/net/cron dependency contracts, application-owned cross-schema objects and owner/default-ACL replay.
+BLOCKING: full-upgrade — The entire ordered release has not been applied together to the complete current shape. Bounded subsystem tests cannot establish that convergence.
+BLOCKING: remote-history — 23 original remote-only history rows lack original statements. Capture current contracts separately; never fabricate dates/statements or mark rows reverted because files moved.
+BLOCKING: live-definition-owners — Automatic approval review rejected full production SQL-definition/ownership export. Exact public body/signature comparisons are available; full current definitions/owners remain unverified.
+BLOCKING: worker-runtime — Fresh VM hashes differ from some repaired local sources. Runtime package/lock sources are recovered exactly, but installed dependency equivalence and a clean installation under the observed Node 22.23.1 runtime still require release verification.
+BLOCKING: config-seeds-cron — Required non-secret effective prices, routing/policy/config rows and safe cron templates are not an approved seed set. Hashes and config names do not provision values. Secrets must be provisioned separately.
+BLOCKING: edge-parity — Full deployed Edge source parity, explicit gateway settings for every source and exact remote dependency locks remain incomplete; live test-func-check has no versioned entrypoint.
+BLOCKING: release-gate — Task 24 pinned toolchain/application/API/provider checks and Task 25 operational approval are still required.

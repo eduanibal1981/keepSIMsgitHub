@@ -153,7 +153,7 @@ class RefillPricing {
     return interval > 365 ? 365 : interval;
   }
 
-  /// Refills a premium subscription pre-pays for in a year.
+  /// Number of due refill occurrences in a 365-day forecast.
   static int refillsPerYear(int inactivityLimitDays, {int? override}) {
     final interval = refillIntervalDays(
       inactivityLimitDays,

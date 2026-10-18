@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'dart:io';
@@ -14,12 +13,12 @@ void main() async {
     }
   }
   final uri = Uri.parse('https://api.esim-go.com/v2.4/catalogue');
-  final response = await http.get(uri, headers: {
-    'X-API-Key': apiKey ?? '',
-    'Accept': 'application/json',
-  });
-  
-  print('Status: ${response.statusCode}');
-  print('Response body preview:');
-  print(response.body.substring(0, 500));
+  final response = await http.get(
+    uri,
+    headers: {'X-API-Key': apiKey ?? '', 'Accept': 'application/json'},
+  );
+
+  stdout.writeln('Status: ${response.statusCode}');
+  stdout.writeln('Response body preview:');
+  stdout.writeln(response.body.substring(0, 500));
 }

@@ -1,0 +1,189 @@
+{
+  "scope": "read-only sanitized metadata and file hashes; no environment, source bodies or customer/provider data",
+  "pm2Status": "read",
+  "processes": [
+    {
+      "name": "server_baileys",
+      "path": "/home/abdal/keepsims_backend/servers/server_baileys.js",
+      "cwd": "/home/abdal",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker_instant_refill",
+      "path": "/home/abdal/keepsims_backend/servers/worker_instant_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "path": "/home/abdal/keepsims_backend/servers/worker_auto_mini_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "path": "/home/abdal/keepsims_backend/servers/worker_auto_custom_refill.js",
+      "cwd": "/home/abdal/keepsims_backend/servers",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker_offers_cache",
+      "path": "/home/abdal/keepsims_backend/servers/worker_offers_cache.js",
+      "cwd": "/home/abdal/keepsims_backend/servers",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker-esim-catalog",
+      "path": "/home/abdal/keepsims_backend/servers/worker_esim_catalog.js",
+      "cwd": "/home/abdal/keepsims_backend",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "path": "/home/abdal/keepsims_backend/servers/worker_esim_fulfillment.js",
+      "cwd": "/home/abdal/keepsims_backend",
+      "status": "online",
+      "node_version": "22.23.1"
+    },
+    {
+      "name": "server_tg",
+      "path": "/home/abdal/keepsims_backend/servers/server_tg.js",
+      "cwd": "/home/abdal/keepsims_backend/servers",
+      "status": "online",
+      "node_version": "22.23.1"
+    }
+  ],
+  "files": [
+    {
+      "path": "durable_whatsapp_queue.js",
+      "sha256": "e9f0cc2bc220e70133d335c4a2c2077411fd4f26d72d62b45e6967bee6f3b2e3"
+    },
+    {
+      "path": "durable_whatsapp_receipts.js",
+      "sha256": "885e4f87ce9f2f9ab08c87283c296c775510f2a6f855902eb79808f842f08e65"
+    },
+    {
+      "path": "offer_validation.js",
+      "sha256": "760f95db1dfb4812b9329920389dae6a636e56c8ec31813aa4ab4851403e521a"
+    },
+    {
+      "path": "offer_validation.test.js",
+      "sha256": "a5d6315d90a6a99912259c55b7629859f4fc66c1307b2e6a076b7c961d8048bb"
+    },
+    {
+      "path": "providers/ding.js",
+      "sha256": "0a315485b53f1e09343cdc71d26f974241959b56583b2c667ceadfa8beedf982"
+    },
+    {
+      "path": "providers/dtone.js",
+      "sha256": "18a74c97a997e2877a1dff06b8aff35998008f789b21273003d6406a69dfd15c"
+    },
+    {
+      "path": "providers/esimaccess.js",
+      "sha256": "df1ad8336ec10ea0fd0cc968c3cc8935486de18507bd70dbe6ce75faa543d14a"
+    },
+    {
+      "path": "providers/firsty.js",
+      "sha256": "67cd285613687b66ccdae8e887ad765eaed14f25ea79437e27ffd2eb8d16e7bb"
+    },
+    {
+      "path": "providers/offer_validation.test.js",
+      "sha256": "537138bf19e94d3ae74740689b6e47a9743cc2d9719e6fc1ca566b7fdcbcd468"
+    },
+    {
+      "path": "providers/reloadly.js",
+      "sha256": "d086196674556128684967d342de44e3a105e5439ae44110b0b9f8d3a7d59134"
+    },
+    {
+      "path": "providers/zendit.js",
+      "sha256": "5f367c80b728fc41279439de94d3268ae34fbd3c982980c86fe70418c294f59a"
+    },
+    {
+      "path": "refill_approval_quotes.js",
+      "sha256": "db0621f9d86bc1fcdd864e8f5ffe6891b75adb8cc3e7061fe6a03ba5ec70b5c3"
+    },
+    {
+      "path": "server_baileys.js",
+      "sha256": "9584ac1d070e4f23f34df23968e18a69f7d92eb3db6cb4cdd820f48d35efc19b"
+    },
+    {
+      "path": "server_tg.js",
+      "sha256": "a5ffdbf490908094e1af16580afed1e524617f433703953beb05e9f1c073f406"
+    },
+    {
+      "path": "server_ww.js",
+      "sha256": "2c5333cc7212277049f59d3aeec1dda2de189077e83b497a3747bf84c1b3f916"
+    },
+    {
+      "path": "sim_liveness_service.js",
+      "sha256": "d2fd0e9527739cd2026669dd8cea1270bf2a79ed7f6621896b3415aa87500b23"
+    },
+    {
+      "path": "whatsapp_inbound_commands.js",
+      "sha256": "7160a7d8f54b6f0cf2697f5fa124e4375337a42fe6d94197e947addc8451bab4"
+    },
+    {
+      "path": "worker_auto_custom_refill.js",
+      "sha256": "66e9681fdf53ccc7f34e37edbec5e5d1b2f69a87fd2b23e5d67a847ddf7c023d"
+    },
+    {
+      "path": "worker_auto_mini_refill.js",
+      "sha256": "f6b9cc3cb64f7d759499760947bdaea8ea76305bbca1bd5d88c5be093182c5de"
+    },
+    {
+      "path": "worker_esim_catalog.js",
+      "sha256": "462f612e217bfcf347ecbfd89845aee12f0ac21bdfab1858c2808bea25cfc692"
+    },
+    {
+      "path": "worker_esim_fulfillment.js",
+      "sha256": "2d11d8e54c2a55fd3bf3cf7f2026fc36f08ac20e58f84b822c1f721a219f7a81"
+    },
+    {
+      "path": "worker_instant_refill.js",
+      "sha256": "05d584716727868edf71c3bb00f5619a903e56096caec879b7759c72d9f75fc2"
+    },
+    {
+      "path": "worker_offers_cache.js",
+      "sha256": "f0b54f05d2ff6045f6b75f4b8fa8654de62a8d38706cc6ca6e27f9d8b90f0e9a"
+    },
+    {
+      "path": "zendit.js",
+      "sha256": "96cdf9d1eb398a49d94f9615c7490b4f8a55731ef635b35bb42c20eb05278f1e"
+    }
+  ],
+  "dependencyFiles": [
+    {
+      "path": "/home/abdal/keepsims_backend/package.json",
+      "sha256": "806d6362179b4e81adf721a0e061bafa52c51ac714bc25289a040b43c6eabe22",
+      "lockfileVersion": null,
+      "dependencies": {
+        "@supabase/supabase-js": "^2.108.2",
+        "@whiskeysockets/baileys": "^7.0.0-rc13",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "pino": "^10.3.1",
+        "qrcode-terminal": "^0.12.0"
+      }
+    },
+    {
+      "path": "/home/abdal/keepsims_backend/package-lock.json",
+      "sha256": "bb9ed1de003378a4da3c6af8dfb351be500142f48793861e82faad4b7a4449a5",
+      "lockfileVersion": 3,
+      "dependencies": {
+        "@supabase/supabase-js": "^2.108.2",
+        "@whiskeysockets/baileys": "^7.0.0-rc13",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "pino": "^10.3.1",
+        "qrcode-terminal": "^0.12.0"
+      }
+    }
+  ],
+  "date": "2026-10-18"
+}

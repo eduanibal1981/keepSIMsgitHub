@@ -126,8 +126,9 @@ class _PayPalCheckoutScreenState extends ConsumerState<PayPalCheckoutScreen>
 
         // A stale link from an earlier order must not resolve this one.
         final returned = uri.queryParameters['order_id'];
-        if (returned != null && returned.isNotEmpty && returned != _orderId)
+        if (returned != null && returned.isNotEmpty && returned != _orderId) {
           return;
+        }
 
         // On iOS the SFSafariViewController stays up behind the app.
         closeInAppWebView();

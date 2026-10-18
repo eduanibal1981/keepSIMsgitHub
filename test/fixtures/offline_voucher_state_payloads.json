@@ -1,0 +1,116 @@
+{
+  "open": {
+    "lines": [
+      {
+        "grant": null,
+        "request": {
+          "due_at": "2026-11-01T12:00:00+00:00",
+          "reason": "no_stock"
+        },
+        "entitled": true,
+        "nickname": null,
+        "plan_type": "standard",
+        "carrier_id": "40000000-0000-4000-8000-000000000001",
+        "is_premium": false,
+        "sim_line_id": "20000000-0000-4000-8000-000000000001",
+        "carrier_name": "Fixture",
+        "phone_number": "+000000001",
+        "stock_available": false,
+        "carrier_redemption": null
+      }
+    ],
+    "enabled": true,
+    "success": true
+  },
+  "fulfilled": {
+    "lines": [
+      {
+        "grant": null,
+        "request": null,
+        "entitled": true,
+        "nickname": null,
+        "plan_type": "standard",
+        "carrier_id": "40000000-0000-4000-8000-000000000001",
+        "is_premium": false,
+        "sim_line_id": "20000000-0000-4000-8000-000000000001",
+        "carrier_name": "Fixture",
+        "phone_number": "+000000001",
+        "stock_available": false,
+        "carrier_redemption": null
+      }
+    ],
+    "enabled": true,
+    "success": true
+  },
+  "cancelled": {
+    "lines": [
+      {
+        "grant": null,
+        "request": null,
+        "entitled": true,
+        "nickname": null,
+        "plan_type": "standard",
+        "carrier_id": "40000000-0000-4000-8000-000000000001",
+        "is_premium": false,
+        "sim_line_id": "20000000-0000-4000-8000-000000000001",
+        "carrier_name": "Fixture",
+        "phone_number": "+000000001",
+        "stock_available": false,
+        "carrier_redemption": null
+      }
+    ],
+    "enabled": true,
+    "success": true
+  },
+  "none": {
+    "lines": [
+      {
+        "grant": null,
+        "request": null,
+        "entitled": true,
+        "nickname": null,
+        "plan_type": "standard",
+        "carrier_id": "40000000-0000-4000-8000-000000000001",
+        "is_premium": false,
+        "sim_line_id": "20000000-0000-4000-8000-000000000001",
+        "carrier_name": "Fixture",
+        "phone_number": "+000000001",
+        "stock_available": false,
+        "carrier_redemption": null
+      }
+    ],
+    "enabled": true,
+    "success": true
+  },
+  "revealed": {
+    "lines": [
+      {
+        "grant": {
+          "id": "60000000-0000-4000-8000-000000000001",
+          "status": "revealed",
+          "expires_at": null,
+          "revealed_at": null,
+          "amount_due_usd": 5,
+          "face_value_usd": 5,
+          "provisioned_at": "2026-10-18T00:00:00+00:00"
+        },
+        "request": {
+          "due_at": "2026-11-01T12:00:00+00:00",
+          "reason": "no_stock"
+        },
+        "entitled": true,
+        "nickname": null,
+        "plan_type": "standard",
+        "carrier_id": "40000000-0000-4000-8000-000000000001",
+        "is_premium": false,
+        "sim_line_id": "20000000-0000-4000-8000-000000000001",
+        "carrier_name": "Fixture",
+        "phone_number": "+000000001",
+        "stock_available": false,
+        "carrier_redemption": null
+      }
+    ],
+    "enabled": true,
+    "success": true
+  }
+}

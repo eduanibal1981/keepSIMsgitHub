@@ -7,7 +7,7 @@ import 'package:keep_sims/features/scheduled_topups/model/scheduled_topup_model.
 void main() {
   group('C8 - Travel & Geolocation Freeze Unit Tests', () {
     test('SimLine freeze model update toggles status and protectionPaused', () {
-      final activeLine = SimLine(
+      const activeLine = SimLine(
         id: 'line-1',
         userId: 'user-1',
         phoneNumber: '+1234567890',
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('Lines with requiresProtectionAtHome are flagged for exemption during home freeze', () {
-      final protectedLine = SimLine(
+      const protectedLine = SimLine(
         id: 'line-protected',
         userId: 'user-1',
         phoneNumber: '+1999888777',

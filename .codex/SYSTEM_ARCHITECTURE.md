@@ -109,7 +109,7 @@ Workers hold the Supabase service role and provider credentials. Major processes
 | `worker_esim_fulfillment.js` | Fulfills queued eSIM orders, records eSIMs, polls usage, and refunds failures. |
 | `worker_voucher_stock.js` | Claims Ding voucher stock jobs and records returned PINs. |
 
-Also present: WhatsApp/Baileys, Telegram, web service, and SIM liveness service processes. The checked-in PM2 config in the customer repo declares only five queue/eSIM workers and uses `./servers/...` paths; it does not cover every authoritative worker. Deployment/process inventory therefore needs reconciliation.
+Task 23 (2026-10-18, local/undeployed) replaces the incomplete five-worker PM2 declarations with an authoritative `../backend-sync-wt/worker-fleet.json` manifest and `worker-fleet.pm2.config.cjs`; the customer ecosystem file delegates to it. Eight freshly observed PM2 services include Baileys, Telegram, three refill workers, offer cache, eSIM catalogue and fulfillment. Supplier reconciliation is a ninth required financial-cutover service, separately gated and absent from current PM2. The voucher stock worker and alternative WhatsApp server are unconfirmed/dormant; `sim_liveness_service.js` is an imported library. Per-worker/work-lane telemetry, queue/reconciliation/cron probes, bounded alerts, aggregate public health and guarded admin detail are implemented locally, with explicit stale/unknown states. No live deployment/failure exercise is claimed; see `docs/reviews/worker-fleet-monitoring-20261018.md`.
 
 ## Core business workflows
 

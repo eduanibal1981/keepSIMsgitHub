@@ -1,5 +1,15 @@
 # Pending and review migrations
 
+Task 22 adds a [blocked candidate source manifest](../../deployment/manifest.json),
+hash-verified [recovered deployed evidence](../recovered/20261018/README.md), and
+three-repository source checkout/test tooling. These are not a deployable reset
+baseline. Original archive hashes remain immutable; an explicit
+`source-revisions.json` records the tested revision of the retained pending wallet
+repair without rewriting the October 16 manifest. Full local archive verification
+still checks all 254 entries; `verify --required-only` checks only the six historical
+test dependencies packaged in a scoped source checkout. See
+[Task 22's baseline/history procedure and blocking gaps](../../docs/reviews/source-reproducibility-20261018.md).
+
 Historical SQL sources were moved to `../migration_archive/20261016/` after comparing
 the supplied live public schema with read-only live catalogs and migration history.
 
@@ -152,3 +162,26 @@ release and reconcile legacy holds/provider evidence before restart. Release
 compatible customer/admin clients together; old raw writes fail closed. Run
 `test:schedules`, optionally with the pinned PostgREST binary, and the read-only
 scheduled-pricing preflight. See [Task 20 review](../../docs/reviews/scheduled-pricing-boundary-20261018.md).
+
+`20261018080000_offline_voucher_request_state.sql` is Task 21's **undeployed**
+active-request projection repair. It uses the actual `open` lifecycle, excludes
+closed history, checks request/grant ownership and preserves the existing JSON
+shape and secret-free fields. It changes no feature flags, stock, endpoints or
+request/grant lifecycle writes. Compare the read-only voucher preflight with the
+reviewed source before an authorized targeted release; do not infer a safe full
+migration replay. Run `test:vouchers` and the customer offline-recharge tests.
+See [Task 21 evidence](../../docs/reviews/offline-voucher-state-repair-20261018.md).
+
+`20261018090000_worker_fleet_monitoring.sql` is Task 23's **undeployed** fleet
+and reconciliation monitoring contract. It requires the reviewed wallet,
+supplier recovery, liveness, calling, notification, maintenance, DID and retail
+schema dependencies. Its versioned requirements cover the eight observed VM
+services plus the required financial-cutover supplier reconciler. It replaces
+the existing worker-heartbeat checker, adds private telemetry/probe/cache/
+incident state, guarded detail APIs and bounded per-component alerts. It starts
+no process or schedule. Release the compatible reporter/entrypoints from
+`../backend-sync-wt`, the health Edge function and admin panel together. The
+existing ten-minute cron sweep populates queue observations; stale or missing
+observations fail closed. See [Task 23 evidence and release procedure](../../docs/reviews/worker-fleet-monitoring-20261018.md),
+`test:fleet`, and the read-only `worker_fleet_preflight.sql`. Do not treat a local
+migration or a green legacy eSIM heartbeat as runtime fleet acceptance.

@@ -68,7 +68,7 @@ client sends only that display-name column, never roles or entitlements.
   unsigned build check, not a signed device or Apple-server login test.
 - Full-project analysis still has pre-existing findings outside auth,
   including a non-returning test fake in
-  `docs/reviews/voip-quality-followup-repros_test.dart`.
+  `docs/reviews/voip_quality_followup_repros_test.dart`.
 - Full suite: 796 pass, 20 failures/errors outside authentication. Details are recorded in
   `output/apple-sign-in/full-test-summary.json`; test and build evidence is
   under `output/apple-sign-in/`.

@@ -145,7 +145,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: isDark ? AppColors.darkSurface : Colors.white,
@@ -289,7 +289,7 @@ class _CreateTicketScreenState extends ConsumerState<CreateTicketScreen> {
                       );
                     },
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
                 ],
               ),

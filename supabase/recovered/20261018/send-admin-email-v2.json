@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-18",
+  "slug": "send-admin-email",
+  "version": 2,
+  "verify_jwt": false,
+  "bundle_sha256": "9d18ac3541ab3df67c8cdf2baeee9aa80f2558c9363bb9c397077a58a97c55d6",
+  "source": "supabase/recovered/20261018/send-admin-email-v2.ts.txt",
+  "treatment": "Historical evidence only. Task 16's intentional replacement is authoritative for the pending release.",
+  "replacement": "supabase/functions/send-admin-email/index.ts",
+  "entrypoint_sha256": "0658e63f8c9394ace77b59536ea5cdfdd3fa11bbdc27ff61ea1ce128e45790c4"
+}

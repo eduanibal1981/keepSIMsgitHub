@@ -110,3 +110,9 @@ entrypoint = "./functions/purge-accounts/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/send-admin-email/index.ts"
+
+# Public aggregate health only. Detailed fleet data stays service/admin-only.
+[functions.health]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/health/index.ts"

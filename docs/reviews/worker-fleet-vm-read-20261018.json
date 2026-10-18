@@ -1,0 +1,71 @@
+{
+  "verified_date": "2026-10-18",
+  "scope": "Read-only sanitized PM2 jlist over SSH during Task 23; compared with October 16 inventory. Eight names/statuses/paths/cwd/node/restart counts unchanged. No environment values, provider calls, stop or restart.",
+  "processes": [
+    {
+      "name": "server_baileys",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/server_baileys.js",
+      "pm_cwd": "/home/abdal",
+      "node_version": "22.23.1",
+      "restart_time": 8
+    },
+    {
+      "name": "worker_instant_refill",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_instant_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "node_version": "22.23.1",
+      "restart_time": 1
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_auto_mini_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "node_version": "22.23.1",
+      "restart_time": 1
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_auto_custom_refill.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "node_version": "22.23.1",
+      "restart_time": 1
+    },
+    {
+      "name": "worker_offers_cache",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_offers_cache.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "node_version": "22.23.1",
+      "restart_time": 1
+    },
+    {
+      "name": "worker-esim-catalog",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_esim_catalog.js",
+      "pm_cwd": "/home/abdal/keepsims_backend",
+      "node_version": "22.23.1",
+      "restart_time": 0
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/worker_esim_fulfillment.js",
+      "pm_cwd": "/home/abdal/keepsims_backend",
+      "node_version": "22.23.1",
+      "restart_time": 18
+    },
+    {
+      "name": "server_tg",
+      "status": "online",
+      "pm_exec_path": "/home/abdal/keepsims_backend/servers/server_tg.js",
+      "pm_cwd": "/home/abdal/keepsims_backend/servers",
+      "node_version": "22.23.1",
+      "restart_time": 1
+    }
+  ],
+  "missing_required_release_process": "supplier-reconciliation"
+}

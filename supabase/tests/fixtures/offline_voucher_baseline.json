@@ -1,0 +1,14 @@
+{
+  "tables": [
+    "offline_voucher_requests",
+    "offline_voucher_grants",
+    "offline_voucher_stock",
+    "carrier_voucher_redemption"
+  ],
+  "functions": {
+    "offline_voucher_state": "96a11897abb435a6650ae168918f5c15ee6d137c707c196c4d3e2fb2f838d8bb",
+    "admin_list_voucher_requests": "c790da0af53439a8ad60c08d448a3e9c5fb114fe90a122ae1beacb1f5d67def9"
+  },
+  "requires": "bootstrapProductionBaseline",
+  "limits": "Data-free production-shaped extension, including all captured constraints, indexes, table ACLs and RLS. Auth claims are isolated adapters; voucher mutation/crypto, triggers, Supabase API/cache and provider/recovery endpoint behavior are not exercised."
+}

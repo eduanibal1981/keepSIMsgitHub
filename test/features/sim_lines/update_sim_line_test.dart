@@ -50,7 +50,7 @@ void main() {
     });
 
     test('offline sync queue update payload strips id before PostgREST .update()', () {
-      final line = SimLine(
+      const line = SimLine(
         id: 'b2222222-2222-2222-2222-222222222222',
         userId: 'a1111111-1111-1111-1111-111111111111',
         phoneNumber: '+15550001111',

@@ -295,7 +295,7 @@ void main() {
     test(
       'renders "You are at Oman!" and "Do you need a data package?" when user is in Oman',
       () {
-        const userIso = 'OM';
+        final userIso = ['OM'].single;
         const lineIso = 'OM';
         const countryName = 'Oman';
 
@@ -305,8 +305,8 @@ void main() {
         final title = isUserInCountry
             ? 'You are at $countryName!'
             : 'Back to $countryName Wizard';
-        const isFutureOrToday = false;
-        const hasHistory = false;
+        final isFutureOrToday = <bool>[false].single;
+        final hasHistory = <bool>[false].single;
         final subtitle = isFutureOrToday
             ? 'Trip prepared · Tap to update arrival date or package'
             : (isUserInCountry
@@ -323,7 +323,7 @@ void main() {
     test(
       'renders "Back to Egypt Wizard" and "Set your arrival date" when user is in Oman with Egypt SIM',
       () {
-        const userIso = 'OM';
+        final userIso = ['OM'].single;
         const lineIso = 'EG';
         const countryName = 'Egypt';
 
@@ -333,8 +333,8 @@ void main() {
         final title = isUserInCountry
             ? 'You are at $countryName!'
             : 'Back to $countryName Wizard';
-        const isFutureOrToday = false;
-        const hasHistory = false;
+        final isFutureOrToday = <bool>[false].single;
+        final hasHistory = <bool>[false].single;
         final subtitle = isFutureOrToday
             ? 'Trip prepared · Tap to update arrival date or package'
             : (isUserInCountry

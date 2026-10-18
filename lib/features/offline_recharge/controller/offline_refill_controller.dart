@@ -20,7 +20,7 @@ class OfflineRefillController extends _$OfflineRefillController {
   }
 
   Future<bool> saveSettings(OfflineRefillSettings settings) async {
-    state = const AsyncLoading<OfflineRefillSettings>().copyWithPrevious(state);
+    state = const AsyncLoading<OfflineRefillSettings>();
 
     final repo = ref.read(offlineRefillRepositoryProvider);
     final result = await repo.saveSettings(settings);
@@ -57,7 +57,8 @@ Future<List<CarrierUssdSuggestion>> carrierUssdSuggestions(
 /// confirmed / failed / timed-out as the channel's webhook creates (or never
 /// creates) the matching `topup_executions` row.
 @riverpod
-class PendingOfflineRefillsController extends _$PendingOfflineRefillsController {
+class PendingOfflineRefillsController
+    extends _$PendingOfflineRefillsController {
   @override
   FutureOr<List<PendingOfflineRefill>> build() async {
     final repo = ref.watch(offlineRefillRepositoryProvider);

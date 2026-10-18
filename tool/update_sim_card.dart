@@ -10,7 +10,7 @@ void main() {
   final startIndex = content.indexOf(startStr);
 
   if (startIndex == -1) {
-    print('Could not find start string');
+    stdout.writeln('Could not find start string');
     return;
   }
 
@@ -258,5 +258,5 @@ void main() {
 
   final newContent = content.substring(0, startIndex) + newMethod;
   file.writeAsStringSync(newContent);
-  print('Updated _buildAutoRefillSection in sim_line_card.dart');
+  stdout.writeln('Updated _buildAutoRefillSection in sim_line_card.dart');
 }

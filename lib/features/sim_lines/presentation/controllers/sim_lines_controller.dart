@@ -121,7 +121,7 @@ class SimLinesController extends _$SimLinesController {
     final previousList = state.value ?? [];
     SimLine? addedLine;
     ScheduleInitializationException? scheduleFailure;
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
 
@@ -198,7 +198,7 @@ class SimLinesController extends _$SimLinesController {
   Future<void> updateSimLine(SimLine line) async {
     final previousList = state.value ?? [];
     ScheduleInitializationException? scheduleFailure;
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     final nextState = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       final updated = await repo.updateSimLine(line);
@@ -232,7 +232,7 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> deleteSimLine(String id) async {
     final previousList = state.value ?? [];
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     try {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.deleteSimLine(id);
@@ -325,7 +325,7 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> deleteActivityLog(String id, String simLineId) async {
     final previousList = state.value ?? [];
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.deleteLineActivityLog(id);
@@ -336,7 +336,7 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> cleanMockLogs(String simLineId) async {
     final previousList = state.value ?? [];
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.cleanMockLogs(simLineId);
@@ -349,7 +349,7 @@ class SimLinesController extends _$SimLinesController {
 
   Future<void> clearAllActivityLogs(String simLineId) async {
     final previousList = state.value ?? [];
-    state = const AsyncLoading<List<SimLine>>().copyWithPrevious(state);
+    state = const AsyncLoading<List<SimLine>>();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(simLinesRepositoryProvider);
       await repo.clearAllActivityLogs(simLineId);

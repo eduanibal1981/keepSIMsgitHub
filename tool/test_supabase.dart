@@ -1,4 +1,4 @@
-import 'package:supabase/supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 
 void main() async {
@@ -16,13 +16,13 @@ void main() async {
         .ilike('carrier_name', 'Vodafone Egypt')
         .maybeSingle();
 
-    print('Response: $response');
+    stdout.writeln('Response: $response');
     if (response != null) {
-      print(
+      stdout.writeln(
         'min_auto_refill_amount type: ${response['min_auto_refill_amount'].runtimeType}',
       );
     }
   } catch (e) {
-    print('Error: $e');
+    stdout.writeln('Error: $e');
   }
 }

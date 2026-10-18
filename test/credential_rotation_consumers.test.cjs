@@ -8,7 +8,7 @@ function fixture(name, initial = {}, extraEnv = {}) {
   const secrets = { ...initial }, calls = [], authorizations = [];
   let handler, vaultUnavailable = false;
   const env = { SUPABASE_URL: 'https://db.test', SUPABASE_SERVICE_ROLE_KEY: 'fixture-service',
-    PAYPAL_WEBHOOK_ID: 'fixture-webhook', PAYPAL_CLIENT_ID: 'fixture-stale-client',
+    PAYPAL_WEBHOOK_ID: 'fixture-webhook', PAYPAL_MERCHANT_ID: 'fixture-merchant', PAYPAL_CLIENT_ID: 'fixture-stale-client',
     PAYPAL_CLIENT_SECRET: 'fixture-stale-secret', TWILIO_AUTH_TOKEN: 'fixture-stale-token',
     TELNYX_API_KEY: 'fixture-stale-telnyx', ...extraEnv };
   loadEdge(`supabase/functions/${name}/index.ts`, {
@@ -27,6 +27,10 @@ function fixture(name, initial = {}, extraEnv = {}) {
         return Response.json({ access_token: 'fixture-ephemeral-access' });
       }
       if (path.endsWith('/v1/notifications/verify-webhook-signature')) return Response.json({ verification_status: 'SUCCESS' });
+      if (path.endsWith('/rpc/resolve_account_commerce_benefit')) return Response.json('premium');
+      if (path.endsWith('/rpc/claim_verified_webhook')) return Response.json({state: 'claimed', token: 'fixture-claim'});
+      if (path.endsWith('/rpc/finish_verified_webhook')) return Response.json(true);
+      if (path.endsWith('/second_number_purchase_gate')) return Response.json([{enabled:true,pilot_user_ids:['fixture-user']}]);
       if (path.endsWith('/profiles')) return Response.json([{ subscription_tier: 'premium' }]);
       if (path.endsWith('/second_number_policies')) return Response.json([{country_code:'US',country_name:'United States',number_type:'local',minimum_monthly_usd:4,usage_terms:'Approved receive-only pilot terms',terms_version:'pilot',kyc_status:'not_required'}]);
       if (path.endsWith('/app_fee_rules')) return Response.json([{free_percentage:15,stand_percentage:7,prem_percentage:3}]);
@@ -49,9 +53,9 @@ const request = (name, body, headers = {}) => new Request(`https://edge.test/fun
 
 test('PayPal callback adopts the Vault replacement on every request without a process reload', async () => {
   const f = fixture('paypal-webhook', { PAYPAL_CLIENT_ID: 'fixture-client', PAYPAL_CLIENT_SECRET: 'fixture-current' });
-  const run = () => f.handler(request('paypal-webhook', { event_type: 'fixture.ignored' }, {
+  const run = () => f.handler(request('paypal-webhook', { id: 'fixture-event', event_type: 'fixture.ignored' }, {
     'paypal-transmission-id': 'fixture-transmission', 'paypal-transmission-sig': 'fixture-signature',
-    'paypal-cert-url': 'https://provider.test/cert',
+    'paypal-cert-url': 'https://provider.test/cert', 'paypal-transmission-time': new Date().toISOString(), 'paypal-auth-algo': 'SHA256withRSA',
   }));
   assert.equal((await run()).status, 200);
   f.secrets.PAYPAL_CLIENT_SECRET = 'fixture-replacement';
@@ -63,11 +67,11 @@ test('PayPal callback adopts the Vault replacement on every request without a pr
 
 test('a Vault outage stops PayPal before OAuth or fulfillment despite a stale environment value', async () => {
   const f = fixture('paypal-webhook'); f.outage();
-  const response = await f.handler(request('paypal-webhook', { event_type: 'fixture.ignored' }, {
+  const response = await f.handler(request('paypal-webhook', { id: 'fixture-event', event_type: 'fixture.ignored' }, {
     'paypal-transmission-id': 'fixture-transmission', 'paypal-transmission-sig': 'fixture-signature',
-    'paypal-cert-url': 'https://provider.test/cert',
+    'paypal-cert-url': 'https://provider.test/cert', 'paypal-transmission-time': new Date().toISOString(), 'paypal-auth-algo': 'SHA256withRSA',
   }));
-  assert.equal(response.status, 503); assert.equal((await response.json()).code, 'PROVIDER_NOT_CONFIGURED');
+  assert.equal(response.status, 503); assert.equal((await response.json()).success, false);
   assert.equal(f.authorizations.length, 0);
   assert(!f.calls.some(path => /credit_wallet|plan_payments/.test(path)));
 });
@@ -100,7 +104,7 @@ for (const name of ['sms-webhook', 'twilio-voice-webhook']) {
     body: new URLSearchParams(params) });
 
   test(`${name} verifies with the current Vault token and rejects a replaced token`, async () => {
-    const f = fixture(name, { TWILIO_AUTH_TOKEN: 'fixture-current-token' }, { PUBLIC_FUNCTION_URL: url });
+    const f = fixture(name, { TWILIO_AUTH_TOKEN: 'fixture-current-token' }, { TWILIO_VOICE_WEBHOOK_URL: url, TWILIO_SMS_WEBHOOK_URL: url, PUBLIC_FUNCTION_URL: url });
     await f.handler(callback('fixture-current-token'));
     assert.equal(f.calls.filter(path => path.endsWith(ingestion)).length, 1);
     f.secrets.TWILIO_AUTH_TOKEN = 'fixture-replacement-token';

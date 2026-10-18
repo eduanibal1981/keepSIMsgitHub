@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import migrationSource from '../migration-source.cjs';
 import { pathToFileURL } from 'node:url';
 import { bootstrap } from './bootstrap.mjs';
 const {PGlite}=await import(process.env.PGLITE_MODULE_PATH?pathToFileURL(process.env.PGLITE_MODULE_PATH).href:'@electric-sql/pglite');
 let db, server, directory;
 if(process.env.SECOND_NUMBER_NATIVE==='1') {
-  const {default:EmbeddedPostgres}=await import(pathToFileURL(process.env.EMBEDDED_POSTGRES_MODULE_PATH).href);
+  const {default:EmbeddedPostgres}=await import(process.env.EMBEDDED_POSTGRES_MODULE_PATH ? pathToFileURL(process.env.EMBEDDED_POSTGRES_MODULE_PATH).href : 'embedded-postgres');
   const os=await import('node:os');const path=await import('node:path');
   directory=fs.mkdtempSync(path.join(os.tmpdir(),'second-number-postgres-'));
   server=new EmbeddedPostgres({databaseDir:directory,user:'postgres',password:'isolated-test',port:56549,persistent:false,
@@ -20,7 +21,7 @@ const test=async(name,run)=>{await run();console.log('PASS '+name);count++;};
 try {
   await bootstrap(db);
   // Actual legacy DID table, alongside the captured production wallet contracts.
-  const legacy=read('supabase/migration_archive/20261016/applied_history/20260921020000_virtual_did_numbers.sql');
+  const legacy=migrationSource('20260921020000_virtual_did_numbers.sql');
   await db.exec(legacy.slice(0,legacy.indexOf('-- 2. Security-Definer')));
   // Captured export grants ALL to both client roles on this table.
   await db.exec('GRANT ALL ON public.virtual_did_numbers TO anon,authenticated,service_role');

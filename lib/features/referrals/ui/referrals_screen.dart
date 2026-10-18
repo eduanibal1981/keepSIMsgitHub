@@ -673,7 +673,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: friends.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final friend = friends[index];
               return Container(
@@ -787,7 +787,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: history.length > 5 ? 5 : history.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final item = history[index];
               return Container(
@@ -885,7 +885,7 @@ class _ReferralsScreenState extends ConsumerState<ReferralsScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: redemptions.length > 5 ? 5 : redemptions.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final item = redemptions[index];
               return Container(

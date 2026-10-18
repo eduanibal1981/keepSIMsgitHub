@@ -85,6 +85,7 @@ abstract class VoucherGrant with _$VoucherGrant {
 }
 
 /// An open promise to hand-load a PIN for this line, with its deadline.
+/// The state RPC returns null for fulfilled/cancelled history or no request.
 @freezed
 abstract class VoucherRequest with _$VoucherRequest {
   @JsonSerializable(fieldRename: FieldRename.snake)
@@ -118,8 +119,7 @@ abstract class VoucherLineState with _$VoucherLineState {
       _$VoucherLineStateFromJson(json);
 
   /// A new PIN can be collected: entitled, nothing outstanding, stock exists.
-  bool get canProvision =>
-      entitled && grant == null && stockAvailable;
+  bool get canProvision => entitled && grant == null && stockAvailable;
 
   /// Entitled and waiting on us, not on them.
   bool get awaitingStock => entitled && grant == null && !stockAvailable;

@@ -86,7 +86,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Timer? _livenessDebounce;
 
   // Step 5 Data
-  final bool _isPowerUser = false;
   bool _isFreePlanDisabled = false;
 
   final List<Map<String, String>> _countries = [
@@ -639,9 +638,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   double? _premiumYearlyTotalSync(CarrierRule rule) =>
       PlanPayment.premiumYearlyTotalSync(ref, rule);
 
-  Future<double> _premiumYearlyTotal(CarrierRule rule) =>
-      PlanPayment.premiumYearlyTotal(ref, rule);
-
   Future<void> _submit() async {
     final selectedTier = _setupTier;
     if (!_agreedToTerms) {
@@ -899,6 +895,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   );
 
                   if (paid) {
+                    if (!mounted) return;
                     messenger.showSnackBar(
                       SnackBar(
                         content: Text(
@@ -2759,19 +2756,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                       )
                     else
-                      Radio<String>(
-                        value: tier['key']!,
+                      RadioGroup<String>(
                         groupValue: _selectedTier,
-                        activeColor: isDark
-                            ? AppColors.primaryLight
-                            : AppColors.lightPrimary,
-                        onChanged: isDisabled || _isCheckingLiveness
-                            ? null
-                            : (val) {
-                                if (val != null) {
-                                  _onTierSelected(val);
-                                }
-                              },
+                        onChanged: (value) {
+                          if (value != null &&
+                              !isDisabled &&
+                              !_isCheckingLiveness) {
+                            _onTierSelected(value);
+                          }
+                        },
+                        child: Radio<String>(
+                          value: tier['key']!,
+                          enabled: !isDisabled && !_isCheckingLiveness,
+                          activeColor: isDark
+                              ? AppColors.primaryLight
+                              : AppColors.lightPrimary,
+                        ),
                       ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -2857,7 +2857,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       title = 'Premium Plan';
       icon = Icons.workspace_premium_rounded;
       accentColor = const Color(0xFF2E7D32); // Green
-      priceStr = '\$${_baseServiceFeeUsd?.toStringAsFixed(2) ?? '…'}';
+      final annualFee = premiumRule == null
+          ? null
+          : PlanPayment.premiumBreakdownSync(ref, premiumRule)?.annualFeeUsd;
+      priceStr = '\$${annualFee?.toStringAsFixed(2) ?? '…'}';
       billingPeriod = '/yr per line';
       features = [
         'Everything in Standard',
