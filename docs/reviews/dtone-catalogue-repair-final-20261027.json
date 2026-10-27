@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-27",
+  "timezone": "Asia/Muscat",
+  "status": "deployed_and_live_verified",
+  "supabase_project": "zwxswagokhgbuzrrbnhr",
+  "vodafone_egypt": {
+    "carrier_id": "08ccb7e2-52a0-4002-ad88-672a517cba4f",
+    "country_code": "EGY",
+    "operator_id": "716",
+    "provider_http_status": 200,
+    "provider_product_count": 23,
+    "committed_offer_count": 23,
+    "environment": "preproduction",
+    "simulation": true,
+    "real_money_eligible": false,
+    "credential_version": 1,
+    "activation_revision": 0,
+    "snapshot_refreshed_at_utc": "2026-10-27T00:39:34.387769+00:00",
+    "snapshot_refreshed_at_muscat": "2026-10-27T04:39:34.387769+04:00",
+    "paid_cache_count": 0,
+    "historical_offer_count": 23,
+    "historical_active_count": 0
+  },
+  "runtime": {
+    "active_environment": null,
+    "revision": 0,
+    "production_config_version": 0,
+    "preproduction_config_version": 1
+  },
+  "deployment": {
+    "host": "34.40.33.208",
+    "backup_directory": "/home/abdal/keepsims_backend/releases/dtone-catalogue-preview-20261027T003655Z/before",
+    "restarted_process": "worker_offers_cache",
+    "pid": 1025793,
+    "restart_count_before": 2,
+    "restart_count_after": 3,
+    "all_nine_processes_online": true,
+    "other_eight_process_ids_unchanged": true,
+    "checksums": {
+      "providers/dtone.js": "2b68b49a62894c44219cefeef0198dee68c405a08445e9b7a59077d6fea0215f",
+      "providers/dtone_credentials.js": "99e5d22b29ea04ef91b9c6d45fefb03d5d68bcc50d9d7e372d270ebfa2161850",
+      "offer_validation.js": "a75b9a34d89f726d968d5cbcb49de12853b69b40053d5ec001cf793b2353f5eb",
+      "worker_offers_cache.js": "767678d1b3c945a21f673a79a8e6ae9b85895d25e184bd6377caa8441a20e2a8"
+    },
+    "github_profile": "github-backend",
+    "preserved_undeployed_local_monitoring": true
+  },
+  "validation": {
+    "node_passed": 65,
+    "flutter_passed": 26,
+    "flutter_runner": "standard flutter test",
+    "analysis": "No issues found",
+    "database": "transactional assertions passed; rolled back",
+    "authenticated_admin_catalogue_http_status": 200,
+    "authenticated_admin_offer_count": 23,
+    "live_ui_preproduction_offers": 23,
+    "live_ui_production_offers": 0,
+    "live_activity_dropdown": "observed bounded selection and full menu; no save performed",
+    "widths_tested": [
+      480,
+      800,
+      1180
+    ]
+  },
+  "admin_build": {
+    "path": "/Users/thehonest/Work/KeepSIMs/keep_sims_admin/build/macos/Build/Products/Release/keep_sims_admin.app",
+    "signature": "ad hoc; deep strict verification passed",
+    "archive_sha256": "9d4aee3ce4317ea63867a8f6e9f47882df76f2d9c21820804a0a5691baa2a250",
+    "launched": true
+  },
+  "github": {
+    "backend": "c18e2ac793f288165505990e9ecd26207fd99fe2",
+    "admin": "15d9d02951e2b49390637327e1eaf875bc16c2f0",
+    "customer_sources": {
+      "supabase/migrations/20261022194833_reloadly_environment_credentials.sql": "2cd67d8585143012ea3d7af9a03954d7e6896f48837f08d47036014eda70adb4",
+      "supabase/migrations/20261022203404_reloadly_activation_runtime_predicate.sql": "9e02492e9a96a6b833e50397386ca838903803225ed22ed9d17a30ef26821f12",
+      "supabase/migrations/20261022214524_dtone_environment_control.sql": "7e246958350ebbd4fe26739d1374ea195bd2ae3cf2d7faf85fbe68c5da5cc077",
+      "supabase/migrations/20261023034940_admin_catalogue_read_compatibility.sql": "f2d09caeb6bf7c30d4120b9232f379d0360d92a518b99fd22bfb8475950ef8cf",
+      "supabase/migrations/20261027000817_dtone_preproduction_catalogue_preview.sql": "e9f657ffe006e0d9e6cb212df7cd1bde307b0c4bf18e58c77d3286c262b974cb",
+      "supabase/migrations/20261027001229_dtone_catalogue_preview_refresh_status.sql": "40d3e23146010bbde776a96a8898f5ceab709f0ce1e565153f02e6afc25a435f",
+      "supabase/tests/dtone_catalogue_preview_tests.sql": "fcbfa4aef147ee280088a98058a1f91adbd83cf95b9fe585568500c63fbbdcb0",
+      "supabase/tests/admin_catalogue_read_compatibility_tests.sql": "dcf1d3f1a0f811ff9ed11c637956def66f1755096b86657e3808645d69a2ebf5"
+    }
+  },
+  "credentials_rotated": false,
+  "production_activated": false,
+  "purchases_performed": false,
+  "financial_mutations_performed": false,
+  "blockers": []
+}
