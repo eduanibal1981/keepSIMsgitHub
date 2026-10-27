@@ -268,5 +268,53 @@
     "baseline": 13,
     "customer": 55,
     "admin": 4
+  },
+  "github_source_sync": {
+    "branch": "codex/esim02-runtime-20261028",
+    "source_commits": {
+      "backend": {
+        "sha": "4974ae500fd41f19056735d03ca98ebb40f036af",
+        "url": "https://github.com/eduanibal1981/keepsims-backend/commit/4974ae500fd41f19056735d03ca98ebb40f036af"
+      },
+      "database_edge": {
+        "sha": "6669250d12de5f97042e6d712e00cb47e0e5243d",
+        "url": "https://github.com/eduanibal1981/keepSIMsgitHub/commit/6669250d12de5f97042e6d712e00cb47e0e5243d"
+      }
+    },
+    "published_file_blob_checks": [
+      {
+        "repo": "eduanibal1981/keepsims-backend",
+        "path": "worker_esim_catalog.js",
+        "local": "docs/reviews/esimaccess-catalogue-20261028/runtime-fix/backend/worker_esim_catalog.js",
+        "sha": "16cc4cd9034226f7e6a3f8eaaff09577675ea843"
+      },
+      {
+        "repo": "eduanibal1981/keepSIMsgitHub",
+        "path": "supabase/functions/sync-esim-catalogue/index.ts",
+        "local": "docs/reviews/esimaccess-catalogue-20261028/runtime-fix/edge/sync-esim-catalogue/index.ts",
+        "sha": "620322a1986fa85e0f94e12753658fa3e1674aa4"
+      },
+      {
+        "repo": "eduanibal1981/keepSIMsgitHub",
+        "path": "supabase/functions/_shared/esimaccess-catalog.js",
+        "local": "docs/reviews/esimaccess-catalogue-20261028/runtime-fix/edge/_shared/esimaccess-catalog.js",
+        "sha": "8624d2b3b9de3b5e717cb627884556761fc47e34"
+      },
+      {
+        "repo": "eduanibal1981/keepSIMsgitHub",
+        "path": "supabase/migrations/20261027233253_esim_catalogue_runtime_compatibility.sql",
+        "local": "supabase/migrations/20261027233253_esim_catalogue_runtime_compatibility.sql",
+        "sha": "ff76e78205ed8398d86053fc3edfec4bf14307a0"
+      }
+    ],
+    "untouched": "Original dirty working trees, default branches, unrelated fleet/credential work and app binaries"
+  },
+  "retail_http_acceptance": {
+    "retail_view_status": 200,
+    "v2_comparison_status": 200,
+    "facts_present": true,
+    "plan_type_filter_passed": true,
+    "role": "service_role",
+    "note": "HTTP schema/route checks combined with separately verified real SQL role boundaries"
   }
 }
