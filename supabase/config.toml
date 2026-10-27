@@ -116,3 +116,9 @@ entrypoint = "./functions/send-admin-email/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/health/index.ts"
+
+# Catalogue sync authenticates x-sync-secret and fails closed.
+[functions.sync-esim-catalogue]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/sync-esim-catalogue/index.ts"

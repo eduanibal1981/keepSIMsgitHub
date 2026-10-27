@@ -1,4 +1,4 @@
-import { requireProviderSecret } from "../_shared/provider-secrets.ts";
+import { normalizeEsimAccessOffer } from "../_shared/esimaccess-catalog.js";
 // sync-esim-catalogue — pulls eSIM Go and Zendit bundle catalogues into
 // `esim_offers_cache`.
 //
@@ -6,7 +6,7 @@ import { requireProviderSecret } from "../_shared/provider-secrets.ts";
 // — they write to the same table on the same conflict key.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -195,194 +195,6 @@ function zenditOfferToRow(o: any) {
   };
 }
 
-// deno-lint-ignore no-explicit-any
-function extractEsimAccessIsoCountries(pkg: any): string[] {
-  if (!pkg) return [];
-  const rawList: string[] = [];
-
-  if (typeof pkg.location === "string") {
-    pkg.location.split(",").forEach((c: string) => rawList.push(c.trim()));
-  } else if (Array.isArray(pkg.location)) {
-    pkg.location.forEach((c: any) => rawList.push(String(c).trim()));
-  }
-
-  if (typeof pkg.locationCode === "string") {
-    pkg.locationCode.split(",").forEach((c: string) => rawList.push(c.trim()));
-  } else if (Array.isArray(pkg.locationCode)) {
-    pkg.locationCode.forEach((c: any) => rawList.push(String(c).trim()));
-  }
-
-  if (Array.isArray(pkg.locationCodeList)) {
-    pkg.locationCodeList.forEach((c: any) => rawList.push(String(c).trim()));
-  }
-
-  if (Array.isArray(pkg.locationList)) {
-    for (const loc of pkg.locationList) {
-      if (typeof loc === "string") rawList.push(loc.trim());
-      else if (loc && loc.code) rawList.push(String(loc.code).trim());
-      else if (loc && loc.locationCode) rawList.push(String(loc.locationCode).trim());
-    }
-  }
-
-  if (Array.isArray(pkg.locationNetworkList)) {
-    for (const item of pkg.locationNetworkList) {
-      if (item && item.locationCode) rawList.push(String(item.locationCode).trim());
-      else if (item && item.locationName && item.locationName.length === 2) {
-        rawList.push(String(item.locationName).trim());
-      }
-    }
-  }
-
-  if (Array.isArray(pkg.coveredCountries)) {
-    pkg.coveredCountries.forEach((c: any) => rawList.push(String(c).trim()));
-  }
-
-  if (rawList.length === 0 && typeof pkg.slug === "string") {
-    const parts = pkg.slug.split("_");
-    if (parts[0] && parts[0].length === 2 && /^[A-Za-z]{2}$/.test(parts[0])) {
-      rawList.push(parts[0]);
-    }
-  }
-
-  return Array.from(
-    new Set(
-      rawList
-        .map((c) => c.toUpperCase())
-        .filter((c) => /^[A-Z]{2}$/.test(c))
-    )
-  );
-}
-
-// deno-lint-ignore no-explicit-any
-function esimAccessOfferToRow(pkg: any) {
-  if (!pkg || (!pkg.packageCode && !pkg.slug)) return null;
-
-  const bundleName = String(pkg.packageCode || pkg.slug).trim();
-  const allCountries = extractEsimAccessIsoCountries(pkg);
-  const isMultiCountry = allCountries.length > 1;
-  const roamingCountries = isMultiCountry ? allCountries : [];
-
-  const textToScan = `${pkg.name || ""} ${pkg.description || ""}`;
-  const isDaily = /daily|\/day|fup|daypass/i.test(textToScan) ||
-    pkg.dataType === "DAILY" || pkg.packageType === "DAILY";
-
-  const isUnlimited = isDaily ||
-    pkg.isUnlimited === true ||
-    pkg.volume <= 0 ||
-    pkg.dataGB === 0 ||
-    /unlimited/i.test(textToScan);
-
-  const bundleGroup = isDaily ? "DayPass" : "Fixed Bundle";
-
-  let dataAmountMb = 0;
-  if (typeof pkg.volume === "number" && pkg.volume > 0) {
-    dataAmountMb = Math.round(pkg.volume / (1024 * 1024));
-  } else if (typeof pkg.dataMB === "number" && pkg.dataMB > 0) {
-    dataAmountMb = Math.round(pkg.dataMB);
-  } else if (typeof pkg.dataGB === "number" && pkg.dataGB > 0) {
-    dataAmountMb = Math.round(pkg.dataGB * 1024);
-  }
-
-  let durationDays = 0;
-  const rawDuration = parseInt(pkg.duration) || 0;
-  const unit = String(pkg.durationUnit || "DAY").toUpperCase();
-  if (unit === "HOUR" || unit === "HOURS") {
-    durationDays = Math.max(1, Math.ceil(rawDuration / 24));
-  } else if (unit === "MONTH" || unit === "MONTHS") {
-    durationDays = rawDuration * 30;
-  } else {
-    durationDays = rawDuration;
-  }
-
-  const divisor = pkg.currencyDivisor || 10000.0;
-  const rawPrice = typeof pkg.price === "number" ? pkg.price : (parseFloat(pkg.price) || 0);
-  const wholesalePriceUsd = parseFloat((rawPrice / divisor).toFixed(4));
-
-  // Speed tier mapping
-  let speedTier = "fixed";
-  if (isDaily) {
-    const fupMatch = textToScan.match(/(?:fup\s*|daily\s*fup\s*)([0-9]+(?:\.[0-9]+)?\s*(?:mbps|kbps|m|k))/i) ||
-      (pkg.fupPolicy && String(pkg.fupPolicy).match(/([0-9]+(?:\.[0-9]+)?\s*(?:mbps|kbps|m|k))/i)) ||
-      (pkg.fup && String(pkg.fup).match(/([0-9]+(?:\.[0-9]+)?\s*(?:mbps|kbps|m|k))/i));
-
-    if (fupMatch && fupMatch[1]) {
-      const rawRate = fupMatch[1].trim();
-      if (/1\s*mbps|1m/i.test(rawRate)) {
-        speedTier = "high-1 Mbps";
-      } else if (/128\s*kbps/i.test(rawRate)) {
-        speedTier = "high-128 kbps";
-      } else if (/512\s*kbps/i.test(rawRate)) {
-        speedTier = "high-512 kbps";
-      } else if (/500\s*kbps/i.test(rawRate)) {
-        speedTier = "high-500 kbps";
-      } else if (/384\s*kbps/i.test(rawRate)) {
-        speedTier = "high-384 kbps";
-      } else {
-        speedTier = `high-${rawRate}`;
-      }
-    } else if (/1\s*mbps/i.test(textToScan)) {
-      speedTier = "high-1 Mbps";
-    } else if (/128\s*kbps/i.test(textToScan)) {
-      speedTier = "high-128 kbps";
-    } else if (/512\s*kbps/i.test(textToScan)) {
-      speedTier = "high-512 kbps";
-    } else {
-      // Default DayPass FUP policy is 384 Kbps in eSIM Access
-      speedTier = "high-384 kbps";
-    }
-  } else {
-    speedTier = "fixed";
-  }
-
-  let region: string | null = null;
-  if (pkg.region) {
-    region = String(pkg.region).trim();
-  } else if (/Global|Worldwide/i.test(pkg.name || "")) {
-    region = "Global";
-  } else if (/Europe|EU/i.test(pkg.name || "")) {
-    region = "Europe";
-  } else if (/Asia/i.test(pkg.name || "")) {
-    region = "Asia";
-  } else if (/North America/i.test(pkg.name || "")) {
-    region = "North America";
-  } else if (/Latin America|LATAM/i.test(pkg.name || "")) {
-    region = "Latin America";
-  } else if (/Middle East|GCC|MENA/i.test(pkg.name || "")) {
-    region = "Middle East";
-  } else if (/Africa/i.test(pkg.name || "")) {
-    region = "Africa";
-  } else if (allCountries.length > 5) {
-    region = "Regional";
-  }
-
-  const description = String(pkg.description || pkg.name || (isDaily ? `${durationDays} DayPass Daily Unlimited` : `${Math.round(dataAmountMb / 1024)}GB ${durationDays} Days`)).trim();
-
-  const isActive = pkg.status === "ACTIVE" ||
-    pkg.status === "NORMAL" ||
-    pkg.enabled !== false ||
-    pkg.activeType !== 0;
-
-  return {
-    provider: "esimaccess",
-    bundle_name: bundleName,
-    description,
-    countries: allCountries,
-    roaming_enabled: roamingCountries,
-    data_amount_mb: dataAmountMb,
-    duration_days: durationDays,
-    wholesale_price_usd: wholesalePriceUsd,
-    image_url: pkg.imageUrl || pkg.locationLogo || null,
-    is_unlimited: isUnlimited,
-    bundle_group: bundleGroup,
-    speed_tier: speedTier,
-    region,
-    country_count: allCountries.length,
-    is_active: isActive,
-    updated_at: new Date().toISOString(),
-  };
-
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -480,11 +292,27 @@ serve(async (req) => {
           retired = data?.length ?? 0;
         }
 
+        const { data: distinctCountries } = await supabase
+          .from("esim_offers_cache")
+          .select("countries")
+          .eq("provider", "esim_go")
+          .eq("is_active", true);
+
+        const countrySet = new Set();
+        if (Array.isArray(distinctCountries)) {
+          for (const row of distinctCountries) {
+            if (Array.isArray(row.countries)) {
+              for (const c of row.countries) countrySet.add(c);
+            }
+          }
+        }
+
         await supabase.from("esim_suppliers").update({
           last_sync_at: new Date().toISOString(),
           last_sync_status: complete ? "ok" : "partial",
           last_sync_count: upserted,
           last_sync_error: null,
+          countries_supported: Array.from(countrySet).sort(),
         }).eq("code", "esim_go");
 
         results.esim_go = { success: true, fetched: raw.length, upserted, retired, complete };
@@ -498,209 +326,210 @@ serve(async (req) => {
       }).eq("code", "esim_go");
       results.esim_go = { success: false, error: msg };
     }
-    }
-
-    // ── 2. Zendit Sync ──────────────────────────────────────────────────────
-    if (!targetProvider || targetProvider === "zendit") {
-      try {
-        const apiSecret = await requireProviderSecret(supabase, "ZENDIT_API_SECRET", ["ZENDIT_API_KEY"]);
-
-        if (apiSecret) {
-          // deno-lint-ignore no-explicit-any
-          const rawZendit: any[] = [];
-          let offset = 0;
-          let total = Infinity;
-          let page = 0;
-
-          while (offset < total && page < MAX_PAGES) {
-            const res = await fetch(
-              `${ZENDIT_BASE}/esim/offers?_limit=100&_offset=${offset}`,
-              { headers: { Authorization: `Bearer ${apiSecret}`, Accept: "application/json" } },
-            );
-            if (!res.ok) {
-              throw new Error(`Zendit eSIM offers page ${page}: HTTP ${res.status}`);
-            }
-            const json = await res.json();
-            total = typeof json.total === "number" ? json.total : (json.list?.length || 0);
-            const batch = json.list ?? [];
-            rawZendit.push(...batch);
-            if (batch.length === 0) break;
-            offset += batch.length;
-            page++;
-          }
-
-          const complete = offset >= total || rawZendit.length >= total;
-          const rows = rawZendit
-            .map((o) => zenditOfferToRow(o))
-            .filter((r) => r !== null && r!.bundle_name && r!.wholesale_price_usd > 0);
-
-          let upserted = 0;
-          for (let i = 0; i < rows.length; i += 500) {
-            const chunk = rows.slice(i, i + 500);
-            const { error } = await supabase
-              .from("esim_offers_cache")
-              .upsert(chunk, { onConflict: "provider,bundle_name" });
-            if (error) throw new Error(`zendit upsert: ${error.message}`);
-            upserted += chunk.length;
-          }
-
-          let retired = 0;
-          if (complete && rows.length > 0) {
-            const { data, error } = await supabase
-              .from("esim_offers_cache")
-              .update({ is_active: false, updated_at: new Date().toISOString() })
-              .eq("provider", "zendit")
-              .eq("is_active", true)
-              .lt("updated_at", syncStartedIso)
-              .select("bundle_name");
-            if (error) throw new Error(`zendit retirement sweep: ${error.message}`);
-            retired = data?.length ?? 0;
-          }
-
-          const { data: distinctCountries } = await supabase
-            .from("esim_offers_cache")
-            .select("countries")
-            .eq("provider", "zendit")
-            .eq("is_active", true);
-
-          const countrySet = new Set();
-          if (Array.isArray(distinctCountries)) {
-            for (const row of distinctCountries) {
-              if (Array.isArray(row.countries)) {
-                for (const c of row.countries) countrySet.add(c);
-              }
-            }
-          }
-
-          await supabase.from("esim_suppliers").update({
-            last_sync_at: new Date().toISOString(),
-            last_sync_status: complete ? "ok" : "partial",
-            last_sync_count: upserted,
-            last_sync_error: null,
-            countries_supported: Array.from(countrySet).sort(),
-          }).eq("code", "zendit");
-
-          results.zendit = { success: true, fetched: rawZendit.length, upserted, retired, complete };
-        }
-      } catch (zenditErr) {
-        const msg = zenditErr instanceof Error ? zenditErr.message : String(zenditErr);
-        await supabase.from("esim_suppliers").update({
-          last_sync_at: new Date().toISOString(),
-          last_sync_status: "error",
-          last_sync_error: msg.slice(0, 500),
-        }).eq("code", "zendit");
-        results.zendit = { success: false, error: msg };
-      }
-    }
-
-    // ── 3. eSIM Access Sync ─────────────────────────────────────────────────
-    if (!targetProvider || targetProvider === "esimaccess") {
-      try {
-        const { data: esimAccessCodeSecret } = await supabase
-          .rpc("get_internal_secret", { p_name: "esim_access_access_code" });
-        const { data: esimAccessKeySecret } = await supabase
-          .rpc("get_internal_secret", { p_name: "esim_access_secret_key" });
-
-        const accessCode = esimAccessCodeSecret || Deno.env.get("ESIM_ACCESS_ACCESS_CODE");
-        const secretKey = esimAccessKeySecret || Deno.env.get("ESIM_ACCESS_SECRET_KEY");
-
-        if (accessCode) {
-          const headers: Record<string, string> = {
-            "RT-AccessCode": String(accessCode),
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          };
-          if (secretKey) {
-            headers["secretKey"] = String(secretKey);
-          }
-
-          const res = await fetch(`${ESIM_ACCESS_BASE}/package/list`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({}),
-          });
-
-          if (!res.ok) {
-            throw new Error(`eSIM Access package list: HTTP ${res.status}`);
-          }
-
-          const json = await res.json();
-          // deno-lint-ignore no-explicit-any
-          const rawPackages: any[] = (json.obj && Array.isArray(json.obj.packageList)) ? json.obj.packageList : [];
-
-          const rows = rawPackages
-            .map((p) => esimAccessOfferToRow(p))
-            .filter((r) => r !== null && r!.bundle_name && r!.wholesale_price_usd > 0);
-
-          let upserted = 0;
-          for (let i = 0; i < rows.length; i += 500) {
-            const chunk = rows.slice(i, i + 500);
-            const { error } = await supabase
-              .from("esim_offers_cache")
-              .upsert(chunk, { onConflict: "provider,bundle_name" });
-            if (error) throw new Error(`esimaccess upsert: ${error.message}`);
-            upserted += chunk.length;
-          }
-
-          let retired = 0;
-          if (rows.length > 0) {
-            const { data, error } = await supabase
-              .from("esim_offers_cache")
-              .update({ is_active: false, updated_at: new Date().toISOString() })
-              .eq("provider", "esimaccess")
-              .eq("is_active", true)
-              .lt("updated_at", syncStartedIso)
-              .select("bundle_name");
-            if (error) throw new Error(`esimaccess retirement sweep: ${error.message}`);
-            retired = data?.length ?? 0;
-          }
-
-          const { data: distinctCountries } = await supabase
-            .from("esim_offers_cache")
-            .select("countries")
-            .eq("provider", "esimaccess")
-            .eq("is_active", true);
-
-          const countrySet = new Set();
-          if (Array.isArray(distinctCountries)) {
-            for (const row of distinctCountries) {
-              if (Array.isArray(row.countries)) {
-                for (const c of row.countries) countrySet.add(c);
-              }
-            }
-          }
-
-          await supabase.from("esim_suppliers").update({
-            last_sync_at: new Date().toISOString(),
-            last_sync_status: "ok",
-            last_sync_count: upserted,
-            last_sync_error: null,
-            countries_supported: Array.from(countrySet).sort(),
-          }).eq("code", "esimaccess");
-
-          results.esimaccess = { success: true, fetched: rawPackages.length, upserted, retired, complete: true };
-        }
-      } catch (esimAccessErr) {
-        const msg = esimAccessErr instanceof Error ? esimAccessErr.message : String(esimAccessErr);
-        await supabase.from("esim_suppliers").update({
-          last_sync_at: new Date().toISOString(),
-          last_sync_status: "error",
-          last_sync_error: msg.slice(0, 500),
-        }).eq("code", "esimaccess");
-        results.esimaccess = { success: false, error: msg };
-      }
-    }
-
-
-    return new Response(
-      JSON.stringify({ success: true, results }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ success: false, error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   }
+
+  // ── 2. Zendit Sync ──────────────────────────────────────────────────────
+  if (!targetProvider || targetProvider === "zendit") {
+    try {
+      const { data: zenditApiKey } = await supabase
+        .rpc("get_internal_secret", { p_name: "zendit_api_key" });
+      const apiSecret = zenditApiKey || Deno.env.get("ZENDIT_API_SECRET");
+
+      if (apiSecret) {
+        // deno-lint-ignore no-explicit-any
+        const rawZendit: any[] = [];
+        let offset = 0;
+        let total = Infinity;
+        let page = 0;
+
+        while (offset < total && page < MAX_PAGES) {
+          const res = await fetch(
+            `${ZENDIT_BASE}/esim/offers?_limit=100&_offset=${offset}`,
+            { headers: { Authorization: `Bearer ${apiSecret}`, Accept: "application/json" } },
+          );
+          if (!res.ok) {
+            throw new Error(`Zendit eSIM offers page ${page}: HTTP ${res.status}`);
+          }
+          const json = await res.json();
+          total = typeof json.total === "number" ? json.total : (json.list?.length || 0);
+          const batch = json.list ?? [];
+          rawZendit.push(...batch);
+          if (batch.length === 0) break;
+          offset += batch.length;
+          page++;
+        }
+
+        const complete = offset >= total || rawZendit.length >= total;
+        const rows = rawZendit
+          .map((o) => zenditOfferToRow(o))
+          .filter((r) => r !== null && r!.bundle_name && r!.wholesale_price_usd > 0);
+
+        let upserted = 0;
+        for (let i = 0; i < rows.length; i += 500) {
+          const chunk = rows.slice(i, i + 500);
+          const { error } = await supabase
+            .from("esim_offers_cache")
+            .upsert(chunk, { onConflict: "provider,bundle_name" });
+          if (error) throw new Error(`zendit upsert: ${error.message}`);
+          upserted += chunk.length;
+        }
+
+        let retired = 0;
+        if (complete && rows.length > 0) {
+          const { data, error } = await supabase
+            .from("esim_offers_cache")
+            .update({ is_active: false, updated_at: new Date().toISOString() })
+            .eq("provider", "zendit")
+            .eq("is_active", true)
+            .lt("updated_at", syncStartedIso)
+            .select("bundle_name");
+          if (error) throw new Error(`zendit retirement sweep: ${error.message}`);
+          retired = data?.length ?? 0;
+        }
+
+        const { data: distinctCountries } = await supabase
+          .from("esim_offers_cache")
+          .select("countries")
+          .eq("provider", "zendit")
+          .eq("is_active", true);
+
+        const countrySet = new Set();
+        if (Array.isArray(distinctCountries)) {
+          for (const row of distinctCountries) {
+            if (Array.isArray(row.countries)) {
+              for (const c of row.countries) countrySet.add(c);
+            }
+          }
+        }
+
+        await supabase.from("esim_suppliers").update({
+          last_sync_at: new Date().toISOString(),
+          last_sync_status: complete ? "ok" : "partial",
+          last_sync_count: upserted,
+          last_sync_error: null,
+          countries_supported: Array.from(countrySet).sort(),
+        }).eq("code", "zendit");
+
+        results.zendit = { success: true, fetched: rawZendit.length, upserted, retired, complete };
+      }
+    } catch (zenditErr) {
+      const msg = zenditErr instanceof Error ? zenditErr.message : String(zenditErr);
+      await supabase.from("esim_suppliers").update({
+        last_sync_at: new Date().toISOString(),
+        last_sync_status: "error",
+        last_sync_error: msg.slice(0, 500),
+      }).eq("code", "zendit");
+      results.zendit = { success: false, error: msg };
+    }
+  }
+
+  // ── 3. eSIM Access Sync ─────────────────────────────────────────────────
+  if (!targetProvider || targetProvider === "esimaccess") {
+    try {
+      const { data: esimAccessCodeSecret } = await supabase
+        .rpc("get_internal_secret", { p_name: "esim_access_access_code" });
+      const { data: esimAccessKeySecret } = await supabase
+        .rpc("get_internal_secret", { p_name: "esim_access_secret_key" });
+
+      const accessCode = esimAccessCodeSecret || Deno.env.get("ESIM_ACCESS_ACCESS_CODE");
+      const secretKey = esimAccessKeySecret || Deno.env.get("ESIM_ACCESS_SECRET_KEY");
+
+      if (accessCode) {
+        const headers: Record<string, string> = {
+          "RT-AccessCode": String(accessCode),
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        };
+        if (secretKey) {
+          headers["secretKey"] = String(secretKey);
+        }
+
+        const res = await fetch(`${ESIM_ACCESS_BASE}/package/list`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ type: "BASE" }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`eSIM Access package list: HTTP ${res.status}`);
+        }
+
+        const json = await res.json();
+        // deno-lint-ignore no-explicit-any
+        const rawPackages: any[] = (json.obj && Array.isArray(json.obj.packageList)) ? json.obj.packageList : [];
+
+        const rows = rawPackages
+          .map((p) => normalizeEsimAccessOffer(p))
+          .filter((r) => r !== null && r!.bundle_name && r!.wholesale_price_usd > 0);
+
+        let upserted = 0;
+        for (let i = 0; i < rows.length; i += 500) {
+          const chunk = rows.slice(i, i + 500);
+          const { error } = await supabase
+            .from("esim_offers_cache")
+            .upsert(chunk, { onConflict: "provider,bundle_name" });
+          if (error) throw new Error(`esimaccess upsert: ${error.message}`);
+          upserted += chunk.length;
+        }
+
+        let retired = 0;
+        if (rows.length > 0) {
+          const { data, error } = await supabase
+            .from("esim_offers_cache")
+            .update({ is_active: false, updated_at: new Date().toISOString() })
+            .eq("provider", "esimaccess")
+            .eq("is_active", true)
+            .lt("updated_at", syncStartedIso)
+            .select("bundle_name");
+          if (error) throw new Error(`esimaccess retirement sweep: ${error.message}`);
+          retired = data?.length ?? 0;
+        }
+
+        const { data: distinctCountries } = await supabase
+          .from("esim_offers_cache")
+          .select("countries")
+          .eq("provider", "esimaccess")
+          .eq("is_active", true);
+
+        const countrySet = new Set();
+        if (Array.isArray(distinctCountries)) {
+          for (const row of distinctCountries) {
+            if (Array.isArray(row.countries)) {
+              for (const c of row.countries) countrySet.add(c);
+            }
+          }
+        }
+
+        await supabase.from("esim_suppliers").update({
+          last_sync_at: new Date().toISOString(),
+          last_sync_status: "ok",
+          last_sync_count: upserted,
+          last_sync_error: null,
+          countries_supported: Array.from(countrySet).sort(),
+        }).eq("code", "esimaccess");
+
+        results.esimaccess = { success: true, fetched: rawPackages.length, upserted, retired, complete: true };
+      }
+    } catch (esimAccessErr) {
+      const msg = esimAccessErr instanceof Error ? esimAccessErr.message : String(esimAccessErr);
+      await supabase.from("esim_suppliers").update({
+        last_sync_at: new Date().toISOString(),
+        last_sync_status: "error",
+        last_sync_error: msg.slice(0, 500),
+      }).eq("code", "esimaccess");
+      results.esimaccess = { success: false, error: msg };
+    }
+  }
+
+  return new Response(
+    JSON.stringify({ success: true, results }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+} catch (err) {
+  const message = err instanceof Error ? err.message : String(err);
+  return new Response(JSON.stringify({ success: false, error: message }), {
+    status: 500,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 });
