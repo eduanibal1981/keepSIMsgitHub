@@ -138,8 +138,11 @@ three original primary HEADs and unrelated edits are preserved. The scoped Admin
 artifact includes only the three new support methods; pending carrier/fleet edits
 from the primary worktree were excluded.
 
-GitHub uploads await the user's separate private-source approval. The earlier
-[ESIM-09 source-sync report](esimaccess-daily-duration-20261028.md) records that
-automatic approval review rejected source upload under runtime-only deployment
-approval. No new upload has been attempted under that unresolved boundary.
-Migration, Edge and direct VM deployment are complete and verified independently.
+The user explicitly approved private-source uploads on 28 October 2026.
+All three `codex/esim10-12-controls-20261028` branches are pushed to their existing
+GitHub repositories; independent `git ls-remote` checks match each local release
+HEAD. Customer release HEAD at verification was `77e6542c29c067d4ff46487e3db613d0326ad8fe`;
+backend and Admin match the implementation commits above. This synchronization
+receipt is committed as a subsequent documentation update on the customer branch.
+No default branch was merged or rewritten. Migration, Edge and direct VM
+verification remain the deployment evidence; a source push does not enable actions.

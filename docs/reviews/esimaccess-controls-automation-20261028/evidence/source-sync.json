@@ -1,6 +1,6 @@
 {
   "branch": "codex/esim10-12-controls-20261028",
-  "status": "AWAITING_PRIVATE_SOURCE_UPLOAD_APPROVAL",
+  "status": "PUSHED_AND_REMOTE_VERIFIED",
   "repositories": {
     "customer": {
       "implementation_commit": "2e047bf10dc29d8d443329774ec22b07e95c0015",
@@ -92,7 +92,10 @@
         "tools/prepare_esim_controls_release.py"
       ],
       "remote": "https://github.com/eduanibal1981/keepSIMsgitHub.git",
-      "pushed": false
+      "pushed": true,
+      "verified_release_head": "77e6542c29c067d4ff46487e3db613d0326ad8fe",
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepSIMsgitHub/tree/codex/esim10-12-controls-20261028"
     },
     "backend": {
       "implementation_commit": "2867df368f93ec3f33ed346c9d778bc244c80d66",
@@ -103,7 +106,10 @@
         "test/esim_profile_controls_test.js"
       ],
       "remote": "https://github.com/eduanibal1981/keepsims-backend.git",
-      "pushed": false
+      "pushed": true,
+      "verified_release_head": "2867df368f93ec3f33ed346c9d778bc244c80d66",
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepsims-backend/tree/codex/esim10-12-controls-20261028"
     },
     "admin": {
       "implementation_commit": "f5d294fb5cd2fc0d760d66a48781855ac0943c34",
@@ -115,12 +121,18 @@
         "test/esim_support_panel_test.dart"
       ],
       "remote": "https://github.com/eduanibal1981/keepsims_admin.git",
-      "pushed": false
+      "pushed": true,
+      "verified_release_head": "f5d294fb5cd2fc0d760d66a48781855ac0943c34",
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepsims_admin/tree/codex/esim10-12-controls-20261028"
     }
   },
   "primary_heads_preserved": {
     "customer": "aa8d47d76ffa4c5ffad87d631f9abc76bde39700",
     "backend": "c18e2ac793f288165505990e9ecd26207fd99fe2",
     "admin": "15d9d02951e2b49390637327e1eaf875bc16c2f0"
-  }
+  },
+  "user_approval": "Explicit approval: Yes, push the three release branches",
+  "approved_date": "2026-10-28",
+  "timezone": "Asia/Muscat"
 }
