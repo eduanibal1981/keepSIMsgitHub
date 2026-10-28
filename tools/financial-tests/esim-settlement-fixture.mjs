@@ -52,6 +52,9 @@ export async function createFixture(database=null) {
  const shapes=JSON.parse(read(e+'shapes.json'));await db.exec('CREATE VIEW public.wallet_reconciliation AS '+shapes.reconciliation);
  const migrations=fs.readdirSync(new URL('supabase/migrations/',root)).filter(n=>n.endsWith('_esim_fixed_recharge_settlement.sql'));assert.equal(migrations.length,1);
  await db.exec(read('supabase/migrations/'+migrations[0]));
+ await db.exec(read('supabase/migrations/20261028042528_esim_settlement_view_boundary.sql'));
+ // Actual live orders RLS and view ACL predate the ESIM-03 migration.
+ await db.exec(`ALTER TABLE public.esim_orders ENABLE ROW LEVEL SECURITY;CREATE POLICY "Users can read own esim orders" ON public.esim_orders FOR SELECT TO authenticated USING(auth.uid()=user_id);GRANT SELECT ON public.customer_esim_orders TO authenticated,service_role;`);
  await db.exec(`insert into auth.users(id) values('${owner}'),('${other}');insert into auth.sessions(id,user_id) values('${owner}','${owner}'),('${other}','${other}');
  insert into profiles(id) values('${owner}'),('${other}');insert into esim_suppliers(code,name,is_active) values('esimaccess','Fixture',true);
  insert into app_fee_rules(appfees_item,version,status,free_percentage,free_minimum,stand_percentage,stand_minimum,prem_percentage,prem_minimum) values('esimofferfee',999,'published',10,0.5,7,0.3,5,0.1);

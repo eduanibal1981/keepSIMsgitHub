@@ -1,0 +1,10 @@
+{
+  "unauthenticated_post_status": 401,
+  "unauthenticated_response": {
+    "code": "UNAUTHORIZED_NO_AUTH_HEADER",
+    "message": "Missing authorization header"
+  },
+  "options_status": 204,
+  "cors_origin": "*",
+  "cors_methods": "POST, OPTIONS"
+}

@@ -1,0 +1,21 @@
+{
+  "database": [
+    {
+      "checked_at": "2026-10-28 04:27:18.484014+00",
+      "last_worker_seen_at": "2026-10-28 04:27:10.834184+00",
+      "last_cycle": {
+        "errors": 0,
+        "events": 0,
+        "orders": 0,
+        "profiles": 0
+      },
+      "new_sales_enabled": false,
+      "recharge_enabled": false,
+      "recharge_contract_verified": false,
+      "wallet_boundary_verified": false,
+      "can_accept": false
+    }
+  ],
+  "error_log_last_modified_utc": "2026-10-18 21:18:11",
+  "note": "PM2 error-log tail predates this deployment."
+}

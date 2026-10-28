@@ -251,3 +251,13 @@ is enabled; new sales/recharge spending remain disabled. Customer app source
 passes local feature tests; binaries are unpublished. No real Access profiles
 exist for provider acceptance. Daily-duration quotes await ESIM-09; financial
 acceptance/settlement awaits ESIM-08. See the ESIM-07 review and receipt.
+
+
+### ESIM-08 — 28 October 2026
+Fixed recharge/settlement runtime deployed gated: migrations 20261028042251 and
+20261028042532, recharge Edge v2 and four scoped fulfillment files. Owner/session
+checks, durable reservations and receipt recovery; customer/Admin source tested.
+110 customer + 57 worker + 23 SQL + five native groups + eight Edge + two Admin
+checks pass. Spending remains disabled; no paid/provider acceptance or binaries.
+View-option reset caught and corrected, owner-RLS regression now tested. See
+docs/reviews/esimaccess-recharge-settlement-20261028.md. Next step ESIM-09.

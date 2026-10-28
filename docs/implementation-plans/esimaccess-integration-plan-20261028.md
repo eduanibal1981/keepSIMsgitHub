@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08 fixed recharge/settlement is implemented and deployed with spending gates closed; ESIM-09–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -27,7 +27,7 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-05 | Useful data, expiry and order alerts | 04 | Backend deployed/verified; app tested locally |
 | ESIM-06 | Installation links, guides and recovery | 03 | App tested locally; native acceptance unverified |
 | ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Runtime deployed/verified; app tested locally |
-| ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Planned |
+| ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Runtime deployed/verified with spending disabled; apps tested locally |
 | ESIM-09 | Selectable Day Pass duration and extensions | 08 | Planned |
 | ESIM-10 | Eligible unused-profile cancellation/refunds | 04, 08 | Planned |
 | ESIM-11 | Suspend/resume and admin support tools | 04, 06 | Planned |
@@ -488,3 +488,36 @@ Evidence: [ESIM-06 review](../reviews/esimaccess-installation-20261028.md) and
 Evidence: [ESIM-07 review](../reviews/esimaccess-recharge-discovery-20261028.md),
 [manifest](../reviews/esimaccess-recharge-discovery-20261028/release/manifest.json)
 and [deployment receipt](../reviews/esimaccess-recharge-discovery-20261028/deployment.json).
+
+
+### ESIM-08 progress — 28 October 2026
+
+- Reused the existing order/run and actual wallet reserve/capture/release authority
+  for fixed recharge and new-profile checkout. Owner/session, quote, available
+  funds, stable nonce and profile locks prevent duplicate or cross-owner spending.
+- Confirmed supplier evidence captures once; safe pre-submission refusal releases
+  once; proven legacy refunds use the original payer and actual unrefunded debit.
+  Unknown outcomes stay reserved. Received top-up/purchase references survive SQL
+  outages through a private durable journal. No second supplier POST on recovery.
+- Same-profile entitlement settlement preserves installation credentials and
+  atomically reopens alert cycles. Customer confirmation/history/receipts and the
+  read-only Admin timeline are implemented and tested; app binaries unpublished.
+- Applied `20261028042251` plus corrective view-boundary migration `20261028042532`;
+  recharge Edge v2 verifies JWTs. Four VM files deployed directly; only fulfillment
+  restarted. Exact source hashes, heartbeat/error checks and ACL/view checks pass.
+- Post-deploy view-option drift was detected and corrected; both SQL engines now
+  test invoker RLS and denied wholesale reads. Final audit has no new errors.
+- Validation: 110 customer tests, 57 worker tests, 23 SQL groups, five native
+  PostgreSQL boundary/concurrency groups, eight Edge tests and two Admin tests;
+  scoped analysis and frozen Deno checks pass.
+- `recharge_enabled`, `recharge_contract_verified`, `wallet_boundary_verified` and
+  `new_sales_enabled` remain false. Discovery stays read-only. No paid test, live
+  wallet mutation or real-provider acceptance. A lost supplier response has no
+  documented exact lookup; it stays reserved/support-required. Enabling spend
+  requires separately scoped provider/wallet acceptance on a specified owned
+  profile and named ceiling. Daily duration/automation/groups await later steps.
+
+Evidence: [ESIM-08 review](../reviews/esimaccess-recharge-settlement-20261028.md),
+[release manifest](../reviews/esimaccess-recharge-settlement-20261028/release/manifest.json),
+[final live state](../reviews/esimaccess-recharge-settlement-20261028/evidence/final-live-verification.json).
+Next eligible implementation: ESIM-09 (daily plans and selectable duration).

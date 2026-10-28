@@ -541,3 +541,16 @@ Quotes never reserve funds; ESIM-08 must atomically consume the unique acceptanc
 key in its future operation and extend sibling-action serialization. Expected
 advisor notices for these owner-checked RPCs/private tables are documented in
 `docs/reviews/esimaccess-recharge-discovery-20261028.md` with passing role denials.
+
+
+### ESIM-08 settlement boundary — 28 October 2026
+New owner/session-bound acceptance and checkout RPCs create durable esim_op: holds
+through actual wallet primitives. A private capture context protects escrow from
+legacy direct writers while allowing legitimate capture; capture locks wallet
+before hold. Unknown provider outcomes retain funds; proven original-payer legacy
+refunds are bounded by actual ledger evidence. Service-only receipt/settlement
+RPCs use persisted intent references; customer/Admin reads redact credentials and
+wholesale values. Order view invoker/barrier options are explicitly restored in
+20261028042532 and tested under non-owner RLS. No new anonymous RPC execution.
+All financial enablement flags remain false pending provider/wallet acceptance.
+See the ESIM-08 review and final ACL/advisor evidence.

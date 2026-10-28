@@ -1,0 +1,23 @@
+[
+  {
+    "view_options": [
+      "security_invoker=true",
+      "security_barrier=true"
+    ],
+    "filter_granted": true,
+    "wholesale_granted": false,
+    "purchase_search_path": [
+      "search_path=\"\""
+    ],
+    "migrations": [
+      {
+        "name": "esim_settlement_view_boundary",
+        "version": "20261028042532"
+      },
+      {
+        "name": "esim_fixed_recharge_settlement",
+        "version": "20261028042251"
+      }
+    ]
+  }
+]

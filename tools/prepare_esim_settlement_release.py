@@ -25,8 +25,8 @@ for name in vm_files:
     files['backend/' + name] = (backend / name).read_bytes()
 for name in ['esim-recharge-discovery/index.ts', 'esim-recharge-discovery/deno.lock', '_shared/esim-recharge-discovery.js']:
     files['edge/' + name] = (root / 'supabase/functions' / name).read_bytes()
-name = '20261028032323_esim_fixed_recharge_settlement.sql'
-files['migrations/' + name] = (root / 'supabase/migrations' / name).read_bytes()
+for name in ['20261028032323_esim_fixed_recharge_settlement.sql', '20261028042528_esim_settlement_view_boundary.sql']:
+    files['migrations/' + name] = (root / 'supabase/migrations' / name).read_bytes()
 for name in ['domain/entities/esim_recharge.dart', 'domain/repositories/esim_repository.dart',
              'data/repositories/esim_go_repository_impl.dart', 'presentation/controllers/esim_recharge_controller.dart',
              'presentation/screens/esim_recharge_screen.dart', 'presentation/widgets/esim_checkout_sheet.dart']:

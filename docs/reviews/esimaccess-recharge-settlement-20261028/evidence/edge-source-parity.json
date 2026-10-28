@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "verify_jwt": true,
+  "verified_files": [
+    "esim-recharge-discovery/index.ts",
+    "_shared/esim-recharge-discovery.js"
+  ],
+  "lock_included_on_deploy": true,
+  "lock_omitted_by_retrieval": true
+}

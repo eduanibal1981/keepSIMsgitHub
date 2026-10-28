@@ -2,4 +2,5 @@ PASS concurrent taps adopt one durable order and one reservation
 PASS concurrent recovery captures once, records one entitlement, and preserves other funds
 PASS native PostgreSQL ledger reconciliation includes recharge settlement
 PASS native non-owner operation reads return no receipt
-4 native ESIM-08 concurrency/boundary groups passed
+PASS native customer order view enforces owner RLS after replacement
+5 native ESIM-08 concurrency/boundary groups passed

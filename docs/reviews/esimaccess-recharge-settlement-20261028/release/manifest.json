@@ -58,6 +58,7 @@
     "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
     "edge/_shared/esim-recharge-discovery.js": "a812c25755c7293f3b92e99ba36b3e714b24337c5cbecea36f89cf2998f60934",
     "migrations/20261028032323_esim_fixed_recharge_settlement.sql": "2564bff16fc028f6513bd3e92823dbe962ed0025b300a55dd2c86198e2b40dd5",
+    "migrations/20261028042528_esim_settlement_view_boundary.sql": "0cceb4c0cfafaefaab19ccbe24185a62f2d9ce09a84a19e1e67a026e26136085",
     "customer/lib/features/esim/domain/entities/esim_recharge.dart": "d7ed877c58d13dfa5d39151d1b8c3d2c650423682df56fa17d51f6ecc5524228",
     "customer/lib/features/esim/domain/repositories/esim_repository.dart": "64c502161c140f7a069eec67eef81159c0bae3c2c122323df09ad2b265db0e4d",
     "customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart": "541ba348f552cea28d73d0f62f58097a083e37b03b8aaf37add111dd6740930a",

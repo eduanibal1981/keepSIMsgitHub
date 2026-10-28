@@ -149,5 +149,12 @@ try {
   const t=await one('select public.admin_esim_operation_timeline($1) v',[job.order_id]);assert.equal(t.order_id,job.order_id);assert.equal(t.has_hold,true);
   for(const secret of ['private','890000','wholesale','lpa_string'])assert(!JSON.stringify(t).includes(secret));
  });
+ await test('customer purchase view preserves invoker RLS and narrow column access',async()=>{
+  await service();const options=await one("select reloptions v from pg_class where oid='public.customer_esim_orders'::regclass");
+  assert(options.includes('security_invoker=true'));assert(options.includes('security_barrier=true'));
+  await user();assert.equal(await one('select count(*)::int v from public.customer_esim_orders'),1);
+  await rejected(()=>one('select wholesale_price_usd v from public.esim_orders'),/permission denied/);
+  await user(other);assert.equal(await one('select count(*)::int v from public.customer_esim_orders'),0);
+ });
  console.log(`${passed} ESIM-08 SQL scenario groups passed`);
 }finally{await db.close();}

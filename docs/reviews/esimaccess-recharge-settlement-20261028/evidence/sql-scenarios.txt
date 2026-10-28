@@ -20,4 +20,5 @@ PASS partial new-profile issuance retains its reservation, complete issuance cap
 PASS expired accepted quotes retain historical evidence during retention pruning
 PASS a failed accepted quote is never reused as a new intent
 PASS support timeline enforces trusted app metadata and exposes no activation or wholesale data
-22 ESIM-08 SQL scenario groups passed
+PASS customer purchase view preserves invoker RLS and narrow column access
+23 ESIM-08 SQL scenario groups passed

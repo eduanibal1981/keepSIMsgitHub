@@ -1,0 +1,66 @@
+[
+  {
+    "verification": {
+      "gates": {
+        "last_cycle": {
+          "errors": 0,
+          "events": 0,
+          "orders": 0,
+          "profiles": 0
+        },
+        "recharge_enabled": false,
+        "new_sales_enabled": false,
+        "last_worker_seen_at": "2026-10-28T04:27:31.367328+00:00",
+        "wallet_boundary_verified": false,
+        "recharge_contract_verified": false
+      },
+      "views": [
+        {
+          "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+          "name": "wallet_reconciliation",
+          "options": null
+        },
+        {
+          "acl": "{postgres=arwdDxtm/postgres,authenticated=r/postgres,service_role=r/postgres}",
+          "name": "customer_esim_orders",
+          "options": [
+            "security_invoker=true",
+            "security_barrier=true"
+          ]
+        }
+      ],
+      "counts": {
+        "runs": 0,
+        "orders": [
+          {
+            "kind": "purchase",
+            "status": "failed",
+            "provider": "esim_go"
+          }
+        ],
+        "entitlements": 0,
+        "access_profiles": 0,
+        "capture_context": 0,
+        "operation_holds": 0
+      },
+      "can_accept": false,
+      "checked_at": "2026-10-28T04:27:45.562187+00:00",
+      "migrations": [
+        {
+          "name": "esim_fixed_recharge_settlement",
+          "version": "20261028042251"
+        },
+        {
+          "name": "esim_settlement_view_boundary",
+          "version": "20261028042532"
+        }
+      ],
+      "discovery_enabled": true,
+      "wholesale_granted": false,
+      "order_filter_granted": true,
+      "purchase_search_path": [
+        "search_path=\"\""
+      ]
+    }
+  }
+]

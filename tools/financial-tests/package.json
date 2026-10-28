@@ -26,7 +26,9 @@
     "test:schedules": "node schedules.mjs",
     "test:vouchers": "node vouchers.mjs",
     "test:source-recovery": "node source-recovery.mjs",
-    "test:fleet": "node fleet.mjs"
+    "test:fleet": "node fleet.mjs",
+    "test:esim-settlement": "node esim-settlement.mjs",
+    "test:esim-settlement:concurrency": "node esim-settlement-concurrency.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

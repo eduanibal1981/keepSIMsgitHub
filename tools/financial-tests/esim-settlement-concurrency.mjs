@@ -34,7 +34,10 @@ try {
  console.log('PASS native PostgreSQL ledger reconciliation includes recharge settlement');
  await f.user(other);assert.deepEqual(await f.one('select get_esim_operation_history($1) v',[f.profile]),[]);
  console.log('PASS native non-owner operation reads return no receipt');
- console.log('4 native ESIM-08 concurrency/boundary groups passed');
+ await f.user();assert.equal(Number(await scalar(c,'select count(*) from public.customer_esim_orders')),1);
+ await f.user(other);assert.equal(Number(await scalar(c,'select count(*) from public.customer_esim_orders')),0);
+ console.log('PASS native customer order view enforces owner RLS after replacement');
+ console.log('5 native ESIM-08 concurrency/boundary groups passed');
 } finally {
  for(const c of clients)await c.end().catch(()=>{});
  await server.stop().catch(()=>{});await fs.rm(dir,{recursive:true,force:true});

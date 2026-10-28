@@ -1,0 +1,189 @@
+[
+  {
+    "verification": {
+      "gates": [
+        {
+          "account": "primary",
+          "recharge_enabled": false,
+          "new_sales_enabled": false,
+          "wallet_boundary_verified": false,
+          "recharge_contract_verified": false
+        }
+      ],
+      "views": [
+        {
+          "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+          "name": "wallet_reconciliation",
+          "options": null
+        },
+        {
+          "acl": "{postgres=arwdDxtm/postgres,authenticated=r/postgres,service_role=r/postgres}",
+          "name": "customer_esim_orders",
+          "options": null
+        }
+      ],
+      "counts": {
+        "runs": 0,
+        "old_order": [
+          {
+            "status": "failed",
+            "provider": "esim_go",
+            "operation_kind": "purchase"
+          }
+        ],
+        "entitlements": 0,
+        "access_profiles": 0,
+        "capture_context": 0,
+        "operation_holds": 0
+      },
+      "discovery": {
+        "singleton": true,
+        "discovery_enabled": true,
+        "last_discovery_at": null,
+        "catalogue_revision": 63,
+        "last_worker_seen_at": "2026-10-28T04:24:09.76061+00:00"
+      },
+      "migration": {
+        "name": "esim_fixed_recharge_settlement",
+        "version": "20261028042251"
+      },
+      "can_accept": false,
+      "new_rpc_acl": [
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "accept_esim_topup(uuid,uuid,text)",
+          "service_role": true,
+          "authenticated": true
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "admin_esim_operation_timeline(uuid)",
+          "service_role": true,
+          "authenticated": true
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "get_esim_operation_history(uuid)",
+          "service_role": true,
+          "authenticated": true
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=public"
+          ],
+          "definer": true,
+          "signature": "request_esim_purchase_v2(text,integer,text,uuid,numeric,uuid)",
+          "service_role": true,
+          "authenticated": true
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "service_esim_adopt_purchase_reference(uuid,text,text)",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "service_esim_fail_before_submit(uuid,uuid,text)",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "service_esim_record_rejection(uuid,uuid,text,text)",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "service_esim_record_topup_receipt(uuid,text,jsonb)",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "config": [
+            "search_path=\"\""
+          ],
+          "definer": true,
+          "signature": "service_esim_settle_topup(uuid)",
+          "service_role": true,
+          "authenticated": false
+        }
+      ],
+      "fingerprints": [
+        {
+          "md5": "91f7f88c75b0f25d55bb7a3e792a5f72",
+          "signature": "capture_wallet_hold(uuid,text,text,jsonb)"
+        },
+        {
+          "md5": "38e65f31503e293a0f71173f9b8f27ce",
+          "signature": "credit_wallet_for_refund(uuid,numeric,text,text,uuid,text)"
+        },
+        {
+          "md5": "53cec2e441b8d55bf0a4ec1aa92feb2d",
+          "signature": "debit_wallet_for_topup(uuid,uuid,numeric,text,text,text)"
+        },
+        {
+          "md5": "003fc42f897def9e424e83651dd9e53a",
+          "signature": "get_wallet_summary(uuid)"
+        },
+        {
+          "md5": "ad1590773eff9de011eeb255efac6f30",
+          "signature": "release_wallet_hold(uuid,text)"
+        },
+        {
+          "md5": "75aaad1ad02b099728c55fb55619819d",
+          "signature": "reserve_wallet_funds(uuid,numeric,text,text,text,integer)"
+        },
+        {
+          "md5": "db0fc0960113fb3cac910c0f63cbb3cb",
+          "signature": "resolve_esim_offer_price(numeric,uuid)"
+        }
+      ],
+      "private_tables": [
+        {
+          "rls": true,
+          "name": "capture_context",
+          "anon_select": false,
+          "authenticated_select": false
+        },
+        {
+          "rls": true,
+          "name": "entitlements",
+          "anon_select": false,
+          "authenticated_select": false
+        }
+      ]
+    }
+  }
+]

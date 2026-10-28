@@ -1,0 +1,10 @@
+[
+  {
+    "unauthenticated_owner_rows": 0,
+    "obsolete_checkout": {
+      "code": "UPDATE_REQUIRED",
+      "error": "Reopen checkout in the updated app to review this purchase.",
+      "success": false
+    }
+  }
+]
