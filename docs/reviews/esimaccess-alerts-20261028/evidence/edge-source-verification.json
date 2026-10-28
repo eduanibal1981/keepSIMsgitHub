@@ -1,0 +1,1 @@
+{"version":8,"verify_jwt":false,"matches":[{"file":"process-alert-outbox/index.ts","match":true},{"file":"process-alert-outbox/quiet_hours.ts","match":true}]}

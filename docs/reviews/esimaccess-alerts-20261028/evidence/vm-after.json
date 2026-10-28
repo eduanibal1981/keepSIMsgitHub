@@ -1,0 +1,56 @@
+[
+  {
+    "name": "server_baileys",
+    "pid": 997204,
+    "status": "online",
+    "restarts": 11
+  },
+  {
+    "name": "worker_instant_refill",
+    "pid": 1053118,
+    "status": "online",
+    "restarts": 2
+  },
+  {
+    "name": "worker_auto_mini_refill",
+    "pid": 1053124,
+    "status": "online",
+    "restarts": 2
+  },
+  {
+    "name": "worker_auto_custom_refill",
+    "pid": 1053125,
+    "status": "online",
+    "restarts": 2
+  },
+  {
+    "name": "worker_offers_cache",
+    "pid": 1025793,
+    "status": "online",
+    "restarts": 3
+  },
+  {
+    "name": "worker-esim-catalog",
+    "pid": 1058079,
+    "status": "online",
+    "restarts": 2
+  },
+  {
+    "name": "worker-esim-fulfillment",
+    "pid": 1060343,
+    "status": "online",
+    "restarts": 20
+  },
+  {
+    "name": "server_tg",
+    "pid": 65425,
+    "status": "online",
+    "restarts": 1
+  },
+  {
+    "name": "worker_dtone_control",
+    "pid": 1053131,
+    "status": "online",
+    "restarts": 0
+  }
+]

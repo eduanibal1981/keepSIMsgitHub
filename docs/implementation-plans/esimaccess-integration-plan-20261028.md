@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -24,7 +24,7 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-02 | Correct catalogue and transparent plan details | 01 | Runtime deployed/verified; app UI tested locally |
 | ESIM-03 | Stable profile identity, lifecycle and usage | 01, 02 | Implemented/tested; backend deployed, paid acceptance pending |
 | ESIM-04 | Provider event inbox and reconciliation | 03 | Runtime deployed/tested; provider callback registration blocked by URL-only configuration |
-| ESIM-05 | Useful data, expiry and order alerts | 04 | Planned |
+| ESIM-05 | Useful data, expiry and order alerts | 04 | Backend deployed/verified; app tested locally |
 | ESIM-06 | Installation links, guides and recovery | 03 | Planned |
 | ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Planned |
 | ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Planned |
@@ -387,3 +387,34 @@ Remaining provider confirmations: exact recovery of an ambiguous recharge/cancel
 Evidence: `keep_sims/docs/reviews/esimaccess-profiles-events-20261028.md`
 (workspace copy) / `docs/reviews/esimaccess-profiles-events-20261028.md`
 (customer repository). Source manifest and reproducible release builder are linked there.
+
+
+### ESIM-05 progress — 28 October 2026
+
+- **Backend deployed and verified; customer app tested locally, binaries unpublished.**
+  Reuses the notification catalogue, preferences, inbox, durable outbox and push
+  delivery history for ready, activated, low-data, near-expiry, expired and order
+  result alerts. Thresholds default to 20%/10% and 48 hours and remain configurable.
+- Stable per-profile/entitlement keys deduplicate event/poll overlap and restarts.
+  Failed/stale/unknown readings do not produce usage alerts. Cycle resets require
+  a trusted new entitlement settlement; ESIM-08 must call the private primitive
+  atomically after verified recharge. Corrections/daily usage resets never reset it.
+- Owner-checked profile/order routes, notification-permission/inbox guidance,
+  opt-outs and existing IANA quiet hours are covered. Delayed sends recheck owner,
+  cycle and relevance. Push/in-app only; no nonfunctional recharge button.
+- Applied `20261028014938` / `esim_actionable_alerts`; Edge outbox v8 source hashes
+  match the release. Scoped VM helper SHA256 `543f438ee844e98b99c9591bf9d77918c9426ef7654e6ec41569c22a2c4e1557`;
+  only fulfillment restarted, PID `1060343`. Periodic sweeps and zero cycle errors
+  are live verified. Purchase RPC hash and disabled sales gate are unchanged.
+- Validation: 37 backend, 15 actual Edge-module, 15 isolated SQL scenario groups,
+  29 Flutter and 13 baseline checks pass; affected Dart analysis and release syntax/
+  Deno checks pass. Live client/anon denials, RLS/ACLs, Edge 401 and source parity
+  pass. Security advisor reports no new findings. Sources are on
+  `codex/esim05-alerts-20261028` in the customer and backend repositories.
+- Limits: zero owned Access profiles/orders, so actual threshold/device-delivery
+  acceptance remains unverified. ESIM-04 callback authentication hookup is still
+  pending; polling continues. No paid provider action or wallet mutation occurred.
+  ESIM-06 is the next implementation step; later money features remain gated.
+
+Evidence: [ESIM-05 review](../reviews/esimaccess-alerts-20261028.md) and
+[deployment receipt](../reviews/esimaccess-alerts-20261028/deployment.json).

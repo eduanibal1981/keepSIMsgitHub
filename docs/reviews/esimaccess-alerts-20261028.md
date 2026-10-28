@@ -1,8 +1,7 @@
 # ESIM-05 — actionable eSIM alerts
 
-28 October 2026, Asia/Muscat. Implementation and focused validation are complete.
-Runtime deployment is authorized and prepared; the verified runtime receipt below
-will distinguish deployment from local implementation. App binaries are unpublished.
+28 October 2026, Asia/Muscat. Backend runtime is deployed and verified. Customer app changes are tested locally;
+app binaries are unpublished. See the [deployment receipt](esimaccess-alerts-20261028/deployment.json).
 
 The release reuses the existing notification catalogue, preferences, inbox,
 durable dispatch jobs, per-target outcomes and push infrastructure. It adds ready
@@ -61,7 +60,32 @@ eligibility, provider adapters, credential helpers and other workers are retaine
 
 ## Runtime receipt and limits
 
-Deployment verification pending at the time of this preparation paragraph.
+Applied migration `esim_actionable_alerts` at `20261028014938`; its stored SHA256
+matches the release SQL (`4336a0de38df334a3b8d8342242bc0f99a96446bae3f0e2977d73002920a178b`).
+`process-alert-outbox` v8 has both retrieved source files matching the release,
+retains handler authentication / `verify_jwt=false`, and rejects an unauthenticated
+request with HTTP 401. The VM helper matches SHA256
+`543f438ee844e98b99c9591bf9d77918c9426ef7654e6ec41569c22a2c4e1557`.
+Only `worker-esim-fulfillment` restarted (PID `1060343`); the worker entrypoint
+and other process PIDs/restart counts are unchanged. Its real periodic sweeps are
+persisted in `alert_policy.last_sweep_at`; the worker reports zero cycle errors.
+
+Live anon/authenticated calls are denied. All four new private tables have RLS
+and no client reads. Both service APIs deny anon/authenticated execution. The
+security advisor remains at seven pre-existing findings, with no additions.
+Both alert preference categories exist for all nine existing profiles. No alert
+was generated because there are zero owned Access profiles/orders. The purchase
+RPC hash and new-sales-disabled flag are unchanged.
+
+Sources are synchronized on `codex/esim05-alerts-20261028`:
+[customer implementation](https://github.com/eduanibal1981/keepSIMsgitHub/commit/432287d),
+[backend helper](https://github.com/eduanibal1981/keepsims-backend/commit/5960b9d).
+Default branches and the Admin app are unchanged. The customer branch follows
+the prior ESIM-03/04 branch and contains only this step's selected changes;
+unrelated pending local work and checkout-only line-ending differences were
+excluded. The current review/evidence is recorded in the follow-up source commit.
+
+Historical preflight:
 Preflight confirms ESIM-03/04 migrations, no owned Access profiles/orders,
 new sales disabled, zero worker cycle errors, reachable VM and matching base
 source. The purchase RPC MD5 is `524b7d1f6f79eadaf422fb0ff3f1c315`.

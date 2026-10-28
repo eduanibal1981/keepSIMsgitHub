@@ -499,3 +499,17 @@ The live check still lacks this API/columns and required Task 4/7 migration vers
 Release with matching make-call, both call-media bundles, telnyx-cdr/media-events
 and retail estimate changes after legacy/provider review. Read
 `docs/reviews/call-budget-billing-20261018.md` for tests and recovery/release gates.
+
+
+## eSIM actionable alerts — ESIM-05, 2026-10-28 (deployed)
+
+Migration `20261028014938` adds private policy/cycle/event ledgers and service-only
+sweep/relevance APIs. The existing notification trigger and outbox v8 restrict
+`esim_*` events to push; in-app rows retain their existing owner RLS. Outbox sends
+recheck current owner/cycle/authenticated observation freshness after delay, use
+saved preferences/IANA quiet hours, and retain existing target outcomes. Only the
+fulfillment helper/process changed on the VM. New sales remain disabled; no money
+or provider action is authorized by alerts. A later recharge settlement must open
+a new alert cycle atomically from proven entitlement evidence, never from byte or
+expiry changes. See `docs/reviews/esimaccess-alerts-20261028.md` and its deployment
+receipt. Real profile/device-delivery acceptance remains unverified (no profiles).
