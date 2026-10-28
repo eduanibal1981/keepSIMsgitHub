@@ -135,3 +135,10 @@ To reproduce financial checks, run `npm ci` in `tools/financial-tests`, then
 `node tools/financial-tests/esim-settlement-concurrency.mjs` from the customer root.
 The native harness uses a temporary local PostgreSQL instance and random fixture
 credentials; it never connects to production.
+
+
+Final implementation revisions pushed to the scoped branch: customer
+`b8c30edd6ce12eff065c911a3e84bd6dfb20c74f` (includes the corrective migration),
+backend `3c3961d18cd428817efe1abc18dfbaefa9e27766`, Admin
+`29e6c0f027ad8195f2074cfab7178c14f51801be`. The final receipt commit only adds
+source synchronization evidence; the tested/deployed sources remain these revisions.

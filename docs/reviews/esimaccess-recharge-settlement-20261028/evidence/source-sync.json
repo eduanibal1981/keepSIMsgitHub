@@ -1,0 +1,17 @@
+{
+  "branch": "codex/esim08-fixed-recharge-20261028",
+  "pushed_source_revisions": {
+    "customer": "b8c30edd6ce12eff065c911a3e84bd6dfb20c74f",
+    "backend": "3c3961d18cd428817efe1abc18dfbaefa9e27766",
+    "admin": "29e6c0f027ad8195f2074cfab7178c14f51801be"
+  },
+  "runtime_source_revisions": {
+    "customer": "6e731da8c1487ac9a59d0f029620879f7dcd1275",
+    "backend": "968b1f68c679b1dd4d7be809e2c2dab465cca92a",
+    "admin": "29e6c0f027ad8195f2074cfab7178c14f51801be"
+  },
+  "corrective_migration_in_customer_revision": "b8c30edd6ce12eff065c911a3e84bd6dfb20c74f",
+  "default_branches_unchanged": true,
+  "app_binaries_published": false,
+  "paid_supplier_tests": false
+}
