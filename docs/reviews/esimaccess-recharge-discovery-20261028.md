@@ -6,7 +6,7 @@ Customer app source is tested locally; app binaries are unpublished. See the
 
 Customers can browse compatible TOPUP offers for an existing owned profile and
 preview a two-minute server quote. The Edge handler validates the customer JWT
-and uses customer SQL authority. SQL binds ownership, original payer, exact
+and uses customer SQL authority. SQL binds ownership, the owning payer, exact
 profile, supplier account, fixed-bundle action, current package ID, duration,
 USD retail total, expiry and a unique acceptance key. Neither an acceptance RPC
 nor a provider recharge endpoint is added. ESIM-08 must implement atomic key
@@ -109,3 +109,12 @@ discovery/quotes and invalidates existing previews while leaving reconciliation,
 alerts and usage running. If needed, restore only the previous fulfillment helper
 after disabling discovery. Keep compatible schema and quote evidence; do not
 restore pre-ESIM-03 runtime or enable sales as part of rollback.
+
+## GitHub source synchronization
+
+Runtime implementation source is on `codex/esim07-recharge-discovery-20261028`:
+[customer](https://github.com/eduanibal1981/keepSIMsgitHub/commit/05f4ec9e107a8f12695eaff7e0530252378647f5) and
+[backend](https://github.com/eduanibal1981/keepsims-backend/commit/e2e2c7c2abe90d5abc3c4157d7a2de0b6bc6257c).
+The branch follows ESIM-06 customer and ESIM-05 backend release source; primary
+working directories and default branches were preserved. Runtime hashes are
+separately verified against the direct VM/Edge deployment, not inferred from Git.

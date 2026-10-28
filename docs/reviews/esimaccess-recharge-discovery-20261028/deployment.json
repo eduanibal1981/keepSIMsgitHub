@@ -146,5 +146,10 @@
     "Daily duration quotes deferred to ESIM-09",
     "No app binaries published",
     "No paid supplier action or wallet mutation"
-  ]
+  ],
+  "source": {
+    "branch": "codex/esim07-recharge-discovery-20261028",
+    "customer_runtime_commit": "05f4ec9e107a8f12695eaff7e0530252378647f5",
+    "backend_commit": "e2e2c7c2abe90d5abc3c4157d7a2de0b6bc6257c"
+  }
 }
