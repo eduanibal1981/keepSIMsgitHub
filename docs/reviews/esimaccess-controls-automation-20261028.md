@@ -124,3 +124,22 @@ and no provider mutation, purchase or wallet mutation was used for live testing.
 Customer/Admin source is tested locally; binaries remain unpublished. Next
 planned implementation is ESIM-13. Account enablement and paid acceptance need
 the actual eligible profile, allowed operations, verified policy/pricing and cap.
+
+
+## Source revisions
+
+Scoped implementation commits are customer `2e047bf10dc29d8d443329774ec22b07e95c0015`,
+backend `2867df368f93ec3f33ed346c9d778bc244c80d66` and Admin
+`f5d294fb5cd2fc0d760d66a48781855ac0943c34`, on the matching
+`codex/esim10-12-controls-20261028` branches. Final deployment evidence and the
+stable-source release builder are committed separately in customer history.
+Committed application/runtime bytes match all 18 manifest fingerprints. All
+three original primary HEADs and unrelated edits are preserved. The scoped AdminApi
+artifact includes only the three new support methods; pending carrier/fleet edits
+from the primary worktree were excluded.
+
+GitHub uploads await the user's separate private-source approval. The earlier
+[ESIM-09 source-sync report](esimaccess-daily-duration-20261028.md) records that
+automatic approval review rejected source upload under runtime-only deployment
+approval. No new upload has been attempted under that unresolved boundary.
+Migration, Edge and direct VM deployment are complete and verified independently.
