@@ -4,6 +4,8 @@
 /// Detects device eSIM capability and provides profile management.
 library;
 
+import 'package:keep_sims/features/esim/presentation/screens/esim_recharge_screen.dart';
+
 import 'package:keep_sims/features/esim/presentation/widgets/esim_profile_card.dart';
 
 import 'package:flutter/material.dart';
@@ -330,6 +332,7 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
       EsimProfileCard(
         profile: esim,
         onInstall: () => EsimDeliveryScreen.show(context, esim),
+        onRecharge: () => EsimRechargeScreen.show(context, esim.id),
         onBuyNew: () => context.push(AppRoutes.esimPlans),
       );
 

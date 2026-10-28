@@ -239,3 +239,15 @@ Actual production prices, deployed grants/source/cache and controlled runtime/
 provider acceptance remain release gates. Read
 `docs/reviews/pricing-entitlement-unification-20261018.md` before rollout; old
 clients calling the unbound debit require the compatible release or maintenance.
+
+
+## eSIM recharge discovery/quotes — ESIM-07, 2026-10-28
+
+CONFIRMED: migration `20261028030224`, customer discovery Edge v1 and the scoped
+fulfillment helper are deployed/verified. Exact owned-profile TOPUP lookup,
+short-lived cache and immutable fixed-bundle retail quotes are read-only.
+Available funds exclude holds; unknown balance stays unknown. Read-only discovery
+is enabled; new sales/recharge spending remain disabled. Customer app source
+passes local feature tests; binaries are unpublished. No real Access profiles
+exist for provider acceptance. Daily-duration quotes await ESIM-09; financial
+acceptance/settlement awaits ESIM-08. See the ESIM-07 review and receipt.

@@ -1,0 +1,43 @@
+✔ each idle recovery cycle evaluates alerts without a provider call or purchase gate (0.615125ms)
+✔ an alert database outage reports a failed cycle and retains recovery (0.476458ms)
+✔ issuance requires a stable profile reference, ICCID and genuine activation payload (1.293875ms)
+✔ issued is not installed and pre-activation expiry is never inferred (0.083125ms)
+✔ authoritative active/expired/suspended/depleted states remain distinct (0.125083ms)
+✔ zero, missing usage and a different profile response never collapse together (0.35425ms)
+✔ unknown order reference refuses unfiltered recovery lookup (0.278125ms)
+✔ lookup validates the exact order/profile reference and walks advertised pages (0.1955ms)
+✔ supplier transport uncertainty produces one POST, no refund and no reissue (0.460125ms)
+✔ a failed local checkpoint after provider acceptance never causes another provider POST (0.13225ms)
+✔ partial issuance saves only evidenced profiles and leaves completion to the atomic RPC (0.150833ms)
+✔ a callback order hint needs supplier-confirmed transaction identity before adoption (0.295625ms)
+✔ a missing usage refresh retains lifecycle evidence without inventing zero bytes (1.400292ms)
+✔ the shared limiter refuses supplier requests when database coordination is unavailable (0.320584ms)
+✔ TOPUP normalizer preserves exact ID, divisor, allowance and duration without BASE normalization (0.846792ms)
+✔ daily discovery is truthful and quotes wait for duration pricing (1.253417ms)
+✔ invalid or duplicate responses fail the whole cache instead of silently offering a partial list (0.631584ms)
+✔ worker requests only TOPUP for the exact persisted ICCID and never an order or destination catalogue (1.149375ms)
+✔ no queued request means no credentials, provider, or save operation (0.205333ms)
+✔ account/reference mismatch fails before accessing the supplier (0.141083ms)
+✔ supplier timeout, malformed response and limiter outage save bounded error codes without retries (0.788333ms)
+✔ database save failure is left for a durable read-only lease retry (0.355166ms)
+✔ provider dataType 1 controls classification (3.106ms)
+✔ provider dataType 2 controls classification (0.251584ms)
+✔ provider dataType 3 controls classification (0.163792ms)
+✔ provider dataType 4 controls classification (0.175166ms)
+✔ provider dataType 99 controls classification (0.151333ms)
+✔ missing facts do not become unlimited, throttling, coverage or activation claims (0.812916ms)
+✔ facts retain both identifiers, exact bytes, source timestamps and supplied network/FUP/APN (0.216292ms)
+✔ activeType never enables a disabled package; duration units are not guessed (0.268833ms)
+✔ TOPUP discovery cannot enter the BASE cache (0.108333ms)
+✔ BASE and compatible TOPUP queries are explicit and malformed success is refused (0.871875ms)
+✔ Edge and Node normalizers have identical source and output (1.922709ms)
+✔ catalogue worker uses Vault credentials rather than stale environment credentials (0.566625ms)
+✔ Vault errors and invalid replacements never fall back to environment credentials (0.16ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 153.298375

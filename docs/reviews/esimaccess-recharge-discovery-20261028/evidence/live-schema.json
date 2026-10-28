@@ -1,0 +1,710 @@
+[
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "account_key",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "provider",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "new_sales_enabled",
+    "data_type": "boolean"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "next_request_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "last_worker_seen_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "last_cycle",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "event_window_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "accounts",
+    "column_name": "event_window_count",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "order_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "account_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "submission_ref",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "state",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "provider_order_ref",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "hinted_order_ref",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "submitted_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "next_check_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "lease",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "lease_until",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "attempts",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "error_code",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "order_runs",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "profile_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "next_check_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "requested_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "lease",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "lease_until",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "observation_started_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "attempts",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "esim_private",
+    "table_name": "profile_work",
+    "column_name": "terminal_checks",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "provider",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "bundle_name",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "description",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "countries",
+    "data_type": "ARRAY"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "roaming_enabled",
+    "data_type": "ARRAY"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "data_amount_mb",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "duration_days",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "wholesale_price_usd",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "image_url",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "is_active",
+    "data_type": "boolean"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "is_unlimited",
+    "data_type": "boolean"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "bundle_group",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "speed_tier",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "region",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "country_count",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "catalogue_details",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "provider_values",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_offers_cache",
+    "column_name": "provider_values_expires_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "provider",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "bundle_name",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "quantity",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "wholesale_price_usd",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "retail_price_usd",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "markup_percent",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "status",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "provider_order_ref",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "error_message",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "offer_id",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "total_amount_usd",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "catalogue_snapshot",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_orders",
+    "column_name": "delivery_state",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "code",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "name",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "website_url",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "api_base_url",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "docs_url",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "credential_secret",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "is_active",
+    "data_type": "boolean"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "priority",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "markup_percent_override",
+    "data_type": "numeric"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "countries_supported",
+    "data_type": "ARRAY"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "last_sync_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "last_sync_status",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "last_sync_count",
+    "data_type": "integer"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "last_sync_error",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "notes",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "esim_suppliers",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "order_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "iccid",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "smdp_address",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "matching_id",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "lpa_string",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "bundle_name",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "provider",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "status",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "purchased_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "expires_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "data_total_mb",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "data_remaining_mb",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "last_usage_check",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "low_data_notified",
+    "data_type": "boolean"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "supplier_account_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "supplier_profile_ref",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "profile_state",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "installation_state",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "bundle_state",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "provider_state",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "plan_details",
+    "data_type": "jsonb"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "activation_trigger",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "first_activated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "confirmed_expires_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "activation_deadline_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "data_total_bytes",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "data_used_bytes",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "data_remaining_bytes",
+    "data_type": "bigint"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "usage_observed_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "last_observation_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "last_usage_attempt_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "usage_error_code",
+    "data_type": "text"
+  },
+  {
+    "table_schema": "public",
+    "table_name": "user_esims",
+    "column_name": "qr_code_url",
+    "data_type": "text"
+  }
+]

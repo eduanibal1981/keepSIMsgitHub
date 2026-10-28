@@ -1,0 +1,150 @@
+{
+  "step": "ESIM-07",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "verified_at_utc": "2026-10-28T03:05:52.015034+00:00",
+  "migration": {
+    "name": "esim_recharge_discovery_quotes",
+    "sha256": "75364bbf04ae825e7f8245b94d978f50f9c0c9b613d71513f74eb4b49ffc60e8",
+    "version": "20261028030224"
+  },
+  "edge": {
+    "version": 1,
+    "verify_jwt": true,
+    "matches": [
+      {
+        "name": "_shared/esim-recharge-discovery.js",
+        "matches": true
+      },
+      {
+        "name": "esim-recharge-discovery/index.ts",
+        "matches": true
+      }
+    ],
+    "lock_verification": "Local Deno integrity check passes; Supabase's bundled source retrieval omits deno.lock."
+  },
+  "vm": {
+    "backup": "/home/abdal/keepsims_backend/releases/esim07-20261028-discovery/before",
+    "processes": [
+      {
+        "name": "server_baileys",
+        "pid": 997204,
+        "status": "online",
+        "restarts": 11
+      },
+      {
+        "name": "worker_instant_refill",
+        "pid": 1053118,
+        "status": "online",
+        "restarts": 2
+      },
+      {
+        "name": "worker_auto_mini_refill",
+        "pid": 1053124,
+        "status": "online",
+        "restarts": 2
+      },
+      {
+        "name": "worker_auto_custom_refill",
+        "pid": 1053125,
+        "status": "online",
+        "restarts": 2
+      },
+      {
+        "name": "worker_offers_cache",
+        "pid": 1025793,
+        "status": "online",
+        "restarts": 3
+      },
+      {
+        "name": "worker-esim-catalog",
+        "pid": 1058079,
+        "status": "online",
+        "restarts": 2
+      },
+      {
+        "name": "worker-esim-fulfillment",
+        "pid": 1062106,
+        "status": "online",
+        "restarts": 21
+      },
+      {
+        "name": "server_tg",
+        "pid": 65425,
+        "status": "online",
+        "restarts": 1
+      },
+      {
+        "name": "worker_dtone_control",
+        "pid": 1053131,
+        "status": "online",
+        "restarts": 0
+      }
+    ],
+    "hashes": {
+      "esim_fulfillment_runtime.js": "7812c180aab52043525e862475c10828f17fd55fc04dc2cfe489fe010108e7d3",
+      "esim_recharge_discovery.js": "dd908073378b98c949bf8fe3cc95bf3841ae42f3bb56b0ac41831c619d761475",
+      "worker_esim_fulfillment.js": "d538d047e0cbdaced6c21ce28d5db516477d40b4036f18c27e99fc8c17a8d492",
+      "providers/esimaccess.js": "58dc856e8eb948917a4cb7291dcd53fef08c0b87351bd8d5e78d07a0a46277b2"
+    },
+    "only_target_restarted": true
+  },
+  "runtime": {
+    "policy": {
+      "singleton": true,
+      "discovery_enabled": true,
+      "last_discovery_at": null,
+      "catalogue_revision": 1,
+      "last_worker_seen_at": "2026-10-28T03:05:50.098555+00:00"
+    },
+    "quotes": 0,
+    "worker": {
+      "last_cycle": {
+        "errors": 0,
+        "events": 0,
+        "orders": 0,
+        "profiles": 0
+      },
+      "new_sales_enabled": false,
+      "last_worker_seen_at": "2026-10-28T03:05:50.649439+00:00"
+    },
+    "migration": {
+      "name": "esim_recharge_discovery_quotes",
+      "sha256": "75364bbf04ae825e7f8245b94d978f50f9c0c9b613d71513f74eb4b49ffc60e8",
+      "version": "20261028030224"
+    },
+    "cache_rows": 0,
+    "checked_at": "2026-10-28T03:05:52.015034+00:00",
+    "purchase_md5": "524b7d1f6f79eadaf422fb0ff3f1c315",
+    "owned_access_profiles": 0
+  },
+  "live_access_tests": [
+    {
+      "verification": "PASS private RLS/ACLs, owner isolation, anon/service denials and unchanged purchase gate"
+    }
+  ],
+  "edge_unauthenticated_http": 401,
+  "edge_preflight_http": 204,
+  "validation": {
+    "backend_cases": 35,
+    "edge_cases": 16,
+    "sql_scenario_groups": 14,
+    "flutter_cases": 103,
+    "baseline_cases": 13,
+    "dart_analysis": "clean",
+    "deno_check": "pass",
+    "node_syntax": "pass"
+  },
+  "advisor_changes": {
+    "expected_authenticated_definer_rpc_notices": 3,
+    "expected_private_rls_no_policy_info": 3,
+    "unexpected_changes": 0
+  },
+  "source_branch": "codex/esim07-recharge-discovery-20261028",
+  "acceptance_limits": [
+    "No owned Access profiles: real-profile TOPUP discovery/eligibility unverified",
+    "Recharge payment acceptance disabled until ESIM-08",
+    "Daily duration quotes deferred to ESIM-09",
+    "No app binaries published",
+    "No paid supplier action or wallet mutation"
+  ]
+}

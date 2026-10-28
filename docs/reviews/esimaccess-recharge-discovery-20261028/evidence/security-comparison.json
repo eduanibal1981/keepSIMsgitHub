@@ -1,0 +1,179 @@
+{
+  "groups": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 72,
+      "new_esim_findings": [
+        {
+          "detail": "Table \\`esim_private.recharge_policy\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "recharge_policy",
+            "type": "table",
+            "schema": "esim_private"
+          }
+        },
+        {
+          "detail": "Table \\`esim_private.recharge_quotes\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "recharge_quotes",
+            "type": "table",
+            "schema": "esim_private"
+          }
+        },
+        {
+          "detail": "Table \\`esim_private.topup_cache\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "topup_cache",
+            "type": "table",
+            "schema": "esim_private"
+          }
+        }
+      ]
+    },
+    {
+      "name": "security_definer_view",
+      "level": "ERROR",
+      "count": 6,
+      "new_esim_findings": []
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "count": 1,
+      "new_esim_findings": [
+        {
+          "detail": "Function \\`public.trg_scheduled_topup_health_sync\\` has a role mutable search_path",
+          "metadata": {
+            "name": "trg_scheduled_topup_health_sync",
+            "type": "function",
+            "schema": "public"
+          }
+        }
+      ]
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1,
+      "new_esim_findings": []
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 39,
+      "new_esim_findings": []
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 226,
+      "new_esim_findings": [
+        {
+          "detail": "Function `public.calculate_health_score(p_sim_line_id uuid, p_status text, p_last_topup_at timestamp with time zone)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/calculate_health_score`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "calculate_health_score",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_sim_line_id uuid, p_status text, p_last_topup_at timestamp with time zone",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.cancel_topup_execution(p_execution_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/cancel_topup_execution`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "cancel_topup_execution",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_execution_id uuid",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.check_esim_topup_quote(p_quote_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/check_esim_topup_quote`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "check_esim_topup_quote",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_quote_id uuid",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.queue_premium_refill_executions(p_sim_line_id uuid, p_scheduled_topup_id uuid, p_plan_expires_at timestamp with time zone, p_start_at timestamp with time zone)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/queue_premium_refill_executions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "queue_premium_refill_executions",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_sim_line_id uuid, p_scheduled_topup_id uuid, p_plan_expires_at timestamp with time zone, p_start_at timestamp with time zone",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.quote_esim_topup(p_profile_id uuid, p_package_id text, p_offer_version uuid, p_expected_total numeric)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/quote_esim_topup`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "quote_esim_topup",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_profile_id uuid, p_package_id text, p_offer_version uuid, p_expected_total numeric",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.record_manual_external_recharge(p_sim_line_id uuid, p_recharge_date timestamp with time zone, p_amount numeric, p_note text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/record_manual_external_recharge`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "record_manual_external_recharge",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_sim_line_id uuid, p_recharge_date timestamp with time zone, p_amount numeric, p_note text",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.request_esim_topups(p_profile_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/request_esim_topups`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "request_esim_topups",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_profile_id uuid",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.retry_topup_execution(p_execution_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/retry_topup_execution`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "retry_topup_execution",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_execution_id uuid",
+            "security_definer": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "new_esim_findings": []
+    }
+  ],
+  "before_counts": {
+    "rls_enabled_no_policy": 69,
+    "security_definer_view": 6,
+    "function_search_path_mutable": 1,
+    "extension_in_public": 1,
+    "anon_security_definer_function_executable": 39,
+    "authenticated_security_definer_function_executable": 223,
+    "auth_leaked_password_protection": 1
+  },
+  "count_changes": {
+    "rls_enabled_no_policy": 3,
+    "security_definer_view": 0,
+    "function_search_path_mutable": 0,
+    "extension_in_public": 0,
+    "anon_security_definer_function_executable": 0,
+    "authenticated_security_definer_function_executable": 3,
+    "auth_leaked_password_protection": 0
+  }
+}

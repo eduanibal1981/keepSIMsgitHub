@@ -1,0 +1,5 @@
+[
+  {
+    "verification": "PASS private RLS/ACLs, owner isolation, anon/service denials and unchanged purchase gate"
+  }
+]

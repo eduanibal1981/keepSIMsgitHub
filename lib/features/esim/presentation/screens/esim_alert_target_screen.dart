@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/esim/presentation/screens/esim_recharge_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -88,10 +89,12 @@ class EsimAlertTargetScreen extends ConsumerWidget {
                 EsimProfileCard(
                   profile: profile,
                   onInstall: () => EsimDeliveryScreen.show(context, profile),
+                  onRecharge: () =>
+                      EsimRechargeScreen.show(context, profile.id),
                   onBuyNew: () => context.push('/esim/plans'),
                 ),
               const Text(
-                'Recharge is not available yet. Buying a new eSIM creates a separate profile.',
+                'Recharge previews do not spend money. Buying a new eSIM creates a separate profile.',
               ),
               const SizedBox(height: 16),
               const NotificationPermissionControl(),

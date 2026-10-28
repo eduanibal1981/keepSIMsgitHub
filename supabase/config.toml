@@ -126,3 +126,10 @@ entrypoint = "./functions/sync-esim-catalogue/index.ts"
 # Authenticated refresh-hint ingress; the handler checks a dedicated Vault secret.
 [functions.esimaccess-events]
 verify_jwt = false
+
+# ESIM-07 customer discovery/quotes; handler verifies the user and SQL owns access.
+
+[functions.esim-recharge-discovery]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/esim-recharge-discovery/index.ts"

@@ -6,6 +6,7 @@ import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_order.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
+import 'package:keep_sims/features/esim/domain/entities/esim_recharge.dart';
 import 'package:keep_sims/features/esim/domain/repositories/esim_repository.dart';
 
 class EsimGoRepositoryImpl implements EsimRepository {
@@ -13,6 +14,43 @@ class EsimGoRepositoryImpl implements EsimRepository {
 
   EsimGoRepositoryImpl({SupabaseClient? supabase})
     : _supabase = supabase ?? Supabase.instance.client;
+
+  Future<Map<String, dynamic>> _recharge(Map<String, dynamic> body) async {
+    try {
+      final response = await _supabase.functions.invoke(
+        'esim-recharge-discovery',
+        body: body,
+      );
+      if (response.status != 200 || response.data is! Map) {
+        return {'status': 'TEMPORARILY_UNAVAILABLE'};
+      }
+      return Map<String, dynamic>.from(response.data as Map);
+    } catch (_) {
+      return {'status': 'TEMPORARILY_UNAVAILABLE'};
+    }
+  }
+
+  @override
+  Future<EsimRechargeDiscovery> discoverTopups(String profileId) async =>
+      EsimRechargeDiscovery.fromJson(
+        await _recharge({'action': 'discover', 'profile_id': profileId}),
+      );
+
+  @override
+  Future<EsimRechargeQuote> quoteTopup(
+    String profileId,
+    String packageId,
+    String offerVersion,
+    double expectedTotal,
+  ) async => EsimRechargeQuote.fromJson(
+    await _recharge({
+      'action': 'quote',
+      'profile_id': profileId,
+      'package_id': packageId,
+      'offer_version': offerVersion,
+      'expected_total': expectedTotal,
+    }),
+  );
 
   @override
   Future<List<CompareOffer>> compareOffers(

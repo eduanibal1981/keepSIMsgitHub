@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -26,7 +26,7 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-04 | Provider event inbox and reconciliation | 03 | Runtime deployed/tested; provider callback registration blocked by URL-only configuration |
 | ESIM-05 | Useful data, expiry and order alerts | 04 | Backend deployed/verified; app tested locally |
 | ESIM-06 | Installation links, guides and recovery | 03 | App tested locally; native acceptance unverified |
-| ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Planned |
+| ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Runtime deployed/verified; app tested locally |
 | ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Planned |
 | ESIM-09 | Selectable Day Pass duration and extensions | 08 | Planned |
 | ESIM-10 | Eligible unused-profile cancellation/refunds | 04, 08 | Planned |
@@ -449,3 +449,42 @@ Evidence: [ESIM-05 review](../reviews/esimaccess-alerts-20261028.md) and
 
 Evidence: [ESIM-06 review](../reviews/esimaccess-installation-20261028.md) and
 [source manifest](../reviews/esimaccess-installation-20261028/release/manifest.json).
+
+
+### ESIM-07 progress — 28 October 2026
+
+- **Database/Edge/scoped VM deployed and verified; customer app tested locally,
+  binaries unpublished.** Owner-checked compatible TOPUP lookup uses the exact
+  persisted ICCID through the existing account limiter and credential resolver.
+  Five-minute private caches invalidate on profile/catalogue changes; leases
+  fence stale results. Expired/stale/unsupported/disabled/unresolved profiles
+  receive typed refusals. BASE/destination offers are never substituted.
+- Immutable two-minute fixed-bundle quotes bind owner/payer/profile/account,
+  exact package/action/duration, USD retail total, expiry and unique acceptance
+  key. Existing retail fee/minimum/tier rules and available-wallet summaries are
+  reused; lookup failure is unknown and held funds remain unavailable. Browsing
+  does not reserve/debit money. Changed package/price/state requires a new quote.
+- Recharge discovery appears beside installation; buying a new eSIM remains
+  separate. Allowance/validity effects and provisional final expiry are shown.
+  Daily offers are discoverable; their duration quotes await ESIM-09 pricing.
+  **No acceptance endpoint or provider recharge action exists in this step.**
+- Applied `20261028030224` / `esim_recharge_discovery_quotes`; stored migration
+  SHA256 matches source. New discovery Edge v1 has matching source and JWT on.
+  Only fulfillment restarted (PID `1062106`); two VM hashes match the manifest,
+  unrelated processes/sources are preserved and fresh cycles report zero errors.
+  Read-only discovery is enabled; new sales and recharge spending remain disabled.
+- Validation: 35 backend, 16 Edge, 14 isolated SQL scenario groups, 103 Flutter
+  and 13 baseline checks pass. Affected Dart analysis, Node syntax and Deno
+  checks pass. Live private-table/role/owner denials, Edge 401/CORS, source/hash
+  parity and heartbeat pass. Advisor additions are three intentional authenticated
+  owner-checked definer-RPC notices and three private RLS informational notices.
+- No owned Access profiles exist, so real-profile TOPUP eligibility/discovery
+  remains UNVERIFIED. No paid provider action or wallet mutation occurred.
+  Source branch: `codex/esim07-recharge-discovery-20261028` in customer/backend.
+  Rollback: disable only `esim_private.recharge_policy.discovery_enabled`; retain
+  schema/quotes and reconciliation. Next eligible implementation: ESIM-08,
+  under its financial safety and separately scoped paid-acceptance gates.
+
+Evidence: [ESIM-07 review](../reviews/esimaccess-recharge-discovery-20261028.md),
+[manifest](../reviews/esimaccess-recharge-discovery-20261028/release/manifest.json)
+and [deployment receipt](../reviews/esimaccess-recharge-discovery-20261028/deployment.json).

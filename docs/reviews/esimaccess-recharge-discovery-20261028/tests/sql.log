@@ -1,0 +1,15 @@
+PASS migration compiles over captured tables and actual deployed pricing/wallet functions
+PASS read-only rollout starts disabled without enabling new sales
+PASS other user and anonymous callers cannot discover, quote or read private tables
+PASS depleted active profile discovers its own compatible TOPUP list and retail only
+PASS immutable profile/payer/package/action quote uses available rather than posted balance, with no second fee
+PASS incompatible BASE/destination packages, daily pricing, changed client price and version are refused
+PASS price policy/tier changes invalidate quotes without rewriting them
+PASS profile, catalogue and supplier changes invalidate outstanding offers and quotes
+PASS expired, stale, failed, unknown and unresolved profiles explain refusal before queueing
+PASS cache and quote expiries require new discovery/quote; expired lease and null lease cannot save
+PASS owner changes during provider request fence the saved list
+PASS empty compatibility stays distinct from failed discovery
+PASS unknown wallet read stays unknown while quotes remain non-spending
+PASS browsing/quotes never mutate wallet, holds, ledger, orders or provider submission state
+14 ESIM-07 SQL scenario groups passed

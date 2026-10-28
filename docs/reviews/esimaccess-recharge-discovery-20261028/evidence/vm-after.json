@@ -1,0 +1,66 @@
+{
+  "backup": "/home/abdal/keepsims_backend/releases/esim07-20261028-discovery/before",
+  "processes": [
+    {
+      "name": "server_baileys",
+      "pid": 997204,
+      "status": "online",
+      "restarts": 11
+    },
+    {
+      "name": "worker_instant_refill",
+      "pid": 1053118,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "pid": 1053124,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "pid": 1053125,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_offers_cache",
+      "pid": 1025793,
+      "status": "online",
+      "restarts": 3
+    },
+    {
+      "name": "worker-esim-catalog",
+      "pid": 1058079,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "pid": 1062106,
+      "status": "online",
+      "restarts": 21
+    },
+    {
+      "name": "server_tg",
+      "pid": 65425,
+      "status": "online",
+      "restarts": 1
+    },
+    {
+      "name": "worker_dtone_control",
+      "pid": 1053131,
+      "status": "online",
+      "restarts": 0
+    }
+  ],
+  "hashes": {
+    "esim_fulfillment_runtime.js": "7812c180aab52043525e862475c10828f17fd55fc04dc2cfe489fe010108e7d3",
+    "esim_recharge_discovery.js": "dd908073378b98c949bf8fe3cc95bf3841ae42f3bb56b0ac41831c619d761475",
+    "worker_esim_fulfillment.js": "d538d047e0cbdaced6c21ce28d5db516477d40b4036f18c27e99fc8c17a8d492",
+    "providers/esimaccess.js": "58dc856e8eb948917a4cb7291dcd53fef08c0b87351bd8d5e78d07a0a46277b2"
+  },
+  "only_target_restarted": true
+}

@@ -1,0 +1,29 @@
+{
+  "policy": {
+    "singleton": true,
+    "discovery_enabled": true,
+    "last_discovery_at": null,
+    "catalogue_revision": 1,
+    "last_worker_seen_at": "2026-10-28T03:05:50.098555+00:00"
+  },
+  "quotes": 0,
+  "worker": {
+    "last_cycle": {
+      "errors": 0,
+      "events": 0,
+      "orders": 0,
+      "profiles": 0
+    },
+    "new_sales_enabled": false,
+    "last_worker_seen_at": "2026-10-28T03:05:50.649439+00:00"
+  },
+  "migration": {
+    "name": "esim_recharge_discovery_quotes",
+    "sha256": "75364bbf04ae825e7f8245b94d978f50f9c0c9b613d71513f74eb4b49ffc60e8",
+    "version": "20261028030224"
+  },
+  "cache_rows": 0,
+  "checked_at": "2026-10-28T03:05:52.015034+00:00",
+  "purchase_md5": "524b7d1f6f79eadaf422fb0ff3f1c315",
+  "owned_access_profiles": 0
+}

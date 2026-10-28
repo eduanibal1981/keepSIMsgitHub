@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/esim/presentation/screens/esim_recharge_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,6 +124,11 @@ class _EsimDeliveryScreenState extends ConsumerState<EsimDeliveryScreen> {
           Text(profile.bundleName, style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
           Text('Installation: ${profile.installationLabel}'),
+          OutlinedButton.icon(
+            onPressed: () => EsimRechargeScreen.show(context, profile.id),
+            icon: const Icon(Icons.add_circle_outline),
+            label: const Text('Recharge'),
+          ),
           Text(policy.message, key: const ValueKey('installation-policy')),
           const SizedBox(height: 16),
           _section('Before you install', [

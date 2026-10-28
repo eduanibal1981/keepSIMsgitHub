@@ -1,0 +1,10 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"id\":\"24856115-afd0-4abd-94ec-28d003ed1b5c\",\"slug\":\"esim-recharge-discovery\",\"name\":\"esim-recharge-discovery\",\"status\":\"ACTIVE\",\"version\":1,\"created_at\":1793156556605,\"updated_at\":1793156556605,\"verify_jwt\":true,\"import_map\":false,\"entrypoint_path\":\"file:///tmp/user_fn_zwxswagokhgbuzrrbnhr_24856115-afd0-4abd-94ec-28d003ed1b5c_1/source/esim-recharge-discovery/index.ts\",\"ezbr_sha256\":\"7fb3f216c3dd8e6604f34796f3566edb80d214da1cb5e9683246256b406051cf\"}"
+    }
+  ],
+  "structuredContent": null,
+  "isError": false
+}

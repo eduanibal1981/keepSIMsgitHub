@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "verify_jwt": true,
+  "matches": [
+    {
+      "name": "_shared/esim-recharge-discovery.js",
+      "matches": true
+    },
+    {
+      "name": "esim-recharge-discovery/index.ts",
+      "matches": true
+    }
+  ],
+  "lock_verification": "Local Deno integrity check passes; Supabase's bundled source retrieval omits deno.lock."
+}

@@ -1,0 +1,55 @@
+[
+  {
+    "v": {
+      "accounts": [
+        {
+          "key": "primary",
+          "last_cycle": {
+            "errors": 0,
+            "events": 0,
+            "orders": 0,
+            "profiles": 0
+          },
+          "new_sales_enabled": false,
+          "last_worker_seen_at": "2026-10-28T02:48:14.729158+00:00"
+        }
+      ],
+      "functions": [
+        {
+          "md5": "003fc42f897def9e424e83651dd9e53a",
+          "name": "get_wallet_summary(uuid)",
+          "definition": "CREATE OR REPLACE FUNCTION public.get_wallet_summary(p_user_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_wallet RECORD;\n  v_held_amount NUMERIC := 0.00;\n  v_available_amount NUMERIC := 0.00;\n  v_refundable_amount NUMERIC := 0.00;\n  v_promotional_amount NUMERIC := 0.00;\nBEGIN\n  IF p_user_id IS NULL THEN\n    RAISE EXCEPTION 'User ID cannot be null';\n  END IF;\n\n  -- Caller must be self or service role / admin\n  IF auth.uid() IS NOT NULL AND auth.uid() != p_user_id THEN\n    RAISE EXCEPTION 'Access denied: cannot view another user wallet summary' USING ERRCODE = '42501';\n  END IF;\n\n  SELECT * INTO v_wallet FROM public.wallets WHERE user_id = p_user_id;\n\n  IF v_wallet.id IS NULL THEN\n    -- Return default zero summary\n    RETURN jsonb_build_object(\n      'wallet_id', null,\n      'posted_balance', 0.00,\n      'held_amount', 0.00,\n      'available_balance', 0.00,\n      'refundable_balance', 0.00,\n      'promotional_balance', 0.00,\n      'currency', 'USD'\n    );\n  END IF;\n\n  -- Calculate active holds\n  SELECT COALESCE(SUM(amount), 0.00) INTO v_held_amount\n  FROM public.wallet_holds\n  WHERE user_id = p_user_id AND status = 'active';\n\n  v_available_amount := GREATEST(0.00, v_wallet.balance - v_held_amount);\n\n  -- Calculate refundable balance (active paid deposits within deadline)\n  SELECT COALESCE(SUM(remaining_amount), 0.00) INTO v_refundable_amount\n  FROM public.wallet_funding_lots\n  WHERE user_id = p_user_id \n    AND status = 'active'\n    AND is_refundable = true\n    AND (refund_deadline IS NULL OR refund_deadline > now());\n\n  -- Ensure refundable does not exceed available balance\n  v_refundable_amount := LEAST(v_refundable_amount, v_available_amount);\n\n  -- Calculate promotional / gift balance\n  SELECT COALESCE(SUM(remaining_amount), 0.00) INTO v_promotional_amount\n  FROM public.wallet_funding_lots\n  WHERE user_id = p_user_id\n    AND status = 'active'\n    AND origin_type IN ('promotional', 'unverified_legacy', 'gift_received');\n\n  RETURN jsonb_build_object(\n    'wallet_id', v_wallet.id,\n    'posted_balance', v_wallet.balance,\n    'held_amount', v_held_amount,\n    'available_balance', v_available_amount,\n    'refundable_balance', v_refundable_amount,\n    'promotional_balance', v_promotional_amount,\n    'currency', v_wallet.currency\n  );\nEND;\n$function$\n"
+        },
+        {
+          "md5": "524b7d1f6f79eadaf422fb0ff3f1c315",
+          "name": "request_esim_purchase(text,integer,text)",
+          "definition": null
+        },
+        {
+          "md5": "db0fc0960113fb3cac910c0f63cbb3cb",
+          "name": "resolve_esim_offer_price(numeric,uuid)",
+          "definition": "CREATE OR REPLACE FUNCTION public.resolve_esim_offer_price(p_wholesale_price numeric, p_user_id uuid DEFAULT auth.uid())\n RETURNS numeric\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nDECLARE\n  v_tier TEXT;\n  v_fee  NUMERIC;\nBEGIN\n  IF p_wholesale_price IS NULL OR p_wholesale_price <= 0 THEN\n    RETURN 0.00;\n  END IF;\n\n  v_tier := public.resolve_account_commerce_benefit(p_user_id);\n  v_fee := public.resolve_app_fee('esimofferfee', v_tier, p_wholesale_price);\n  \n  IF v_fee IS NULL OR v_fee = 0 THEN\n    v_fee := CASE v_tier\n      WHEN 'premium'  THEN round(p_wholesale_price * 0.05, 2)\n      WHEN 'standard' THEN round(p_wholesale_price * 0.07, 2)\n      ELSE round(p_wholesale_price * 0.10, 2)\n    END;\n  END IF;\n  \n  RETURN round(p_wholesale_price + v_fee, 2);\nEND;\n$function$\n"
+        }
+      ],
+      "suppliers": [
+        {
+          "code": "dtone",
+          "is_active": false
+        },
+        {
+          "code": "esim_go",
+          "is_active": false
+        },
+        {
+          "code": "zendit",
+          "is_active": false
+        },
+        {
+          "code": "esimaccess",
+          "is_active": true
+        }
+      ],
+      "access_profiles": 0
+    }
+  }
+]

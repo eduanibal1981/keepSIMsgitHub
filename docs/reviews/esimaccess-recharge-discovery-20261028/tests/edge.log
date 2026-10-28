@@ -1,0 +1,26 @@
+(node:74914) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ current eSIM events dispatch through the existing queue using push only (51.514625ms)
+✔ recovered usage, old cycles and stale observations cancel delayed eSIM push (1.576708ms)
+✔ saved category opt-out is rechecked before sending (0.81175ms)
+✔ ownership mismatch cancels without sending (0.709625ms)
+✔ quiet hours defer eSIM updates in the saved IANA timezone (21.789417ms)
+✔ globally disabled push cannot fall through to email or Telegram (0.966042ms)
+✔ non-eSIM events retain their original enabled channels (0.838ms)
+✔ anonymous/invalid identity and unexpected methods cannot reach SQL (17.824333ms)
+✔ authenticated discovery uses the customer client, exact profile and fixed RPC allowlist (0.937667ms)
+✔ payer overrides, acceptance, raw RPC names, malformed IDs and oversized requests are refused (1.478666ms)
+✔ quote/check bind only reviewed offer fields and owner-checked IDs (1.074667ms)
+✔ database errors and thrown auth errors never expose internal data (0.316417ms)
+✔ missing/invalid secrets cause no event persistence, including URL tokens (16.661083ms)
+✔ durable acknowledgment stores only minimized hints, not activation or usage fields (6.194792ms)
+✔ unknown event families, missing references, oversized and malformed bodies are rejected (0.777042ms)
+✔ missing authentication configuration and persistence failure fail closed (0.638875ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 210.840708

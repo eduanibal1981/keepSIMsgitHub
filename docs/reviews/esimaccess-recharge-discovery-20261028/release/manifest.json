@@ -1,0 +1,54 @@
+{
+  "step": "ESIM-07",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "source_bases": {
+    "customer": "d67bba0e513b9ec7b918fb23b22b7d5f4ca8e1b3",
+    "backend": "5960b9d3ce093c6addaa3643bef74f52bf023c88"
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "verify_jwt": true,
+    "authentication": "validated customer JWT; customer-scoped SQL"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_recharge_discovery.js",
+      "esim_fulfillment_runtime.js"
+    ],
+    "previous_runtime_sha256": "543f438ee844e98b99c9591bf9d77918c9426ef7654e6ec41569c22a2c4e1557"
+  },
+  "rollout": "Apply disabled policy, deploy Edge/helper, verify heartbeat, enable only read-only discovery",
+  "acceptance_enabled": false,
+  "new_sales_enabled": false,
+  "cache_ttl_seconds": 300,
+  "quote_ttl_seconds": 120,
+  "profile_freshness_seconds": 900,
+  "omitted": [
+    "purchase/recharge submission",
+    "wallet mutations",
+    "daily-duration quotes",
+    "callback registration",
+    "provider adapters/credentials",
+    "other VM processes",
+    "Admin app",
+    "app publication"
+  ],
+  "files": {
+    "backend/esim_fulfillment_runtime.js": "7812c180aab52043525e862475c10828f17fd55fc04dc2cfe489fe010108e7d3",
+    "backend/esim_recharge_discovery.js": "dd908073378b98c949bf8fe3cc95bf3841ae42f3bb56b0ac41831c619d761475",
+    "edge/esim-recharge-discovery/index.ts": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d",
+    "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/_shared/esim-recharge-discovery.js": "8e58e07def751d43091fe540c54cd8fbd73f2bbbe82ba0989b110a1ebfadb9b2",
+    "migrations/20261028070000_esim_recharge_discovery_quotes.sql": "75364bbf04ae825e7f8245b94d978f50f9c0c9b613d71513f74eb4b49ffc60e8",
+    "customer/lib/features/esim/domain/entities/esim_recharge.dart": "f20d795d7cd50e80a17acea2e7f06464d4e0be9b0a97065b65c144640030671d",
+    "customer/lib/features/esim/domain/repositories/esim_repository.dart": "7852631423948b862a7b1e5afbd13779359dcd14a802bfe6396ab889c902735e",
+    "customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart": "aa42362b4a9462f861ea9dcc7ee3cf560c373dadf0b0cff8d6f0c36407b38a60",
+    "customer/lib/features/esim/presentation/controllers/esim_recharge_controller.dart": "c277cd9124b5086816c8bf64b023befb9e47a1071e111ce68329759a29f4d2dd",
+    "customer/lib/features/esim/presentation/screens/esim_recharge_screen.dart": "53506969eed30f47c96bbee1a1387a7598c8650e618db90db32372ccb5e2ce16",
+    "customer/lib/features/esim/presentation/screens/esim_delivery_screen.dart": "5328411b0a7223062faf937e0472aaa888f5c1ca75267b59471a6072b25fd061",
+    "customer/lib/features/esim/presentation/screens/esim_screen.dart": "586666fb43222f50252416181d15bb0d1c0dff66c36f97b2d6eb91d4237eb209",
+    "customer/lib/features/esim/presentation/screens/esim_alert_target_screen.dart": "f11dd8dfd2a24388687c151325171b7d2fad4f89ec0da8f7888e759f098439b0",
+    "customer/lib/features/esim/presentation/widgets/esim_profile_card.dart": "e1fd6acb33ba49320f0ae0a65bdb443cd667197141c126c780d0256c727265a1"
+  }
+}

@@ -24,6 +24,8 @@ import 'package:keep_sims/l10n/app_localizations.dart';
 /// Returns France's real ladders, so a chip the test taps is one the live
 /// catalogue actually sells.
 class _FakeEsimRepository implements EsimRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
   CompareFilters? lastFilters;
 
   @override

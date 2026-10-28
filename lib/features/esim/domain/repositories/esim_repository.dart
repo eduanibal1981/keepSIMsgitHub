@@ -3,8 +3,17 @@ import 'package:keep_sims/features/esim/domain/entities/compare_offer.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_order.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
+import 'package:keep_sims/features/esim/domain/entities/esim_recharge.dart';
 
 abstract class EsimRepository {
+  Future<EsimRechargeDiscovery> discoverTopups(String profileId);
+  Future<EsimRechargeQuote> quoteTopup(
+    String profileId,
+    String packageId,
+    String offerVersion,
+    double expectedTotal,
+  );
+
   /// Fetches a list of available eSIM plans for a given country ISO code.
   Future<List<EsimPlan>> getPlans(String countryIsoCode);
 

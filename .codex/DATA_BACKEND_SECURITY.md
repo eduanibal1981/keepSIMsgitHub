@@ -528,3 +528,16 @@ requires recent confirmed active status, known future expiry and original-device
 attestation, without claiming device identity was verified. Opening native setup
 never updates provider/installation/financial state. See the ESIM-06 review and
 source manifest; real Apple/profile acceptance remains unverified.
+
+
+## eSIM recharge discovery/quotes — ESIM-07, 2026-10-28
+
+Private cache/quote/policy tables have RLS and no client access. Three explicit
+customer definer RPCs validate auth.uid(), ownership, supplier/account/state,
+cache/version/price/expiry and unresolved issuance; Edge validates a user JWT
+and retains customer SQL authority. Service jobs use bounded leases and the
+existing account limiter. No acceptance or wallet/provider mutation API is added.
+Quotes never reserve funds; ESIM-08 must atomically consume the unique acceptance
+key in its future operation and extend sibling-action serialization. Expected
+advisor notices for these owner-checked RPCs/private tables are documented in
+`docs/reviews/esimaccess-recharge-discovery-20261028.md` with passing role denials.
