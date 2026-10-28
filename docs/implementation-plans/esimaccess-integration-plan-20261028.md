@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -25,7 +25,7 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-03 | Stable profile identity, lifecycle and usage | 01, 02 | Implemented/tested; backend deployed, paid acceptance pending |
 | ESIM-04 | Provider event inbox and reconciliation | 03 | Runtime deployed/tested; provider callback registration blocked by URL-only configuration |
 | ESIM-05 | Useful data, expiry and order alerts | 04 | Backend deployed/verified; app tested locally |
-| ESIM-06 | Installation links, guides and recovery | 03 | Planned |
+| ESIM-06 | Installation links, guides and recovery | 03 | App tested locally; native acceptance unverified |
 | ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Planned |
 | ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Planned |
 | ESIM-09 | Selectable Day Pass duration and extensions | 08 | Planned |
@@ -418,3 +418,34 @@ Evidence: `keep_sims/docs/reviews/esimaccess-profiles-events-20261028.md`
 
 Evidence: [ESIM-05 review](../reviews/esimaccess-alerts-20261028.md) and
 [deployment receipt](../reviews/esimaccess-alerts-20261028/deployment.json).
+
+
+### ESIM-06 progress — 28 October 2026
+
+- **Customer implementation tested locally; no app binaries published. Native
+  Apple installation/recovery acceptance remains unverified.** Physical iOS 17.4+
+  environment checks gate the safely encoded, fixed-host Apple setup link.
+  QR/manual fallback stays local and remains available on a display device that
+  cannot provision an eSIM. The supplied activation trigger and known deadline
+  appear before install controls; setup/primary-SIM/APN/roaming guidance is included.
+- Owner checks cover loaded objects and account changes; pending old-account
+  refreshes cannot expose credentials in a new session. Previously installed
+  profiles show connection help instead of another install prompt. Missing,
+  expired or uncertain data leads to refresh/support. Same-device recovery needs
+  a fresh active observation, future confirmed expiry, verified payload and an
+  explicit original-device confirmation; no transfer or guaranteed reinstall.
+- **No migration, Edge or VM update is necessary.** Read-only live owner/cross-owner/
+  anon/unverified-payload checks pass against the existing invoker profile view.
+  Edge v8 and VM helper hashes/PID are unchanged; new sales stay disabled and the
+  purchase RPC is unchanged. No paid provider action or wallet mutation occurred.
+- Validation: 103 Flutter feature/navigation tests pass, affected Dart analysis
+  is clean, model generation and Swift syntax checks pass. A missing read-only
+  wallet-summary helper required by the earlier checkout release is included
+  narrowly, without pending wallet work. The simulator build
+  result and exact source scope are recorded in the review/manifest.
+- Source release branch: `codex/esim06-installation-20261028` in the customer
+  repository. App publishing and real Apple/profile acceptance remain separate.
+  ESIM-07 is the next implementation step; later money features remain gated.
+
+Evidence: [ESIM-06 review](../reviews/esimaccess-installation-20261028.md) and
+[source manifest](../reviews/esimaccess-installation-20261028/release/manifest.json).

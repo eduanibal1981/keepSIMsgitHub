@@ -81,9 +81,9 @@ class EsimProfileCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 OutlinedButton.icon(
-                  onPressed: profile.hasActivationPayload ? onInstall : null,
+                  onPressed: onInstall,
                   icon: const Icon(Icons.qr_code),
-                  label: const Text('Installation details'),
+                  label: const Text('Installation & recovery'),
                 ),
                 OutlinedButton.icon(
                   onPressed: onBuyNew,

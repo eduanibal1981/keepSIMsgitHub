@@ -513,3 +513,18 @@ or provider action is authorized by alerts. A later recharge settlement must ope
 a new alert cycle atomically from proven entitlement evidence, never from byte or
 expiry changes. See `docs/reviews/esimaccess-alerts-20261028.md` and its deployment
 receipt. Real profile/device-delivery acceptance remains unverified (no profiles).
+
+
+## eSIM installation data — ESIM-06, 2026-10-28 (client tested, unpublished)
+
+Installation/recovery reuses the existing invoker/owner-RLS profile projection;
+no migration, Edge or VM change is required. Client profile/order providers watch
+account identity and fence pending old-account refreshes. Installation screens
+and actions check the current owner before exposing a loaded activation payload.
+A strict parser constructs only the fixed-host Apple Universal Link; no tracked
+redirect, analytics event or remote QR image receives the payload. An installed
+profile is not prompted to reinstall. Conditional deleted-profile recovery
+requires recent confirmed active status, known future expiry and original-device
+attestation, without claiming device identity was verified. Opening native setup
+never updates provider/installation/financial state. See the ESIM-06 review and
+source manifest; real Apple/profile acceptance remains unverified.

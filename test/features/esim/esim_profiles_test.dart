@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import 'esim_installation_fixtures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -164,15 +166,28 @@ void main() {
     'unverified legacy credentials cannot render a QR or guessed manual code',
     (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: EsimDeliveryScreen(
-            esim: UserEsim.fromRecord({
-              ...record(),
-              'issuance_verified': false,
-            }),
+        ProviderScope(
+          overrides: [
+            authControllerProvider.overrideWith(
+              () => InstallationAuthFixture(),
+            ),
+            userEsimsControllerProvider.overrideWith(
+              () => InstallationProfilesFixture(
+                UserEsim.fromRecord({...record(), 'issuance_verified': false}),
+              ),
+            ),
+          ],
+          child: MaterialApp(
+            home: EsimDeliveryScreen(
+              esim: UserEsim.fromRecord({
+                ...record(),
+                'issuance_verified': false,
+              }),
+            ),
           ),
         ),
       );
+      await tester.pumpAndSettle();
       expect(find.byType(QrImageView), findsNothing);
       expect(
         find.textContaining('awaiting provider verification'),
@@ -197,6 +212,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            authControllerProvider.overrideWith(
+              () => InstallationAuthFixture('owner'),
+            ),
             esimRepositoryProvider.overrideWithValue(EmptyRepo()),
             esimOrderLiveProvider(
               'fixture-order',

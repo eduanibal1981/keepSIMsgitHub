@@ -198,83 +198,84 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
                 },
               ),
               const SizedBox(height: 28),
+            ],
+            if (!isSupported) ...[
+              _buildNotSupportedInfo(context, isDark),
+              const SizedBox(height: 20),
+            ],
 
-              // ── Installed eSIM Profiles ("My eSIMs") ────────────────
-              _buildSectionTitle(context, 'My eSIMs'),
-              const SizedBox(height: 14),
+            // Owned profiles remain available for QR display and recovery
+            // help even when this device cannot provision an eSIM.
+            // ── Installed eSIM Profiles ("My eSIMs") ────────────────
+            _buildSectionTitle(context, 'My eSIMs'),
+            const SizedBox(height: 14),
 
-              userEsimsAsync.when(
-                data: (esims) {
-                  final displayEsims = (esims.isEmpty && testMode)
-                      ? _getMockEsims()
-                      : esims;
-                  if (displayEsims.isEmpty) {
-                    return _buildEmptyProfilesCard(context, isDark);
-                  }
+            userEsimsAsync.when(
+              data: (esims) {
+                final displayEsims = (esims.isEmpty && testMode)
+                    ? _getMockEsims()
+                    : esims;
+                if (displayEsims.isEmpty) {
+                  return _buildEmptyProfilesCard(context, isDark);
+                }
+                final activeEsims = displayEsims
+                    .where((e) => !e.isTerminal)
+                    .toList();
+                final archivedEsims = displayEsims
+                    .where((e) => e.isTerminal)
+                    .toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (activeEsims.isNotEmpty)
+                      ...activeEsims.map(
+                        (esim) => _buildEsimCard(context, esim, isDark),
+                      ),
+
+                    if (archivedEsims.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      ExpansionTile(
+                        title: Text(
+                          'Archived eSIMs (${archivedEsims.length})',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        children: archivedEsims
+                            .map(
+                              (esim) => _buildEsimCard(context, esim, isDark),
+                            )
+                            .toList(),
+                      ),
+                    ],
+                  ],
+                );
+              },
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (err, _) {
+                final displayEsims = testMode ? _getMockEsims() : <UserEsim>[];
+                if (displayEsims.isNotEmpty) {
                   final activeEsims = displayEsims
                       .where((e) => !e.isTerminal)
                       .toList();
-                  final archivedEsims = displayEsims
-                      .where((e) => e.isTerminal)
-                      .toList();
-
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (activeEsims.isNotEmpty)
-                        ...activeEsims.map(
-                          (esim) => _buildEsimCard(context, esim, isDark),
-                        ),
-
-                      if (archivedEsims.isNotEmpty) ...[
-                        const SizedBox(height: 20),
-                        ExpansionTile(
-                          title: Text(
-                            'Archived eSIMs (${archivedEsims.length})',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          children: archivedEsims
-                              .map(
-                                (esim) => _buildEsimCard(context, esim, isDark),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ],
+                    children: activeEsims
+                        .map((esim) => _buildEsimCard(context, esim, isDark))
+                        .toList(),
                   );
-                },
-                loading: () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-                error: (err, _) {
-                  final displayEsims = testMode
-                      ? _getMockEsims()
-                      : <UserEsim>[];
-                  if (displayEsims.isNotEmpty) {
-                    final activeEsims = displayEsims
-                        .where((e) => !e.isTerminal)
-                        .toList();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: activeEsims
-                          .map((esim) => _buildEsimCard(context, esim, isDark))
-                          .toList(),
-                    );
-                  }
-                  return const Text(
-                    'Could not load your eSIMs. Pull to refresh.',
-                  );
-                },
-              ),
-            ] else ...[
-              // ── Device Not Supported ────────────────────────────────
-              _buildNotSupportedInfo(context, isDark),
-            ],
+                }
+                return const Text(
+                  'Could not load your eSIMs. Pull to refresh.',
+                );
+              },
+            ),
             const SizedBox(height: 40),
           ],
         ),

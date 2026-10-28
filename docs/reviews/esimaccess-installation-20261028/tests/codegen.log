@@ -1,0 +1,9 @@
+  0s freezed on 1 input; lib/features/esim/domain/entities/user_esim.dart
+  0s freezed on 1 input: 1 output
+  0s source_gen:combining_builder on 2 inputs; lib/features/esim/domain/entities/user_esim.dart
+  0s json_serializable (lazy); lib/features/esim/domain/entities/user_esim.freezed.dart
+W json_serializable (lazy) on lib/features/esim/domain/entities/user_esim.dart:
+  The version constraint "^4.9.0" on json_annotation allows versions before 4.12.0 which is not allowed.
+  0s source_gen:combining_builder on 2 inputs: 1 skipped, 1 output
+  5s riverpod_generator (lazy): 9 skipped, 1 output, 1 no-op; spent 4s analyzing; lib/features/settings/presentation/controllers/devices_controller.dart
+  Built with build_runner/aot in 6s; wrote 16 outputs.

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'esim_catalogue_details.dart';
+import 'esim_activation_payload.dart';
 part 'user_esim.freezed.dart';
 part 'user_esim.g.dart';
 
@@ -33,6 +34,7 @@ abstract class UserEsim with _$UserEsim {
     int? dataUsedBytes,
     int? dataRemainingBytes,
     DateTime? usageObservedAt,
+    DateTime? lastObservationAt,
     DateTime? lastUsageAttemptAt,
     DateTime? activationDeadlineAt,
     String? usageErrorCode,
@@ -75,6 +77,7 @@ abstract class UserEsim with _$UserEsim {
       dataUsedBytes: number('data_used_bytes'),
       dataRemainingBytes: number('data_remaining_bytes'),
       usageObservedAt: date('usage_observed_at'),
+      lastObservationAt: date('last_observation_at'),
       lastUsageAttemptAt: date('last_usage_attempt_at'),
       activationDeadlineAt: date('activation_deadline_at'),
       usageErrorCode: map['usage_error_code'] as String?,
@@ -86,17 +89,11 @@ abstract class UserEsim with _$UserEsim {
   @override
   String toString() => 'UserEsim(id: $id, state: $profileState)';
   String get lpaString => lpaActivationCode;
-  List<String> get _activationParts => lpaActivationCode.split('\$');
-  String get smdpAddress =>
-      _activationParts.length >= 3 && _activationParts.first == 'LPA:1'
-      ? _activationParts[1]
-      : '';
-  String get matchingId =>
-      _activationParts.length >= 3 && _activationParts.first == 'LPA:1'
-      ? _activationParts[2]
-      : '';
-  bool get hasActivationPayload =>
-      issuanceVerified && smdpAddress.contains('.') && matchingId.isNotEmpty;
+  EsimActivationPayload? get activationPayload =>
+      issuanceVerified ? EsimActivationPayload.tryParse(lpaString) : null;
+  String get smdpAddress => activationPayload?.smdpAddress ?? '';
+  String get matchingId => activationPayload?.matchingId ?? '';
+  bool get hasActivationPayload => activationPayload != null;
   bool get hasKnownUsage =>
       dataRemainingBytes != null && dataTotalBytes != null;
   bool get isTerminal =>
@@ -110,7 +107,7 @@ abstract class UserEsim with _$UserEsim {
           DateTime.now().toUtc().difference(usageObservedAt!.toUtc()) >
               const Duration(hours: 6));
   String get statusLabel => switch (profileState) {
-    'issued' => 'Ready to install',
+    'issued' => installationState == 'released' ? 'Ready to install' : 'Issued',
     'active' => 'Active',
     'suspended' => 'Suspended',
     'expired' => 'Expired',

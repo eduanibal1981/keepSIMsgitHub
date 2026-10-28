@@ -14,7 +14,7 @@ import MessageUI
   ) -> Bool {
     // Register eSIM platform channel on the root FlutterViewController
     if let controller = window?.rootViewController as? FlutterViewController {
-      setupEsimChannel(controller: controller)
+      setupEsimChannel(messenger: controller.binaryMessenger)
       setupContactsChannel(messenger: controller.binaryMessenger)
       setupInvitationChannel(messenger: controller.binaryMessenger)
       let timeZoneChannel = FlutterMethodChannel(
@@ -37,6 +37,7 @@ import MessageUI
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "DeviceContactPicker") {
+      setupEsimChannel(messenger: registrar.messenger())
       setupContactsChannel(messenger: registrar.messenger())
       setupInvitationChannel(messenger: registrar.messenger())
     }
@@ -123,13 +124,24 @@ import MessageUI
 
   /// Registers the `com.keep_sims/esim` MethodChannel and handles
   /// the `isEsimSupported` call using CoreTelephony.
-  private func setupEsimChannel(controller: FlutterViewController) {
+  private func setupEsimChannel(messenger: FlutterBinaryMessenger) {
     let channel = FlutterMethodChannel(
       name: "com.keep_sims/esim",
-      binaryMessenger: controller.binaryMessenger
+      binaryMessenger: messenger
     )
 
     channel.setMethodCallHandler { [weak self] (call, result) in
+      if call.method == "installationEnvironment" {
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        #if targetEnvironment(simulator)
+        let physicalDevice = false
+        #else
+        let physicalDevice = true
+        #endif
+        result(["major": version.majorVersion, "minor": version.minorVersion,
+                "physical_device": physicalDevice])
+        return
+      }
       guard call.method == "isEsimSupported" else {
         result(FlutterMethodNotImplemented)
         return

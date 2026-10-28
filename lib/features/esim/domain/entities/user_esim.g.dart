@@ -47,6 +47,9 @@ _UserEsim _$UserEsimFromJson(Map<String, dynamic> json) => _UserEsim(
   usageObservedAt: json['usageObservedAt'] == null
       ? null
       : DateTime.parse(json['usageObservedAt'] as String),
+  lastObservationAt: json['lastObservationAt'] == null
+      ? null
+      : DateTime.parse(json['lastObservationAt'] as String),
   lastUsageAttemptAt: json['lastUsageAttemptAt'] == null
       ? null
       : DateTime.parse(json['lastUsageAttemptAt'] as String),
@@ -84,6 +87,7 @@ Map<String, dynamic> _$UserEsimToJson(_UserEsim instance) => <String, dynamic>{
   'dataUsedBytes': instance.dataUsedBytes,
   'dataRemainingBytes': instance.dataRemainingBytes,
   'usageObservedAt': instance.usageObservedAt?.toIso8601String(),
+  'lastObservationAt': instance.lastObservationAt?.toIso8601String(),
   'lastUsageAttemptAt': instance.lastUsageAttemptAt?.toIso8601String(),
   'activationDeadlineAt': instance.activationDeadlineAt?.toIso8601String(),
   'usageErrorCode': instance.usageErrorCode,

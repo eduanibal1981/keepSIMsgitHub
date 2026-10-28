@@ -35,6 +35,25 @@ final premiumDisplayQuoteProvider = FutureProvider.autoDispose
 class PlanPayment {
   const PlanPayment._();
 
+  /// Fresh spendable funds, after all reservations. Never use posted money to
+  /// size a deposit, and never treat a failed balance read as an empty wallet.
+  static Future<double> availableWalletBalance(WidgetRef ref) async {
+    final result = await ref
+        .read(walletRepositoryProvider)
+        .getWalletSummary()
+        .timeout(const Duration(seconds: 10));
+    switch (result) {
+      case Success(data: final summary):
+        final amount = double.tryParse('${summary['available_balance']}');
+        if (amount == null || !amount.isFinite || amount < 0) {
+          throw StateError('Available wallet balance is unavailable.');
+        }
+        return amount;
+      case Failure(error: final failure):
+        throw StateError(failure.message);
+    }
+  }
+
   /// Calculates the shortfall deposit needed to fund the wallet for a plan fee.
   /// Enforces minimum deposit of $5.00. Returns 0.0 if available balance covers fee.
   static double calculateShortfall({

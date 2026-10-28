@@ -1,0 +1,30 @@
+{
+  "step": "ESIM-06",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "customer_status": "prepared and tested; no app binaries published",
+  "runtime_changes": {
+    "migration": false,
+    "edge": false,
+    "vm_worker": false
+  },
+  "runtime_reason": "Deployed owner-only invoker profile projection already supplies installation, activation and observation facts.",
+  "native_acceptance": "unverified on a real Apple device/profile",
+  "offline_scope": "Local rendering of an already-loaded signed-in owner snapshot; no new persistent credential cache.",
+  "new_sales_enabled": false,
+  "files": {
+    "ios/Runner/AppDelegate.swift": "cab88675635936ebf4995e77157c3652421fac1366a7661de1e3fffc440d38aa",
+    "lib/features/esim/domain/entities/esim_activation_payload.dart": "15dab5d51c8a14b7b8361074d7720711615ecf2de5d194957f81c22009725e84",
+    "lib/features/esim/domain/entities/esim_installation_policy.dart": "31db11cb8311a79489d7d30b1d1dfb9b9f86aa16336f3add81fb2afc89e491ac",
+    "lib/features/esim/domain/entities/user_esim.dart": "cd7eebdc811e69aa7edc7e87de02cc5485fef3f21874c9dceb4b715e0e35c3fb",
+    "lib/features/esim/domain/entities/user_esim.freezed.dart": "f7271a0ad2763ed1a93fd608bc33d6f835ba05cde2445a67265e54f1d210a907",
+    "lib/features/esim/domain/entities/user_esim.g.dart": "96756c877f05fcd051d1b2f5266df5947161695b5811319b2b3bb1b7fbfd138b",
+    "lib/features/esim/data/services/esim_installation_service.dart": "9d7932b7c17dad4f1318d0828ac5a4f9f61dbed0295fb82915ff747bf8dc3521",
+    "lib/features/esim/presentation/controllers/esim_installation_controller.dart": "d9cd94e89413cd3d3e7fe9655ca97006deb1b2920be6c29996c4d8735433229e",
+    "lib/features/esim/presentation/controllers/user_esims_controller.dart": "7f5417c740b0f332b65448d681f9ffa4310c024697fdfd7ea15b48cd4406bade",
+    "lib/features/esim/presentation/screens/esim_delivery_screen.dart": "d0261464cf2411668070a1b70468503f5a358c07e2319210f0d8e27968f64f7c",
+    "lib/features/esim/presentation/screens/esim_screen.dart": "754e8c992a600df1e235850c0e2cf471641bb565df9cd1b7cdbf893553615378",
+    "lib/features/esim/presentation/widgets/esim_profile_card.dart": "b5c4c80c4d15828063b91787ae2780c7240f4051184ac65c1ba367abc896218e",
+    "lib/features/sim_lines/domain/plan_payment.dart": "a6b32f6c998063a08425da79b9d54dcb5643aee539ba966781707d8d5a3a0643"
+  },
+  "necessary_source_prerequisite": "The prior eSIM checkout branch referenced PlanPayment.availableWalletBalance without including it; only that existing read helper is included."
+}
