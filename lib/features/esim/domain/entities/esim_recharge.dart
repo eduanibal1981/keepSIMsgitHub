@@ -85,10 +85,12 @@ class EsimRechargeQuote {
     this.availableBalance,
     this.acceptanceKey,
     this.acceptanceEnabled = false,
+    this.action = 'fixed_bundle_recharge',
   });
   factory EsimRechargeQuote.fromJson(Map<String, dynamic> j) =>
       EsimRechargeQuote(
         status: j['status'] as String,
+        action: j['action'] as String? ?? 'fixed_bundle_recharge',
         id: j['quote_id'] as String?,
         ownerId: j['owner_id'] as String?,
         payerId: j['payer_id'] as String?,
@@ -104,7 +106,7 @@ class EsimRechargeQuote {
         acceptanceKey: j['acceptance_key'] as String?,
         acceptanceEnabled: j['acceptance_enabled'] == true,
       );
-  final String status, balanceState;
+  final String status, balanceState, action;
   final String? id, ownerId, payerId, profileId;
   final DateTime? expiresAt;
   final EsimRechargeOffer? offer;
@@ -143,8 +145,12 @@ String rechargeStatusMessage(String status) => switch (status) {
   'ACCOUNT_CHANGED' => 'The signed-in account changed. Reopen your eSIM.',
   'STALE_OFFERS' || 'PRICE_CHANGED' || 'STALE_QUOTE' =>
     'This offer or price changed. Refresh and request a new quote.',
-  'DURATION_QUOTE_UNAVAILABLE' =>
-    'Quotes for daily extensions will be available later.',
+  'DURATION_QUOTE_UNAVAILABLE' || 'DURATION_PRICE_UNAVAILABLE' =>
+    'Verified pricing for these days is not available. No payment can be made.',
+  'INVALID_DURATION' => 'Choose a whole number of days from 1 to 365.',
+  'DAILY_LIMIT_UNVERIFIED' =>
+    'The recharge limit for this eSIM is not yet verified. Contact support.',
+  'SALES_DISABLED' => 'New eSIM purchases are not enabled yet.',
   'INCOMPATIBLE_OFFER' => 'This package is not compatible with this eSIM.',
   'PROFILE_UNAVAILABLE' ||
   'QUOTE_UNAVAILABLE' => 'This eSIM or quote is unavailable for this account.',
@@ -174,9 +180,13 @@ class EsimOperation {
     required this.packageId,
     this.confirmedExpiry,
     this.fundsReserved = false,
+    this.durationDays,
   });
   factory EsimOperation.fromJson(Map<String, dynamic> j) => EsimOperation(
     id: j['id'] as String,
+    durationDays: j['duration_unit'] == 'DAY'
+        ? j['duration_value'] as int?
+        : null,
     kind: j['kind'] as String,
     status: j['status'] == 'failed'
         ? 'failed'
@@ -191,8 +201,12 @@ class EsimOperation {
   final double? total;
   final DateTime? confirmedExpiry;
   final bool fundsReserved;
-  String get label =>
-      kind == 'fixed_recharge' ? 'Recharge' : 'New eSIM purchase';
+  final int? durationDays;
+  String get label => kind == 'daily_extension'
+      ? 'Day Pass extension'
+      : kind == 'fixed_recharge'
+      ? 'Recharge'
+      : 'New eSIM purchase';
   String get amountLabel =>
       total == null ? 'Total not recorded' : 'USD ${total!.toStringAsFixed(2)}';
   String get financialLabel => switch (financialState) {

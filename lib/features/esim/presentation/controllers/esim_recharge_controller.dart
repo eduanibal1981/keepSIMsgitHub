@@ -105,9 +105,12 @@ class EsimMoneyActions {
   EsimMoneyActions(this.ref);
   final Ref ref;
   Future<EsimOperationAcceptance>? _pending;
-  Future<EsimOperationAcceptance> accept(EsimRechargeQuote quote) {
+  Future<EsimOperationAcceptance> accept(
+    EsimRechargeQuote quote, {
+    String? requestKey,
+  }) {
     if (_pending != null) return _pending!;
-    final future = _accept(quote);
+    final future = _accept(quote, requestKey);
     _pending = future;
     return future.whenComplete(() => _pending = null);
   }
@@ -125,7 +128,10 @@ class EsimMoneyActions {
         ].contains(result);
   }
 
-  Future<EsimOperationAcceptance> _accept(EsimRechargeQuote quote) async {
+  Future<EsimOperationAcceptance> _accept(
+    EsimRechargeQuote quote,
+    String? requestKey,
+  ) async {
     final owner = ref.read(authControllerProvider).value?.id;
     if (owner == null || quote.ownerId != owner || quote.payerId != owner) {
       return const EsimOperationAcceptance('QUOTE_UNAVAILABLE');
@@ -140,13 +146,25 @@ class EsimMoneyActions {
     if (quote.id == null || quote.acceptanceKey == null) {
       return const EsimOperationAcceptance('QUOTE_UNAVAILABLE');
     }
-    if (!await _confirm(owner, 'Confirm this existing-profile eSIM recharge')) {
+    if (!await _confirm(
+      owner,
+      quote.action == 'daily_purchase'
+          ? 'Confirm this new Day Pass purchase'
+          : 'Confirm this existing-profile eSIM recharge',
+    )) {
       return const EsimOperationAcceptance('CANCELLED');
     }
     if (quote.expired) return const EsimOperationAcceptance('STALE_QUOTE');
-    final result = await ref
-        .read(esimRepositoryProvider)
-        .acceptTopup(quote.id!, quote.acceptanceKey!);
+    final repository = ref.read(esimRepositoryProvider);
+    final result = quote.action == 'daily_purchase'
+        ? (requestKey == null
+              ? const EsimOperationAcceptance('QUOTE_UNAVAILABLE')
+              : await repository.acceptDailyPurchase(
+                  quote.id!,
+                  quote.acceptanceKey!,
+                  requestKey,
+                ))
+        : await repository.acceptTopup(quote.id!, quote.acceptanceKey!);
     if (!ref.mounted || ref.read(authControllerProvider).value?.id != owner) {
       return const EsimOperationAcceptance('ACCOUNT_CHANGED');
     }

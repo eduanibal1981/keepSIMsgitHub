@@ -328,7 +328,9 @@ class CompareOfferCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (offer.listPriceUsd != null && offer.listPriceUsd! > offer.priceUsd)
+        if (!offer.facts.isDaily &&
+            offer.listPriceUsd != null &&
+            offer.listPriceUsd! > offer.priceUsd)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -350,17 +352,20 @@ class CompareOfferCard extends StatelessWidget {
             ],
           ),
         Text(
-          '\$${offer.priceUsd.toStringAsFixed(2)}',
+          offer.facts.isDaily
+              ? 'Choose days'
+              : '\$${offer.priceUsd.toStringAsFixed(2)}',
           style: AppTextStyles.headlineSmall.copyWith(
             color: context.onSurfaceColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         // G11: secondary, approximate, never on a commit control.
-        ApproxLocalText(offer.priceUsd, textAlign: TextAlign.end),
+        if (!offer.facts.isDaily)
+          ApproxLocalText(offer.priceUsd, textAlign: TextAlign.end),
         // NULL for unlimited, and it stays absent rather than rendering
         // "$0.00 / GB" — the server sends NULL precisely so this cannot lie.
-        if (offer.pricePerGbUsd != null)
+        if (!offer.facts.isDaily && offer.pricePerGbUsd != null)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,

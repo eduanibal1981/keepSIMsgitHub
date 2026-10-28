@@ -1,0 +1,13 @@
+{
+  "id": "24856115-afd0-4abd-94ec-28d003ed1b5c",
+  "slug": "esim-recharge-discovery",
+  "name": "esim-recharge-discovery",
+  "status": "ACTIVE",
+  "version": 3,
+  "created_at": 1793156556605,
+  "updated_at": 1793167104659,
+  "verify_jwt": true,
+  "import_map": false,
+  "entrypoint_path": "file:///tmp/user_fn_zwxswagokhgbuzrrbnhr_24856115-afd0-4abd-94ec-28d003ed1b5c_3/source/esim-recharge-discovery/index.ts",
+  "ezbr_sha256": "363e0145fc5d1bb7e28bca92649e932b34ab089cf2b853efa39a09e9da194468"
+}

@@ -231,7 +231,9 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                           ),
                         ),
                         child: Text(
-                          '${l10n.buyPlanButton} • \$${offer.priceUsd.toStringAsFixed(2)}',
+                          offer.facts.isDaily
+                              ? 'Choose days and review total'
+                              : '${l10n.buyPlanButton} • \$${offer.priceUsd.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -301,11 +303,15 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
             context,
             icon: Icons.payments_outlined,
             label: l10n.comparePriceLabel,
-            value: offer.canQuotePrice
+            value: offer.facts.isDaily
+                ? 'Choose days for total'
+                : offer.canQuotePrice
                 ? '\$${offer.priceUsd.toStringAsFixed(2)}'
                 : l10n.comparePriceAtPartner,
-            sub: offer.canQuotePrice ? 'USD' : '',
-            usdAmount: offer.canQuotePrice ? offer.priceUsd : null,
+            sub: !offer.facts.isDaily && offer.canQuotePrice ? 'USD' : '',
+            usdAmount: !offer.facts.isDaily && offer.canQuotePrice
+                ? offer.priceUsd
+                : null,
           ),
         ],
       ),

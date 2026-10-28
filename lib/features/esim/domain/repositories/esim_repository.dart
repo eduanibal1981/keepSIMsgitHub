@@ -5,7 +5,16 @@ import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_recharge.dart';
 
+import 'package:keep_sims/features/esim/domain/entities/esim_daily_selection.dart';
+
 abstract class EsimRepository {
+  Future<EsimRechargeQuote> quoteDaily(EsimDailySelection selection);
+  Future<EsimOperationAcceptance> acceptDailyPurchase(
+    String quoteId,
+    String acceptanceKey,
+    String requestKey,
+  );
+
   Future<EsimOperationAcceptance> acceptTopup(
     String quoteId,
     String acceptanceKey,

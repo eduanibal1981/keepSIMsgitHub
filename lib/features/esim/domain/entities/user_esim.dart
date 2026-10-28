@@ -127,7 +127,9 @@ abstract class UserEsim with _$UserEsim {
     ...?catalogueDetails,
     'activation_trigger': activationTrigger,
   });
-  String get usageLabel => hasKnownUsage
+  String get usageLabel => facts.isDaily
+      ? '${facts.formattedData(legacyMb: 0, unlimited: facts.planType == 'daily_unlimited')} • Daily usage/reset time not provided'
+      : hasKnownUsage
       ? '${EsimCatalogueDetails.formatBytes(dataRemainingBytes!)} / ${EsimCatalogueDetails.formatBytes(dataTotalBytes!)}'
       : 'Usage not provided';
 }

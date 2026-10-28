@@ -15,7 +15,10 @@ class EsimProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final ratio = profile.hasKnownUsage && profile.dataTotalBytes! > 0
+    final ratio =
+        !profile.facts.isDaily &&
+            profile.hasKnownUsage &&
+            profile.dataTotalBytes! > 0
         ? (profile.dataRemainingBytes! / profile.dataTotalBytes!).clamp(
             0.0,
             1.0,

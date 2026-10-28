@@ -1,0 +1,65 @@
+{
+  "hashes": [
+    "24eaed199daa7f3a0430c853b97c900640eeeb0ba51f4556d04ed81c31374db1  esim_fulfillment_runtime.js",
+    "e90ec341a49f358a8532a2203478206ed58547a031f0a50973fd313d134be654  esim_recharge_settlement.js",
+    "dd908073378b98c949bf8fe3cc95bf3841ae42f3bb56b0ac41831c619d761475  esim_recharge_discovery.js",
+    "58dc856e8eb948917a4cb7291dcd53fef08c0b87351bd8d5e78d07a0a46277b2  providers/esimaccess.js",
+    "b8ce40cba7ed1b072bd762aa6287ce2a8240be3655edd07c3f883c7b827b87a4  providers/esimaccess_recharge.js"
+  ],
+  "processes": [
+    {
+      "name": "server_baileys",
+      "pid": 997204,
+      "status": "online",
+      "restarts": 11
+    },
+    {
+      "name": "worker_instant_refill",
+      "pid": 1053118,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "pid": 1053124,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "pid": 1053125,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_offers_cache",
+      "pid": 1025793,
+      "status": "online",
+      "restarts": 3
+    },
+    {
+      "name": "worker-esim-catalog",
+      "pid": 1058079,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "pid": 1064136,
+      "status": "online",
+      "restarts": 22
+    },
+    {
+      "name": "server_tg",
+      "pid": 65425,
+      "status": "online",
+      "restarts": 1
+    },
+    {
+      "name": "worker_dtone_control",
+      "pid": 1053131,
+      "status": "online",
+      "restarts": 0
+    }
+  ]
+}

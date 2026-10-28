@@ -1,0 +1,204 @@
+ M .flutter-plugins-dependencies
+ M analysis_options.yaml
+ M android/gradle.properties
+ M lib/core/admin/admin_api.dart
+ M lib/core/admin/admin_providers.dart
+ M lib/core/admin/admin_widgets.dart
+ M lib/core/layout/admin_shell_screen.dart
+ M lib/core/providers.dart
+ M lib/core/providers.g.dart
+ M lib/core/providers/locale_provider.dart
+ M lib/core/router/app_router.dart
+ M lib/core/router/app_router.g.dart
+ M lib/core/router/placeholder_screens.dart
+ M lib/core/services/local_cache_service.dart
+ M lib/core/services/sync_queue_service.dart
+ M lib/core/services/sync_queue_service.g.dart
+ M lib/core/supabase_client.dart
+ M lib/core/theme/app_theme.dart
+ M lib/core/utils/currency_formatter.dart
+ M lib/core/widgets/empty_state.dart
+ M lib/core/widgets/error_state.dart
+ M lib/core/widgets/glass_card.dart
+ M lib/core/widgets/glass_toggle_switch.dart
+ M lib/core/widgets/shimmer_loading.dart
+ M lib/features/admin/presentation/providers/admin_providers.dart
+ M lib/features/admin/presentation/providers/admin_providers.g.dart
+ M lib/features/admin/presentation/screens/admin_dashboard_screen.dart
+ M lib/features/analytics/presentation/screens/analytics_dashboard_screen.dart
+ M lib/features/auth/contract/auth_contract.dart
+ M lib/features/auth/controller/auth_controller.dart
+ M lib/features/auth/repository/auth_repository.dart
+ M lib/features/auth/ui/email_auth_screen.dart
+ M lib/features/auth/ui/login_screen.dart
+ M lib/features/control/presentation/carriers_screen.dart
+ M lib/features/control/presentation/offline_screen.dart
+ M lib/features/control/presentation/operations_screen.dart
+ M lib/features/control/presentation/scheduled_jobs_screen.dart
+ M lib/features/control/presentation/suppliers_screen.dart
+ M lib/features/control/presentation/support_screen.dart
+ M lib/features/scheduled_topups/repository/topup_execution_repository.dart
+ M lib/features/server_management/data/repositories/ssh_repository.dart
+ M lib/features/server_management/presentation/providers/server_providers.dart
+ M lib/features/server_management/presentation/screens/server_dashboard_screen.dart
+ M lib/features/sim_lines/data/datasources/twilio_verification_service.dart
+ M lib/features/sim_lines/data/models/line_activity_log_model.dart
+ M lib/features/sim_lines/data/models/line_activity_log_model.freezed.dart
+ M lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart
+ M lib/features/sim_lines/domain/repositories/sim_lines_repository.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.g.dart
+ D lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart
+ D lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.g.dart
+ M lib/features/sim_lines/presentation/controllers/sim_lines_controller.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_detail_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_executions_history_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_lines_list_screen.dart
+ D lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart
+ D lib/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart
+ D lib/features/sim_lines/presentation/widgets/number_verification_dialog.dart
+ D lib/features/sim_lines/presentation/widgets/sim_line_card.dart
+ M lib/features/testing_console/data/repositories/test_repository.dart
+ M lib/features/testing_console/presentation/screens/test_list_screen.dart
+ M lib/features/user_management/data/repositories/user_management_repository.dart
+ M lib/features/whatsapp_management/controller/whatsapp_management_controller.g.dart
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner/Configs/Release.xcconfig
+ M macos/Runner/DebugProfile.entitlements
+ M macos/Runner/MainFlutterWindow.swift
+ M macos/Runner/Release.entitlements
+ M pubspec.lock
+ M pubspec.yaml
+ M test/features/control/carriers_layout_test.dart
+ M test/widget_test.dart
+ M test_query.dart
+ M windows/runner/flutter_window.cpp
+ M windows/runner/flutter_window.h
+?? docs/reviews/admin-catalogue-compatibility-20261023.md
+?? docs/reviews/admin-catalogue-compatibility-deployment-20261023.md
+?? docs/reviews/dtone-provider-deployment-20261023.md
+?? docs/reviews/dtone-provider-management-20261023.md
+?? docs/reviews/provider-offer-country-scope-20261026.md
+?? docs/reviews/reloadly-credential-rotation-20261022.md
+?? lib/features/auth/repository/macos_google_sign_in.dart
+?? lib/features/auth/repository/windows_google_sign_in.dart
+?? lib/features/control/presentation/widgets/esim_operation_inspector.dart
+?? lib/features/control/presentation/worker_fleet_panel.dart
+?? lib/features/control/providers/esim_operation_provider.dart
+?? lib/features/credentials/contract/credentials_contract.dart
+?? lib/features/credentials/contract/dtone_credentials_contract.dart
+?? lib/features/credentials/contract/reloadly_credentials_contract.dart
+?? lib/features/credentials/controller/credentials_controller.dart
+?? lib/features/credentials/controller/credentials_controller.g.dart
+?? lib/features/credentials/controller/dtone_credentials_controller.dart
+?? lib/features/credentials/controller/dtone_credentials_controller.g.dart
+?? lib/features/credentials/controller/reloadly_credentials_controller.dart
+?? lib/features/credentials/controller/reloadly_credentials_controller.g.dart
+?? lib/features/credentials/model/credential_status.dart
+?? lib/features/credentials/model/credential_status.freezed.dart
+?? lib/features/credentials/model/credential_status.g.dart
+?? lib/features/credentials/model/dtone_status.dart
+?? lib/features/credentials/model/dtone_status.freezed.dart
+?? lib/features/credentials/model/dtone_status.g.dart
+?? lib/features/credentials/model/provider_management_capabilities.dart
+?? lib/features/credentials/model/reloadly_credential_status.dart
+?? lib/features/credentials/model/reloadly_credential_status.freezed.dart
+?? lib/features/credentials/model/reloadly_credential_status.g.dart
+?? lib/features/credentials/repository/credentials_repository.dart
+?? lib/features/credentials/repository/dtone_credentials_repository.dart
+?? lib/features/credentials/repository/reloadly_credentials_repository.dart
+?? lib/features/credentials/ui/credentials_screen.dart
+?? lib/features/credentials/ui/dtone_credentials_screen.dart
+?? lib/features/credentials/ui/reloadly_credentials_screen.dart
+?? lib/features/scheduled_topups/model/schedule_mutation_request.dart
+?? macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? macos/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? output/admin-catalogue-compatibility-20261023/20261023034940_admin_catalogue_read_compatibility.sql
+?? output/admin-catalogue-compatibility-20261023/KeepSIMs-Admin-macOS.zip
+?? output/admin-catalogue-compatibility-20261023/KeepSIMs-Admin-macOS.zip.sha256
+?? output/admin-catalogue-compatibility-20261023/deploy-advisor-review.json
+?? output/admin-catalogue-compatibility-20261023/deploy-database-after.json
+?? output/admin-catalogue-compatibility-20261023/deploy-database-before.json
+?? output/admin-catalogue-compatibility-20261023/deploy-negative-role-check.json
+?? output/admin-catalogue-compatibility-20261023/deployment-receipt.json
+?? output/admin-catalogue-compatibility-20261023/deployment-receipt.sha256
+?? output/admin-catalogue-compatibility-20261023/live-database-before.json
+?? output/admin-catalogue-compatibility-20261023/live-http-after.json
+?? output/admin-catalogue-compatibility-20261023/live-http-before.json
+?? output/admin-catalogue-compatibility-20261023/manifest.json
+?? output/admin-catalogue-compatibility-20261023/manifest.sha256
+?? output/admin-catalogue-compatibility-20261023/previous-admin-archive.sha256
+?? output/admin-catalogue-compatibility-20261023/previous-admin-archive.zip
+?? output/dtone-credentials-20261023/evidence/deploy-advisor-review.json
+?? output/dtone-credentials-20261023/evidence/deploy-database-state.json
+?? output/dtone-credentials-20261023/evidence/deploy-edge-source-verification.json
+?? output/dtone-credentials-20261023/evidence/deploy-http-verification.json
+?? output/dtone-credentials-20261023/evidence/deploy-paused-workers.json
+?? output/dtone-credentials-20261023/evidence/deploy-stage.json
+?? output/dtone-credentials-20261023/evidence/deploy-vm-installed.json
+?? output/dtone-credentials-20261023/evidence/deploy-vm-preflight.json
+?? output/dtone-credentials-20261023/evidence/deploy-vm-runtime.json
+?? output/dtone-credentials-20261023/evidence/deploy-vm-stable.json
+?? output/dtone-credentials-20261023/evidence/live-advisor-baseline-summary.json
+?? output/dtone-credentials-20261023/evidence/live-db-state.json
+?? output/dtone-credentials-20261023/evidence/live-edge-state.json
+?? output/dtone-credentials-20261023/evidence/postgres-source.json
+?? output/dtone-credentials-20261023/evidence/safeupdate-source.json
+?? output/dtone-credentials-20261023/evidence/test-summary.json
+?? output/dtone-credentials-20261023/evidence/vm-dtone-probe.json
+?? output/dtone-credentials-20261023/evidence/vm-external-ip.txt
+?? output/dtone-credentials-20261023/evidence/vm-node-syntax.json
+?? output/dtone-credentials-20261023/evidence/vm-product-schema.json
+?? output/dtone-credentials-20261023/release/customer/supabase/functions/_shared/carrier-identity.ts
+?? output/dtone-credentials-20261023/release/customer/supabase/functions/_shared/provider-secrets.ts
+?? output/dtone-credentials-20261023/release/customer/supabase/functions/dtone-callback/handler.ts
+?? output/dtone-credentials-20261023/release/customer/supabase/functions/dtone-callback/index.ts
+?? output/dtone-credentials-20261023/release/customer/supabase/functions/validate-sim-liveness/index.ts
+?? output/dtone-credentials-20261023/release/customer/supabase/migrations/20261022214524_dtone_environment_control.sql
+?? output/dtone-credentials-20261023/release/deployment-receipt.json
+?? output/dtone-credentials-20261023/release/deployment-receipt.sha256
+?? output/dtone-credentials-20261023/release/manifest.json
+?? output/dtone-credentials-20261023/release/manifest.sha256
+?? output/dtone-credentials-20261023/release/vm-scoped.diff
+?? output/dtone-credentials-20261023/release/vm/offer_validation.js
+?? output/dtone-credentials-20261023/release/vm/providers/dtone.js
+?? output/dtone-credentials-20261023/release/vm/providers/dtone_control.js
+?? output/dtone-credentials-20261023/release/vm/providers/dtone_credentials.js
+?? output/dtone-credentials-20261023/release/vm/sim_liveness_service.js
+?? output/dtone-credentials-20261023/release/vm/worker_auto_custom_refill.js
+?? output/dtone-credentials-20261023/release/vm/worker_auto_mini_refill.js
+?? output/dtone-credentials-20261023/release/vm/worker_dtone_control.js
+?? output/dtone-credentials-20261023/release/vm/worker_instant_refill.js
+?? output/dtone-credentials-20261023/release/vm/worker_offers_cache.js
+?? output/reloadly-credentials-20261022/admin-preview.png
+?? output/reloadly-credentials-20261022/database/20261022191700_reloadly_environment_credentials.sql
+?? output/reloadly-credentials-20261022/edge/admin-reloadly-credentials/handler.ts
+?? output/reloadly-credentials-20261022/edge/admin-reloadly-credentials/index.ts
+?? output/reloadly-credentials-20261022/production-verification.json
+?? output/reloadly-credentials-20261022/source-manifest.json
+?? output/reloadly-credentials-20261022/vm-credential-only.diff
+?? output/reloadly-credentials-20261022/vm-deployment-result.json
+?? output/reloadly-credentials-20261022/vm/offer_validation.js
+?? output/reloadly-credentials-20261022/vm/providers/reloadly.js
+?? output/reloadly-credentials-20261022/vm/providers/reloadly_credentials.js
+?? output/reloadly-credentials-20261022/vm/worker_auto_custom_refill.js
+?? output/reloadly-credentials-20261022/vm/worker_auto_mini_refill.js
+?? output/reloadly-credentials-20261022/vm/worker_instant_refill.js
+?? output/reloadly-credentials-20261022/vm/worker_offers_cache.js
+?? test/core/admin/admin_api_carrier_availability_test.dart
+?? test/esim_operation_inspector_test.dart
+?? test/features/auth/macos_google_sign_in_test.dart
+?? test/features/auth/windows_google_sign_in_test.dart
+?? test/features/control/worker_fleet_panel_test.dart
+?? test/features/credentials/credentials_repository_test.dart
+?? test/features/credentials/credentials_screen_test.dart
+?? test/features/credentials/dtone_credentials_repository_test.dart
+?? test/features/credentials/dtone_credentials_screen_test.dart
+?? test/features/credentials/reloadly_credentials_repository_test.dart
+?? test/features/credentials/reloadly_credentials_screen_test.dart
+?? test/features/scheduled_topups/schedule_mutation_boundary_test.dart
+?? test/features/sim_lines/legacy_verification_configuration_test.dart
+?? tools/build_macos_local.sh
+?? tools/dtone_worker_integration.test.js
+?? tools/prepare_dtone_release.py

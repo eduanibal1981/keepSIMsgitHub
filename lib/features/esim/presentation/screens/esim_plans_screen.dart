@@ -159,7 +159,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     double best = double.infinity;
     for (final o in offers) {
       final ppg = o.pricePerGbUsd;
-      if (ppg != null && ppg > 0 && ppg < best) {
+      if (!o.facts.isDaily && ppg != null && ppg > 0 && ppg < best) {
         best = ppg;
         bestValueId = o.offerId;
       }

@@ -1,0 +1,19 @@
+✔ daily purchase and extension quote use only allowlisted intent under customer authority (28.484125ms)
+✔ invalid duration, quantity, injected prices/payers and service operations never reach SQL (1.233625ms)
+✔ daily purchase accepts a quote capability and stable nonce, never a client price (0.858625ms)
+✔ anonymous/invalid identity and unexpected methods cannot reach SQL (27.301625ms)
+✔ authenticated discovery uses the customer client, exact profile and fixed RPC allowlist (0.981167ms)
+✔ payer overrides, acceptance, raw RPC names, malformed IDs and oversized requests are refused (1.74325ms)
+✔ quote/check bind only reviewed offer fields and owner-checked IDs (0.404ms)
+✔ database errors and thrown auth errors never expose internal data (0.450083ms)
+✔ acceptance forwards only the quote capability and device ID using customer SQL authority (26.203583ms)
+✔ no client price, payer, supplier, receipt or settlement command can be injected into acceptance (1.058791ms)
+✔ history remains an owner-scoped RPC and a genuine empty result is preserved (0.369459ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 131.513875

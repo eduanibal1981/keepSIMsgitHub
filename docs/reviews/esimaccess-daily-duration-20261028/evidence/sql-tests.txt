@@ -1,0 +1,16 @@
+PASS whole-day range 1–365 enforced independently of client
+PASS unknown supplier duration pricing cannot turn a daily base price into a total
+PASS exact duration supplier total receives canonical retail fee once
+PASS another owner cannot read or accept a daily profile quote
+PASS same country or allowance never substitutes a different daily variant
+PASS exact prices and observed recharge limits are service-only evidence
+PASS unknown or exhausted account limit is rejected before a quote
+PASS new supplier price invalidates the old quote without changing historical evidence
+PASS duplicate daily extension adopts one reservation with exact immutable duration
+PASS confirmed extension preserves daily depletion, usage counters and installed credentials
+PASS receipt with different duration or no validity extension cannot capture
+PASS daily purchase quote binds days and quantity; duplicate acceptance adopts one order
+PASS legacy checkout cannot buy a daily plan without a reviewed duration quote
+PASS daily purchase acceptance refuses foreign owner and changed product pricing
+PASS unknown extension outcome stays reserved and never submits twice
+15 ESIM-09 SQL scenario groups passed

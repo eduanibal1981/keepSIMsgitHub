@@ -1,0 +1,66 @@
+{
+  "additions": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`esim_private.daily_prices\\` has RLS enabled, but no policies exist",
+      "metadata": {
+        "name": "daily_prices",
+        "type": "table",
+        "schema": "esim_private"
+      },
+      "observed_at": "2026-10-28T06:00:35.334Z"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`esim_private.daily_purchase_quotes\\` has RLS enabled, but no policies exist",
+      "metadata": {
+        "name": "daily_purchase_quotes",
+        "type": "table",
+        "schema": "esim_private"
+      },
+      "observed_at": "2026-10-28T06:00:35.334Z"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "detail": "Function `public.accept_esim_daily_purchase(p_quote_id uuid, p_acceptance_key uuid, p_request_key uuid, p_device_id text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/accept_esim_daily_purchase`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+      "metadata": {
+        "name": "accept_esim_daily_purchase",
+        "schema": "public",
+        "language": "plpgsql",
+        "arguments": "p_quote_id uuid, p_acceptance_key uuid, p_request_key uuid, p_device_id text",
+        "security_definer": true
+      },
+      "observed_at": "2026-10-28T06:00:35.334Z"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "detail": "Function `public.quote_esim_daily_extension(p_profile_id uuid, p_package_id text, p_offer_version uuid, p_period_count integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/quote_esim_daily_extension`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+      "metadata": {
+        "name": "quote_esim_daily_extension",
+        "schema": "public",
+        "language": "plpgsql",
+        "arguments": "p_profile_id uuid, p_package_id text, p_offer_version uuid, p_period_count integer",
+        "security_definer": true
+      },
+      "observed_at": "2026-10-28T06:00:35.334Z"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "detail": "Function `public.quote_esim_daily_purchase(p_offer_id text, p_period_count integer, p_quantity integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/quote_esim_daily_purchase`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+      "metadata": {
+        "name": "quote_esim_daily_purchase",
+        "schema": "public",
+        "language": "plpgsql",
+        "arguments": "p_offer_id text, p_period_count integer, p_quantity integer",
+        "security_definer": true
+      },
+      "observed_at": "2026-10-28T06:00:35.334Z"
+    }
+  ],
+  "new_errors": []
+}

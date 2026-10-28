@@ -1,0 +1,819 @@
+ M .agents/memory/ACTIVE_HANDOFF.md
+ D .agents/plugins/keepsims-mcp/mcp_config.example.json
+ M .codex/ARCHITECTURAL_DECISIONS.md
+ M .codex/BUSINESS_RULES.md
+ M .codex/CURRENT_STATUS_AND_ROADMAP.md
+ M .codex/DATA_BACKEND_SECURITY.md
+ M .codex/SYSTEM_ARCHITECTURE.md
+ M android/app/src/test/kotlin/com/keep_sims/AlertAlarmTimeTest.kt
+ M deployment/source-lock.json
+ M ios/Runner/AppDelegate.swift
+ M lib/core/router/app_router.dart
+ M lib/core/services/sync_queue_service.dart
+ M lib/core/utils/phone_number_validator.dart
+ M lib/features/calling/presentation/screens/smart_call_dashboard_screen.dart
+ M lib/features/calling/presentation/widgets/buy_virtual_number_sheet.dart
+ M lib/features/dashboard/presentation/controller/dashboard_controller.dart
+ M lib/features/dashboard/presentation/ui/dashboard_screen.dart
+ M lib/features/esim/data/repositories/esim_go_repository_impl.dart
+ M lib/features/esim/domain/entities/compare_offer.dart
+ M lib/features/esim/domain/entities/esim_order.dart
+ M lib/features/esim/domain/entities/esim_order.freezed.dart
+ M lib/features/esim/domain/entities/esim_order.g.dart
+ M lib/features/esim/domain/entities/esim_plan.dart
+ M lib/features/esim/domain/entities/esim_plan.freezed.dart
+ M lib/features/esim/domain/entities/esim_plan.g.dart
+ M lib/features/esim/domain/entities/user_esim.dart
+ M lib/features/esim/domain/entities/user_esim.freezed.dart
+ M lib/features/esim/domain/entities/user_esim.g.dart
+ M lib/features/esim/domain/repositories/esim_repository.dart
+ M lib/features/esim/presentation/controllers/esim_compare_controller.dart
+ M lib/features/esim/presentation/controllers/user_esims_controller.dart
+ M lib/features/esim/presentation/screens/esim_delivery_screen.dart
+ M lib/features/esim/presentation/screens/esim_plans_screen.dart
+ M lib/features/esim/presentation/screens/esim_screen.dart
+ M lib/features/esim/presentation/widgets/compare_filter_sheet.dart
+ M lib/features/esim/presentation/widgets/compare_offer_card.dart
+ M lib/features/esim/presentation/widgets/compare_offer_details_sheet.dart
+ M lib/features/esim/presentation/widgets/esim_checkout_sheet.dart
+ M lib/features/esim/presentation/widgets/esim_order_status_modal.dart
+ M lib/features/notifications/data/repositories/notifications_repository_impl.dart
+ M lib/features/notifications/domain/notification_event_catalog.dart
+ M lib/features/notifications/presentation/screens/notification_settings_screen.dart
+ M lib/features/notifications/presentation/screens/notifications_screen.dart
+ M lib/features/notifications/presentation/services/notification_navigation_service.dart
+ M lib/features/notifications/presentation/widgets/alert_preferences_dashboard.dart
+ M lib/features/offline_recharge/ui/offline_refill_screen.dart
+ M lib/features/profile/presentation/ui/onboarding_screen.dart
+ M lib/features/scheduled_topups/repository/scheduled_topup_repository.dart
+ M lib/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.freezed.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.g.dart
+ M lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart
+ M lib/features/sim_lines/domain/plan_payment.dart
+ M lib/features/sim_lines/domain/refill_pricing.dart
+ M lib/features/sim_lines/domain/repositories/sim_lines_repository.dart
+ M lib/features/sim_lines/presentation/controllers/sim_lines_controller.dart
+ M lib/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart
+ M lib/features/sim_lines/presentation/screens/sim_line_detail_screen.dart
+ M lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+ M lib/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart
+ M lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/provider_badge.dart
+ M lib/features/wallet/controller/wallet_controller.dart
+ M lib/features/wallet/repository/wallet_repository.dart
+ M lib/features/wallet/ui/gift_credit_sheet.dart
+ M lib/features/wallet/ui/wallet_screen.dart
+ M lib/l10n/app_ar.arb
+ M lib/l10n/app_bn.arb
+ M lib/l10n/app_en.arb
+ M lib/l10n/app_es.arb
+ M lib/l10n/app_hi.arb
+ M lib/l10n/app_localizations.dart
+ M lib/l10n/app_localizations_ar.dart
+ M lib/l10n/app_localizations_bn.dart
+ M lib/l10n/app_localizations_en.dart
+ M lib/l10n/app_localizations_es.dart
+ M lib/l10n/app_localizations_hi.dart
+ M lib/l10n/app_localizations_ne.dart
+ M lib/l10n/app_localizations_si.dart
+ M lib/l10n/app_localizations_tr.dart
+ M lib/l10n/app_localizations_ur.dart
+ M lib/l10n/app_ne.arb
+ M lib/l10n/app_si.arb
+ M lib/l10n/app_tr.arb
+ M lib/l10n/app_ur.arb
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+ M macos/Runner.xcworkspace/contents.xcworkspacedata
+ M output/dashboard-sim-card-compact/layout-measurements.json
+ M supabase/.temp/cli-latest
+ M supabase/config.toml
+ M supabase/functions/_shared/whatsapp_route.ts
+ M supabase/functions/_shared/whatsapp_router.ts
+ M supabase/functions/capture-paypal-order/index.ts
+ M supabase/functions/create-paypal-order/index.ts
+ M supabase/functions/delete_account/index.ts
+ M supabase/functions/health/index.ts
+ M supabase/functions/process-alert-outbox/index.ts
+ M supabase/functions/process-wallet-refund/index.ts
+ M supabase/functions/purge-accounts/index.ts
+ M supabase/functions/recovery-service/index.ts
+ M supabase/functions/refresh-fx-rates/index.ts
+ M supabase/functions/send-admin-email/index.ts
+ M supabase/functions/send-sim-otp/index.ts
+ M supabase/functions/sync-affiliate-network/index.ts
+ M supabase/functions/sync-esim-catalogue/index.ts
+ M supabase/functions/validate-sim-liveness/index.ts
+ M supabase/functions/verify-sim-otp/index.ts
+ M test/core/utils/phone_number_validator_test.dart
+ M test/features/esim/compare_filter_sheet_test.dart
+ M test/features/esim/compare_offer_details_sheet_test.dart
+ M test/features/notifications/alert_preferences_dashboard_test.dart
+ M test/features/profile/onboarding_currency_transition_test.dart
+ M test/features/profile/onboarding_notification_contacts_test.dart
+ M test/features/scheduled_topups/schedule_mutation_boundary_test.dart
+ M test/features/scheduled_topups/scheduled_topup_sheet_tier_pricing_test.dart
+ M test/turn_credentials_security.test.cjs
+ M tool/test_gb.dart
+ M tools/financial-tests/README.md
+ M tools/financial-tests/package.json
+ M tools/release_checks.py
+ M tools/reproducible_sources.py
+ M tools/scan_embedded_secrets.py
+ M tools/test_release_checks.py
+ M tools/test_reproducibility.py
+ M tools/test_scan_embedded_secrets.py
+?? .github/workflows/admin-windows-checks.yml
+?? .github/workflows/platform-database-checks.yml
+?? deno.lock
+?? docs/implementation-plans/carrier-offer-counts-premium-eligibility-plan-20261027.md
+?? docs/implementation-plans/carrier-offer-counts-premium-eligibility-snapshot-20261027.json
+?? docs/implementation-plans/esimaccess-integration-plan-20261028.md
+?? docs/implementation-plans/whatsapp-outbound-otp-verification-plan-20261026.md
+?? docs/reviews/alert-clock-refresh-20261020.md
+?? docs/reviews/any-number-enrollment-test-pass-20261027.md
+?? docs/reviews/any-number-enrollment-test-pass-live-20261027.json
+?? docs/reviews/audit-development-20261019/combined-catalog-tests.json
+?? docs/reviews/audit-development-20261019/combined-database/fresh-catalog.json
+?? docs/reviews/audit-development-20261019/combined-database/results.json
+?? docs/reviews/audit-development-20261019/combined-database/upgrade-catalog.json
+?? docs/reviews/audit-development-20261019/combined-upgrade-attempt.json
+?? docs/reviews/audit-development-20261019/deno-tool.json
+?? docs/reviews/audit-development-20261019/fleet-native.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/apps/results.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/database/results.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/source-after/results.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/source-lock.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/source/results.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/summary.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/unit/results.json
+?? docs/reviews/audit-development-20261019/progress.md
+?? docs/reviews/canonical-carrier-detection-20261020.md
+?? docs/reviews/canonical-carrier-detection-live-20261020.json
+?? docs/reviews/carrier-offer-counts-and-test-catalogues-20261028.md
+?? docs/reviews/custom-refill-carrier-interval-20261020.md
+?? docs/reviews/customer-refill-rpc-compatibility-20261020.md
+?? docs/reviews/customer-refill-rpc-compatibility-live-20261020.json
+?? docs/reviews/customer-refill-rpc-compatibility-results-20261020.json
+?? docs/reviews/customer-retail-read-views-fix-20261019.md
+?? docs/reviews/dtone-primary-routing-20261027.md
+?? docs/reviews/dtone-primary-routing-apply-20261027.sql
+?? docs/reviews/dtone-primary-routing-before-20261027.json
+?? docs/reviews/dtone-primary-routing-final-20261027.json
+?? docs/reviews/esim-supplier-visibility-20261028.md
+?? docs/reviews/esim-supplier-visibility-live-20261028.json
+?? docs/reviews/esimaccess-alerts-20261028.md
+?? docs/reviews/esimaccess-alerts-20261028/deployment.json
+?? docs/reviews/esimaccess-alerts-20261028/deployment.sha256
+?? docs/reviews/esimaccess-alerts-20261028/evidence/database-after.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/edge-source-verification.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/live-role-denials.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/live-runtime.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/migration-application.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/notification-trigger-before.sql
+?? docs/reviews/esimaccess-alerts-20261028/evidence/outbox-before/index.ts
+?? docs/reviews/esimaccess-alerts-20261028/evidence/outbox-before/quiet_hours.ts
+?? docs/reviews/esimaccess-alerts-20261028/evidence/preflight.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/security-advisor-after.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/security-advisor-before.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/vm-after.json
+?? docs/reviews/esimaccess-alerts-20261028/evidence/vm-before.json
+?? docs/reviews/esimaccess-alerts-20261028/release/backend/esim_fulfillment_runtime.js
+?? docs/reviews/esimaccess-alerts-20261028/release/edge/process-alert-outbox/index.ts
+?? docs/reviews/esimaccess-alerts-20261028/release/edge/process-alert-outbox/quiet_hours.ts
+?? docs/reviews/esimaccess-alerts-20261028/release/manifest.json
+?? docs/reviews/esimaccess-alerts-20261028/release/migrations/20261028013756_esim_actionable_alerts.sql
+?? docs/reviews/esimaccess-baseline-20261028.md
+?? docs/reviews/esimaccess-baseline-20261028/live-evidence.json
+?? docs/reviews/esimaccess-baseline-20261028/provider-contract.json
+?? docs/reviews/esimaccess-baseline-20261028/release-manifest.json
+?? docs/reviews/esimaccess-baseline-20261028/validation.json
+?? docs/reviews/esimaccess-catalogue-20261028.md
+?? docs/reviews/esimaccess-catalogue-20261028/deployment-live.json
+?? docs/reviews/esimaccess-catalogue-20261028/github-source-sync.json
+?? docs/reviews/esimaccess-catalogue-20261028/live-acceptance.sql
+?? docs/reviews/esimaccess-catalogue-20261028/live-preflight.json
+?? docs/reviews/esimaccess-catalogue-20261028/release/backend/providers/esimaccess.js
+?? docs/reviews/esimaccess-catalogue-20261028/release/backend/providers/esimaccess_catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/release/backend/providers/zendit.js
+?? docs/reviews/esimaccess-catalogue-20261028/release/backend/worker_esim_catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/release/database.sql
+?? docs/reviews/esimaccess-catalogue-20261028/release/edge/_shared/esimaccess-catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/release/edge/sync-esim-catalogue/deno.lock
+?? docs/reviews/esimaccess-catalogue-20261028/release/edge/sync-esim-catalogue/index.ts
+?? docs/reviews/esimaccess-catalogue-20261028/release/manifest.json
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/backend/providers/esimaccess.js
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/backend/providers/esimaccess_catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/backend/providers/zendit.js
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/backend/worker_esim_catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/database.sql
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/database_compatibility.sql
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/edge/_shared/esimaccess-catalog.js
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/edge/sync-esim-catalogue/deno.lock
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/edge/sync-esim-catalogue/index.ts
+?? docs/reviews/esimaccess-catalogue-20261028/runtime-fix/manifest.json
+?? docs/reviews/esimaccess-catalogue-20261028/verification.json
+?? docs/reviews/esimaccess-catalogue-20261028/workspace-before.json
+?? docs/reviews/esimaccess-catalogue-deployment-20261028.md
+?? docs/reviews/esimaccess-daily-duration-20261028/evidence/functions-before.json
+?? docs/reviews/esimaccess-installation-20261028.md
+?? docs/reviews/esimaccess-installation-20261028/evidence/backend-start-status.txt
+?? docs/reviews/esimaccess-installation-20261028/evidence/customer-start-status.txt
+?? docs/reviews/esimaccess-installation-20261028/evidence/database-acl.json
+?? docs/reviews/esimaccess-installation-20261028/evidence/database-before.json
+?? docs/reviews/esimaccess-installation-20261028/evidence/delivery-screen-before.dart
+?? docs/reviews/esimaccess-installation-20261028/evidence/edge-unchanged.json
+?? docs/reviews/esimaccess-installation-20261028/evidence/ios-delegate-before.swift
+?? docs/reviews/esimaccess-installation-20261028/evidence/live-access-tests.json
+?? docs/reviews/esimaccess-installation-20261028/evidence/manager-screen-before.dart
+?? docs/reviews/esimaccess-installation-20261028/evidence/plan-payment-release-before.dart
+?? docs/reviews/esimaccess-installation-20261028/evidence/profile-controller-before.dart
+?? docs/reviews/esimaccess-installation-20261028/evidence/runtime-final.json
+?? docs/reviews/esimaccess-installation-20261028/evidence/user-esim-before.dart
+?? docs/reviews/esimaccess-installation-20261028/evidence/vm-unchanged.txt
+?? docs/reviews/esimaccess-installation-20261028/release/customer/ios/Runner/AppDelegate.swift
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/data/services/esim_installation_service.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/domain/entities/esim_activation_payload.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/domain/entities/esim_installation_policy.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/domain/entities/user_esim.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/domain/entities/user_esim.freezed.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/domain/entities/user_esim.g.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/presentation/controllers/esim_installation_controller.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/presentation/controllers/user_esims_controller.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/presentation/screens/esim_delivery_screen.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/presentation/screens/esim_screen.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/esim/presentation/widgets/esim_profile_card.dart
+?? docs/reviews/esimaccess-installation-20261028/release/customer/lib/features/sim_lines/domain/plan_payment.dart
+?? docs/reviews/esimaccess-installation-20261028/release/manifest.json
+?? docs/reviews/esimaccess-installation-20261028/verification.json
+?? docs/reviews/esimaccess-installation-20261028/verification.sha256
+?? docs/reviews/esimaccess-profiles-events-20261028.md
+?? docs/reviews/esimaccess-profiles-events-20261028/admin-source/lib/core/admin/admin_api.dart
+?? docs/reviews/esimaccess-profiles-events-20261028/admin-source/lib/core/admin/admin_providers.dart
+?? docs/reviews/esimaccess-profiles-events-20261028/admin-source/lib/features/control/presentation/suppliers_screen.dart
+?? docs/reviews/esimaccess-profiles-events-20261028/preexisting-fulfillment-fleet.patch
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/esim_fulfillment_runtime.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/esim_supplier_limiter.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/providers/esimaccess.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/providers/esimaccess_catalog.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/providers/esimaccess_credentials.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/providers/esimaccess_profiles.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/worker_esim_catalog.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/backend/worker_esim_fulfillment.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/_shared/esimaccess-catalog.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/_shared/esimaccess-events.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/_shared/esimaccess-limiter.js
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/esimaccess-events/deno.lock
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/esimaccess-events/index.ts
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/sync-esim-catalogue/deno.lock
+?? docs/reviews/esimaccess-profiles-events-20261028/release/edge/sync-esim-catalogue/index.ts
+?? docs/reviews/esimaccess-profiles-events-20261028/release/manifest.json
+?? docs/reviews/esimaccess-profiles-events-20261028/release/migrations/20261027235408_esim_profile_identity_lifecycle.sql
+?? docs/reviews/esimaccess-profiles-events-20261028/release/migrations/20261027235409_esim_event_inbox_reconciliation.sql
+?? docs/reviews/esimaccess-profiles-events-20261028/runtime-evidence.json
+?? docs/reviews/esimaccess-profiles-events-20261028/workspace-before.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028.md
+?? docs/reviews/esimaccess-recharge-discovery-20261028/deployment.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/deployment.sha256
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/backend/esim_fulfillment_runtime.js
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/data/repositories/esim_go_repository_impl.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/domain/repositories/esim_repository.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/presentation/screens/esim_alert_target_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/presentation/screens/esim_delivery_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/presentation/screens/esim_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/before/lib/features/esim/presentation/widgets/esim_profile_card.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/edge-deployment.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/edge-source-verification.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/github-final-heads.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/live-denials.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/live-schema.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/migration-application.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/preflight.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/pricing-dependencies.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/runtime.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/security-before.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/security-comparison.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/vm-after.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/evidence/vm-before.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/backend/esim_fulfillment_runtime.js
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/backend/esim_recharge_discovery.js
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/domain/entities/esim_recharge.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/domain/repositories/esim_repository.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/controllers/esim_recharge_controller.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/screens/esim_alert_target_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/screens/esim_delivery_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/screens/esim_recharge_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/screens/esim_screen.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/customer/lib/features/esim/presentation/widgets/esim_profile_card.dart
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/edge/_shared/esim-recharge-discovery.js
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/edge/esim-recharge-discovery/deno.lock
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/edge/esim-recharge-discovery/index.ts
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/manifest.json
+?? docs/reviews/esimaccess-recharge-discovery-20261028/release/migrations/20261028070000_esim_recharge_discovery_quotes.sql
+?? docs/reviews/esimaccess-recharge-settlement-20261028.md
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/admin-analysis.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/admin-tests.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/advisor-delta.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/admin/lib/core/admin/admin_api.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/admin/lib/features/control/presentation/operations_screen.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/lib/features/esim/data/repositories/esim_go_repository_impl.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/lib/features/esim/domain/entities/esim_recharge.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/lib/features/esim/domain/repositories/esim_repository.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/lib/features/esim/presentation/controllers/esim_recharge_controller.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/lib/features/esim/presentation/screens/esim_recharge_screen.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/before/supabase/functions/_shared/esim-recharge-discovery.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/customer-analysis.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/customer-tests.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/deno-check.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/edge-receipt.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/edge-source-parity.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/edge-tests.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/extra.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/final-advisor-delta.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/final-live-verification.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/http-checks.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/live-verification.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/migration-receipt.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/operation.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/owner-read-check.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/patch.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/postgres-concurrency.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/preflight.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/request-purchase-before.sql
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/secret-scan.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/shapes.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/source-sync.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/sql-scenarios.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/view-boundary-receipt.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/view-boundary-verification.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/vm-deployment.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/wallet.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/worker-health.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/worker-log-tail.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/evidence/worker-tests.txt
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/admin/lib/core/admin/admin_api.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/admin/lib/features/control/presentation/operations_screen.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/admin/lib/features/control/presentation/widgets/esim_operation_inspector.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/admin/lib/features/control/providers/esim_operation_provider.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/backend/esim_fulfillment_runtime.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/backend/esim_receipt_journal.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/backend/esim_recharge_settlement.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/backend/providers/esimaccess_recharge.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/domain/entities/esim_recharge.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/domain/repositories/esim_repository.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/presentation/controllers/esim_recharge_controller.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/presentation/screens/esim_recharge_screen.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/customer/lib/features/esim/presentation/widgets/esim_checkout_sheet.dart
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/edge/_shared/esim-recharge-discovery.js
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/edge/esim-recharge-discovery/deno.lock
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/edge/esim-recharge-discovery/index.ts
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/manifest.json
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/migrations/20261028032323_esim_fixed_recharge_settlement.sql
+?? docs/reviews/esimaccess-recharge-settlement-20261028/release/migrations/20261028042528_esim_settlement_view_boundary.sql
+?? docs/reviews/handoff-esim-state-20261028.md
+?? docs/reviews/handoff-esim08-state-20261028.md
+?? docs/reviews/line-reminder-compatibility-20261020.md
+?? docs/reviews/line-reminder-compatibility-live-20261020.json
+?? docs/reviews/line-reminder-compatibility-results-20261020.json
+?? docs/reviews/notification-audit-20261019/README.md
+?? docs/reviews/notification-audit-20261019/edge-source-comparison.json
+?? docs/reviews/notification-audit-20261019/event-contract-inventory.json
+?? docs/reviews/notification-audit-20261019/live-contract-metadata.json
+?? docs/reviews/notification-audit-20261019/live-email-destination-excerpt.txt
+?? docs/reviews/notification-audit-20261019/worker-syntax.json
+?? docs/reviews/premium-setup-activation-20261023.md
+?? docs/reviews/premium-setup-activation-live-20261023.json
+?? docs/reviews/premium-setup-activation-preview-20261023.json
+?? docs/reviews/sim-line-partial-save-20261020.md
+?? docs/reviews/temporary-whatsapp-test-pass-20261023.md
+?? docs/reviews/temporary-whatsapp-test-pass-live-20261023.json
+?? docs/reviews/wallet-availability-20261023.md
+?? docs/reviews/wallet-availability-live-20261023.json
+?? docs/reviews/wallet-availability-repair-20261023.sql
+?? docs/reviews/wallet-availability-results-20261023.json
+?? docs/reviews/wallet-spending-display-20261023.md
+?? docs/reviews/wallet-spending-display-results-20261023.json
+?? docs/reviews/whatsapp-confirmation-receiver-fix-20261022.md
+?? docs/reviews/whatsapp-line-ownership-20261022.md
+?? docs/reviews/whatsapp-outbound-otp-20261026/after-test-invariants.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/database-release.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/edge-release.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/enabled.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/latest-verification-status.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/live-acceptance.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/live-preflight-20261026.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/live-queue-evidence.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/live-trigger-preflight-20261026.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/pre-release-invariants.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/runtime-before/durable_whatsapp_queue.js
+?? docs/reviews/whatsapp-outbound-otp-20261026/runtime-before/server_baileys.js
+?? docs/reviews/whatsapp-outbound-otp-20261026/runtime-before/whatsapp_inbound_commands.js
+?? docs/reviews/whatsapp-outbound-otp-20261026/runtime-before/whatsapp_message_receiver.js
+?? docs/reviews/whatsapp-outbound-otp-20261026/runtime-current/whatsapp_message_receiver.js
+?? docs/reviews/whatsapp-outbound-otp-20261026/verification.json
+?? docs/reviews/whatsapp-outbound-otp-20261026/worker-release.json
+?? docs/reviews/whatsapp-outbound-otp-verification-20261026.md
+?? docs/reviews/whatsapp-receiver-fix-20261022/server_baileys.patch
+?? docs/reviews/windows-admin-google-sign-in-20261019.md
+?? lib/features/esim/data/services/esim_installation_service.dart
+?? lib/features/esim/domain/entities/esim_activation_payload.dart
+?? lib/features/esim/domain/entities/esim_catalogue_details.dart
+?? lib/features/esim/domain/entities/esim_installation_policy.dart
+?? lib/features/esim/domain/entities/esim_recharge.dart
+?? lib/features/esim/presentation/controllers/esim_installation_controller.dart
+?? lib/features/esim/presentation/controllers/esim_recharge_controller.dart
+?? lib/features/esim/presentation/screens/esim_alert_target_screen.dart
+?? lib/features/esim/presentation/screens/esim_recharge_screen.dart
+?? lib/features/esim/presentation/widgets/esim_plan_facts.dart
+?? lib/features/esim/presentation/widgets/esim_profile_card.dart
+?? lib/features/scheduled_topups/repository/reminder_schedule_rpc.dart
+?? lib/features/sim_lines/data/models/carrier_detection_entry.dart
+?? lib/features/sim_lines/data/models/carrier_offer_availability.dart
+?? lib/features/sim_lines/data/repositories/whatsapp_ownership_repository.dart
+?? lib/features/sim_lines/domain/refill_service_unavailable_exception.dart
+?? lib/features/sim_lines/domain/whatsapp_verification.dart
+?? lib/features/sim_lines/presentation/controllers/whatsapp_verification_controller.dart
+?? lib/features/sim_lines/presentation/providers/carrier_offer_availability_provider.dart
+?? lib/features/sim_lines/presentation/widgets/carrier_offer_status.dart
+?? lib/features/sim_lines/presentation/widgets/whatsapp_ownership_section.dart
+?? macos/Podfile.lock
+?? macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? macos/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved
+?? output/admin-ui-overflow/README.md
+?? output/admin-ui-overflow/admin-ui-overflow.patch
+?? output/carrier-catalogue-counts/acceptance-preview.json
+?? output/carrier-catalogue-counts/acceptance-preview.sql
+?? output/carrier-catalogue-counts/advisors-after.json
+?? output/carrier-catalogue-counts/after.json
+?? output/carrier-catalogue-counts/apply-scoped.sql
+?? output/carrier-catalogue-counts/baseline.json
+?? output/carrier-catalogue-counts/capture.sql
+?? output/carrier-catalogue-counts/deployed-sql-tests.json
+?? output/carrier-catalogue-counts/deployment.json
+?? output/carrier-catalogue-counts/http-verification.json
+?? output/carrier-catalogue-counts/preview.json
+?? output/carrier-catalogue-counts/preview.sql
+?? output/carrier-catalogue-counts/release-receipt.json
+?? output/carrier-offer-availability/advisors-after.json
+?? output/carrier-offer-availability/advisors-before.json
+?? output/carrier-offer-availability/apply-scoped.sql
+?? output/carrier-offer-availability/baseline.json
+?? output/carrier-offer-availability/call-graph.json
+?? output/carrier-offer-availability/capture.sql
+?? output/carrier-offer-availability/carrier_qualifying_topup_amount.sql
+?? output/carrier-offer-availability/carrier_refill_offer.sql
+?? output/carrier-offer-availability/catalog_guard.sql
+?? output/carrier-offer-availability/create_sim_setup_order.sql
+?? output/carrier-offer-availability/deployed-sql-tests.json
+?? output/carrier-offer-availability/deployment.json
+?? output/carrier-offer-availability/dispatch_sim_setup_verification.sql
+?? output/carrier-offer-availability/fallback_sim_setup_to_reminders.sql
+?? output/carrier-offer-availability/final-preview-direct.json
+?? output/carrier-offer-availability/final-preview.json
+?? output/carrier-offer-availability/final-preview.sql
+?? output/carrier-offer-availability/finalize_sim_setup_order.sql
+?? output/carrier-offer-availability/format_sim_line_tier_defaults.sql
+?? output/carrier-offer-availability/http-verification.json
+?? output/carrier-offer-availability/list_refill_offers.sql
+?? output/carrier-offer-availability/pay_plan_fee_from_wallet.sql
+?? output/carrier-offer-availability/performance-preview.json
+?? output/carrier-offer-availability/performance-preview.sql
+?? output/carrier-offer-availability/plan_price_net.sql
+?? output/carrier-offer-availability/predeploy-baseline.json
+?? output/carrier-offer-availability/preview.json
+?? output/carrier-offer-availability/preview.sql
+?? output/carrier-offer-availability/published_offer_guard.sql
+?? output/carrier-offer-availability/queue_premium_refill_executions.sql
+?? output/carrier-offer-availability/quote_plan_price.sql
+?? output/carrier-offer-availability/quote_premium_breakdown.sql
+?? output/carrier-offer-availability/quote_sim_setup.sql
+?? output/carrier-offer-availability/refresh_provider_offers.sql
+?? output/carrier-offer-availability/release-receipt.json
+?? output/carrier-offer-availability/request_instant_refill.sql
+?? output/carrier-offer-availability/reserve_sim_setup_holds.sql
+?? output/carrier-offer-availability/service_activate_reloadly_environment.sql
+?? output/carrier-offer-availability/service_sync_reloadly_catalog.sql
+?? output/carrier-offer-availability/supplier_candidates.sql
+?? output/carrier-offer-availability/trg_fn_prevent_sim_line_plan_tampering.sql
+?? output/carrier-offer-availability/validation.json
+?? output/dtone-catalogue-repair/admin-current-workspace.patch
+?? output/dtone-catalogue-repair/admin-expected-before.json
+?? output/dtone-catalogue-repair/admin/lib/core/admin/admin_api.dart
+?? output/dtone-catalogue-repair/admin/lib/features/control/presentation/carriers_screen.dart
+?? output/dtone-catalogue-repair/admin/test/core/admin/admin_catalogue_read_test.dart
+?? output/dtone-catalogue-repair/admin/test/core/admin/provider_offer_country_scope_test.dart
+?? output/dtone-catalogue-repair/admin/test/features/control/carriers_layout_test.dart
+?? output/dtone-catalogue-repair/admin/test/features/control/dtone_catalogue_layout_test.dart
+?? output/dtone-catalogue-repair/apply-and-deploy.py
+?? output/dtone-catalogue-repair/backend-current-workspace.patch
+?? output/dtone-catalogue-repair/backend-expected-before.json
+?? output/dtone-catalogue-repair/backend/dtone_catalogue_preview.test.js
+?? output/dtone-catalogue-repair/backend/offer_validation.js
+?? output/dtone-catalogue-repair/backend/providers/dtone.js
+?? output/dtone-catalogue-repair/backend/providers/dtone_credentials.js
+?? output/dtone-catalogue-repair/backend/worker_offers_cache.js
+?? output/dtone-catalogue-repair/catalogue-preview.sql
+?? output/dtone-catalogue-repair/completion/admin-initial-status.bin
+?? output/dtone-catalogue-repair/completion/admin-live-http.json
+?? output/dtone-catalogue-repair/completion/backend-initial-status.bin
+?? output/dtone-catalogue-repair/completion/backend-sync-wt-pre-reconcile.patch
+?? output/dtone-catalogue-repair/completion/backend-sync-wt-untracked-before.bin
+?? output/dtone-catalogue-repair/completion/completion.json
+?? output/dtone-catalogue-repair/completion/database-regression.json
+?? output/dtone-catalogue-repair/completion/db-after-deploy.json
+?? output/dtone-catalogue-repair/completion/db-before.json
+?? output/dtone-catalogue-repair/completion/db-final.json
+?? output/dtone-catalogue-repair/completion/final-isolation-check.json
+?? output/dtone-catalogue-repair/completion/github-final-heads.json
+?? output/dtone-catalogue-repair/completion/github-initial.json
+?? output/dtone-catalogue-repair/completion/keep_sims-pre-reconcile.patch
+?? output/dtone-catalogue-repair/completion/keep_sims-untracked-before.bin
+?? output/dtone-catalogue-repair/completion/keep_sims_admin-pre-reconcile.patch
+?? output/dtone-catalogue-repair/completion/keep_sims_admin-untracked-before.bin
+?? output/dtone-catalogue-repair/completion/local-reconciliation.json
+?? output/dtone-catalogue-repair/completion/prior-session-verification.json
+?? output/dtone-catalogue-repair/completion/vm-installed-checksums.json
+?? output/dtone-catalogue-repair/completion/vm-pm2-after.json
+?? output/dtone-catalogue-repair/completion/vm-pm2-final.json
+?? output/dtone-catalogue-repair/completion/vodafone-vm-probe.js
+?? output/dtone-catalogue-repair/github-backend/dtone_catalogue_preview.test.js
+?? output/dtone-catalogue-repair/github-backend/dtone_runtime.test.js
+?? output/dtone-catalogue-repair/github-backend/offer_validation.js
+?? output/dtone-catalogue-repair/github-backend/offer_validation.test.js
+?? output/dtone-catalogue-repair/github-backend/providers/ding.js
+?? output/dtone-catalogue-repair/github-backend/providers/dtone.js
+?? output/dtone-catalogue-repair/github-backend/providers/dtone_control.js
+?? output/dtone-catalogue-repair/github-backend/providers/dtone_credentials.js
+?? output/dtone-catalogue-repair/github-backend/providers/reloadly.js
+?? output/dtone-catalogue-repair/github-backend/providers/reloadly_credentials.js
+?? output/dtone-catalogue-repair/github-backend/providers/zendit.js
+?? output/dtone-catalogue-repair/github-backend/sim_liveness_service.js
+?? output/dtone-catalogue-repair/github-backend/worker_auto_custom_refill.js
+?? output/dtone-catalogue-repair/github-backend/worker_auto_mini_refill.js
+?? output/dtone-catalogue-repair/github-backend/worker_dtone_control.js
+?? output/dtone-catalogue-repair/github-backend/worker_instant_refill.js
+?? output/dtone-catalogue-repair/github-backend/worker_offers_cache.js
+?? output/dtone-catalogue-repair/preview-refresh-status.sql
+?? output/dtone-catalogue-repair/verification.json
+?? output/dtone-catalogue-repair/vm-checksums.json
+?? output/premium-test-eligibility/apply.sql
+?? output/premium-test-eligibility/baseline.json
+?? output/premium-test-eligibility/capture.sql
+?? output/premium-test-eligibility/carrier_availability_private_assert_premium.sql
+?? output/premium-test-eligibility/carrier_availability_private_premium_reason.sql
+?? output/premium-test-eligibility/dtone_private_execution_guard.sql
+?? output/premium-test-eligibility/dtone_private_funding_bound.sql
+?? output/premium-test-eligibility/dtone_private_setup_guard.sql
+?? output/premium-test-eligibility/install_workers.py
+?? output/premium-test-eligibility/installed/offer_validation.js
+?? output/premium-test-eligibility/installed/providers/dtone.js
+?? output/premium-test-eligibility/installed/providers/dtone_control.js
+?? output/premium-test-eligibility/installed/providers/dtone_credentials.js
+?? output/premium-test-eligibility/installed/worker_auto_custom_refill.js
+?? output/premium-test-eligibility/installed/worker_auto_mini_refill.js
+?? output/premium-test-eligibility/installed/worker_instant_refill.js
+?? output/premium-test-eligibility/preview.json
+?? output/premium-test-eligibility/preview.sql
+?? output/premium-test-eligibility/public_capture_sim_setup_holds.sql
+?? output/premium-test-eligibility/public_carrier_refill_offer.sql
+?? output/premium-test-eligibility/public_create_sim_setup_order.sql
+?? output/premium-test-eligibility/public_dispatch_sim_setup_verification.sql
+?? output/premium-test-eligibility/public_finalize_sim_setup_order.sql
+?? output/premium-test-eligibility/public_get_dtone_runtime_credentials.sql
+?? output/premium-test-eligibility/public_has_paid_premium_entitlement.sql
+?? output/premium-test-eligibility/public_plan_price_net.sql
+?? output/premium-test-eligibility/public_queue_premium_refill_executions.sql
+?? output/premium-test-eligibility/public_quote_premium_breakdown.sql
+?? output/premium-test-eligibility/public_quote_sim_setup.sql
+?? output/premium-test-eligibility/public_reserve_sim_setup_holds.sql
+?? output/premium-test-eligibility/public_route_topup_execution.sql
+?? output/premium-test-eligibility/public_service_begin_dtone_submission.sql
+?? output/premium-test-eligibility/public_service_claim_dtone_reconciliation.sql
+?? output/premium-test-eligibility/public_service_pin_dtone_operation.sql
+?? output/premium-test-eligibility/public_service_resolve_dtone_operation.sql
+?? output/premium-test-eligibility/public_settle_successful_execution.sql
+?? output/premium-test-eligibility/public_trg_fn_log_topup_activity.sql
+?? output/premium-test-eligibility/public_trg_fn_notify_topup_result.sql
+?? output/premium-test-eligibility/public_update_line_health.sql
+?? output/premium-test-eligibility/public_update_sim_line_last_topup_at.sql
+?? output/premium-test-eligibility/release-receipt.json
+?? output/premium-test-eligibility/release/dtone_catalogue_preview.test.js
+?? output/premium-test-eligibility/release/dtone_runtime.test.js
+?? output/premium-test-eligibility/release/node_modules
+?? output/premium-test-eligibility/release/offer_validation.js
+?? output/premium-test-eligibility/release/offer_validation.test.js
+?? output/premium-test-eligibility/release/providers/ding.js
+?? output/premium-test-eligibility/release/providers/dtone.js
+?? output/premium-test-eligibility/release/providers/dtone_control.js
+?? output/premium-test-eligibility/release/providers/dtone_credentials.js
+?? output/premium-test-eligibility/release/providers/reloadly.js
+?? output/premium-test-eligibility/release/providers/reloadly_credentials.js
+?? output/premium-test-eligibility/release/providers/zendit.js
+?? output/premium-test-eligibility/release/worker_auto_custom_refill.js
+?? output/premium-test-eligibility/release/worker_auto_mini_refill.js
+?? output/premium-test-eligibility/release/worker_instant_refill.js
+?? output/premium-test-eligibility/release/worker_offers_cache.js
+?? output/premium-test-eligibility/runtime-read.json
+?? output/premium-test-eligibility/runtime-read.sql
+?? output/premium-test-eligibility/worker-deployment.json
+?? output/premium-test-eligibility/worker-manifest.json
+?? output/premium-test-eligibility/worker-release.diff
+?? output/premium-test-eligibility/worker-release.tar.gz
+?? output/whatsapp-outbound-otp-20261026/APPROVED
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/notifications/data/repositories/notifications_repository_impl.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/notifications/presentation/screens/notification_settings_screen.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/notifications/presentation/widgets/alert_preferences_dashboard.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/profile/presentation/ui/onboarding_screen.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/sim_lines/data/repositories/whatsapp_ownership_repository.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/sim_lines/domain/whatsapp_verification.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/sim_lines/presentation/controllers/whatsapp_verification_controller.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+?? output/whatsapp-outbound-otp-20261026/customer/lib/features/sim_lines/presentation/widgets/whatsapp_ownership_section.dart
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/config.toml
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_otp_crypto.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_profile.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_route.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_router.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_verification_handler.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/_shared/whatsapp_verification_runtime.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/request-whatsapp-verification/index.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/functions/verify-whatsapp-verification/index.ts
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/migrations/20261026040000_whatsapp_outbound_verification.sql
+?? output/whatsapp-outbound-otp-20261026/customer/supabase/tests/whatsapp_outbound_verification_tests.sql
+?? output/whatsapp-outbound-otp-20261026/manifest.json
+?? output/whatsapp-outbound-otp-20261026/worker/durable_whatsapp_queue.js
+?? output/whatsapp-outbound-otp-20261026/worker/server_baileys.js
+?? output/whatsapp-outbound-otp-20261026/worker/whatsapp_inbound_commands.js
+?? output/whatsapp-outbound-otp-20261026/worker/whatsapp_message_receiver.js
+?? output/whatsapp-outbound-otp-20261026/worker/whatsapp_verification.js
+?? supabase/baselines/development-20261019/README.md
+?? supabase/baselines/development-20261019/application_auth_trigger.sql
+?? supabase/baselines/development-20261019/default_privileges.sql
+?? supabase/baselines/development-20261019/manifest.json
+?? supabase/baselines/development-20261019/object_privileges.sql
+?? supabase/baselines/development-20261019/public.sql
+?? supabase/baselines/development-20261019/restore_default_privileges.sql
+?? supabase/functions/_shared/carrier-identity.ts
+?? supabase/functions/_shared/esim-recharge-discovery.js
+?? supabase/functions/_shared/esimaccess-catalog.js
+?? supabase/functions/_shared/esimaccess-events.js
+?? supabase/functions/_shared/esimaccess-limiter.js
+?? supabase/functions/_shared/whatsapp_otp_crypto.ts
+?? supabase/functions/_shared/whatsapp_verification_handler.ts
+?? supabase/functions/_shared/whatsapp_verification_runtime.ts
+?? supabase/functions/admin-reloadly-credentials/handler.ts
+?? supabase/functions/admin-reloadly-credentials/index.ts
+?? supabase/functions/dtone-callback/handler.ts
+?? supabase/functions/dtone-callback/index.ts
+?? supabase/functions/esim-recharge-discovery/deno.lock
+?? supabase/functions/esim-recharge-discovery/index.ts
+?? supabase/functions/esimaccess-events/deno.lock
+?? supabase/functions/esimaccess-events/index.ts
+?? supabase/functions/health/deno.lock
+?? supabase/functions/request-whatsapp-verification/index.ts
+?? supabase/functions/sync-esim-catalogue/deno.lock
+?? supabase/functions/verify-whatsapp-verification/index.ts
+?? supabase/migrations/20261018222658_customer_retail_read_views_compatibility.sql
+?? supabase/migrations/20261019230943_customer_refill_rpc_compatibility.sql
+?? supabase/migrations/20261019233420_line_reminder_compatibility.sql
+?? supabase/migrations/20261020133325_canonical_carrier_detection.sql
+?? supabase/migrations/20261022105736_whatsapp_line_ownership.sql
+?? supabase/migrations/20261023020813_temporary_whatsapp_test_pass.sql
+?? supabase/migrations/20261023040000_sim_setup_reservation_retries.sql
+?? supabase/migrations/20261026040000_whatsapp_outbound_verification.sql
+?? supabase/migrations/20261026231921_any_number_enrollment_test_pass.sql
+?? supabase/migrations/20261027190854_provider_refill_routing_visibility.sql
+?? supabase/migrations/20261027195410_carrier_offer_availability_premium_eligibility.sql
+?? supabase/migrations/20261027203028_esim_supplier_visibility.sql
+?? supabase/migrations/20261027204143_carrier_catalogue_counts_include_test_environments.sql
+?? supabase/migrations/20261027211206_premium_eligibility_includes_test_offers.sql
+?? supabase/migrations/20261027231052_esim_catalogue_details.sql
+?? supabase/migrations/20261027233253_esim_catalogue_runtime_compatibility.sql
+?? supabase/migrations/20261027235408_esim_profile_identity_lifecycle.sql
+?? supabase/migrations/20261027235409_esim_event_inbox_reconciliation.sql
+?? supabase/migrations/20261028013756_esim_actionable_alerts.sql
+?? supabase/migrations/20261028032323_esim_fixed_recharge_settlement.sql
+?? supabase/migrations/20261028042528_esim_settlement_view_boundary.sql
+?? supabase/migrations/20261028070000_esim_recharge_discovery_quotes.sql
+?? supabase/tests/canonical_carrier_detection_tests.sql
+?? supabase/tests/carrier_catalogue_counts_tests.sql
+?? supabase/tests/carrier_offer_availability_tests.sql
+?? supabase/tests/customer_refill_rpc_compatibility_tests.sql
+?? supabase/tests/customer_retail_read_views_compatibility_tests.sql
+?? supabase/tests/enrollment_test_pass_tests.sql
+?? supabase/tests/esim_catalogue_details_tests.sql
+?? supabase/tests/esim_installation_access_readonly_tests.sql
+?? supabase/tests/esim_profiles_events_readonly_tests.sql
+?? supabase/tests/esim_recharge_discovery_readonly_tests.sql
+?? supabase/tests/esim_supplier_visibility_tests.sql
+?? supabase/tests/fixtures/carrier_availability_contract.sql
+?? supabase/tests/fixtures/carrier_availability_deployed.json
+?? supabase/tests/fixtures/carrier_availability_guards.sql
+?? supabase/tests/fixtures/esim_recharge_tables.sql
+?? supabase/tests/fixtures/esim_settlement_support.sql
+?? supabase/tests/fixtures/esim_settlement_wallet.sql
+?? supabase/tests/fixtures/esim_supplier_visibility_deployed.json
+?? supabase/tests/fixtures/premium_test_deployed.json
+?? supabase/tests/fixtures/premium_test_offer_contract.sql
+?? supabase/tests/fixtures/setup_reservation_legacy.json
+?? supabase/tests/fixtures/setup_reservation_legacy.sql
+?? supabase/tests/line_reminder_compatibility_tests.sql
+?? supabase/tests/platform/auth_claims.sql
+?? supabase/tests/platform/combined_catalog.sql
+?? supabase/tests/platform/current_public_schema.sql
+?? supabase/tests/provider_refill_routing_visibility_tests.sql
+?? supabase/tests/reloadly_activation_runtime_predicate_tests.sql
+?? supabase/tests/sim_setup_reservation_retries_tests.sql
+?? supabase/tests/whatsapp_line_ownership_tests.sql
+?? supabase/tests/whatsapp_outbound_verification_tests.sql
+?? test/carrier_identity.test.cjs
+?? test/esim_alert_outbox.test.cjs
+?? test/esim_recharge_discovery.test.cjs
+?? test/esim_settlement_edge.test.cjs
+?? test/esimaccess_events.test.cjs
+?? test/features/esim/esim_alerts_test.dart
+?? test/features/esim/esim_catalogue_details_test.dart
+?? test/features/esim/esim_catalogue_repository_test.dart
+?? test/features/esim/esim_checkout_prerequisite_test.dart
+?? test/features/esim/esim_installation_fixtures.dart
+?? test/features/esim/esim_installation_policy_test.dart
+?? test/features/esim/esim_installation_screen_test.dart
+?? test/features/esim/esim_installation_service_test.dart
+?? test/features/esim/esim_installation_session_test.dart
+?? test/features/esim/esim_profiles_test.dart
+?? test/features/esim/esim_recharge_test.dart
+?? test/features/esim/esim_settlement_test.dart
+?? test/features/notifications/device_alarm_repository_test.dart
+?? test/features/scheduled_topups/notify_carrier_interval_test.dart
+?? test/features/scheduled_topups/reminder_schedule_rpc_test.dart
+?? test/features/sim_lines/alert_clock_refresh_test.dart
+?? test/features/sim_lines/carrier_detection_entry_test.dart
+?? test/features/sim_lines/carrier_detection_form_test.dart
+?? test/features/sim_lines/carrier_detection_repository_test.dart
+?? test/features/sim_lines/carrier_offer_availability_test.dart
+?? test/features/sim_lines/premium_upgrade_availability_test.dart
+?? test/features/sim_lines/refill_rpc_compatibility_test.dart
+?? test/features/sim_lines/sim_line_form_save_test.dart
+?? test/features/sim_lines/sim_otp_repository_test.dart
+?? test/features/sim_lines/sim_setup_finalization_test.dart
+?? test/features/sim_lines/whatsapp_ownership_test.dart
+?? test/features/wallet/spending_balance_consistency_test.dart
+?? test/features/wallet/wallet_balance_consistency_test.dart
+?? test/notification_dispatch_audit.test.cjs
+?? test/reloadly_credentials_backend.test.cjs
+?? test/sim_otp_provider.test.cjs
+?? test/telegram_bot_audit.test.cjs
+?? test/whatsapp_message_receiver.test.cjs
+?? test/whatsapp_outbound_otp.test.cjs
+?? test/whatsapp_ownership_backend.test.cjs
+?? tools/build_carrier_availability_migration.py
+?? tools/build_esim_catalogue_migration.py
+?? tools/build_esim_catalogue_runtime_fix.py
+?? tools/build_esim_settlement_migration.py
+?? tools/build_premium_test_migration.py
+?? tools/combined_database_checks.py
+?? tools/esim08-core.sql
+?? tools/esimaccess-baseline/fixtures.json
+?? tools/esimaccess-baseline/inspect.sql
+?? tools/esimaccess-baseline/verify.mjs
+?? tools/esimaccess-baseline/verify.test.mjs
+?? tools/esimaccess-catalogue-schema.sql
+?? tools/financial-tests/admin-catalogue-read.mjs
+?? tools/financial-tests/carrier-availability.mjs
+?? tools/financial-tests/carrier-catalogue-counts.mjs
+?? tools/financial-tests/carrier-detection.mjs
+?? tools/financial-tests/dtone-callback.mjs
+?? tools/financial-tests/dtone-credentials.mjs
+?? tools/financial-tests/dtone-http.mjs
+?? tools/financial-tests/dtone-liveness.mjs
+?? tools/financial-tests/enrollment-test-pass.mjs
+?? tools/financial-tests/esim-alerts.mjs
+?? tools/financial-tests/esim-catalogue-details.mjs
+?? tools/financial-tests/esim-profiles-events.mjs
+?? tools/financial-tests/esim-recharge-discovery.mjs
+?? tools/financial-tests/esim-settlement-concurrency.mjs
+?? tools/financial-tests/esim-settlement-fixture.mjs
+?? tools/financial-tests/esim-settlement.mjs
+?? tools/financial-tests/esim-supplier-visibility.mjs
+?? tools/financial-tests/premium-test-eligibility.mjs
+?? tools/financial-tests/refill-compatibility.mjs
+?? tools/financial-tests/reloadly-credentials.mjs
+?? tools/financial-tests/reminder-compatibility.mjs
+?? tools/financial-tests/setup-reservations.mjs
+?? tools/financial-tests/whatsapp-outbound-otp.mjs
+?? tools/financial-tests/whatsapp-ownership.mjs
+?? tools/notification_alarm_jvm_checks.py
+?? tools/prepare_esim_alerts_release.py
+?? tools/prepare_esim_catalogue_release.py
+?? tools/prepare_esim_installation_release.py
+?? tools/prepare_esim_profiles_events_release.py
+?? tools/prepare_esim_recharge_release.py
+?? tools/prepare_esim_settlement_release.py
+?? tools/prepare_whatsapp_otp_release.py
+?? tools/test_combined_database_checks.py

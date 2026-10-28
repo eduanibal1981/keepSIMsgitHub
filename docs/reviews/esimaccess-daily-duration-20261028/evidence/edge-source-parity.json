@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "verify_jwt": true,
+  "files": [
+    {
+      "file": "_shared/esim-recharge-discovery.js",
+      "matches": true
+    },
+    {
+      "file": "esim-recharge-discovery/index.ts",
+      "matches": true
+    }
+  ]
+}

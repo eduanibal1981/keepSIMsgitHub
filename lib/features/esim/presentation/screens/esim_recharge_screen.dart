@@ -1,3 +1,4 @@
+import 'package:keep_sims/features/esim/presentation/widgets/esim_daily_quote_panel.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -188,7 +189,9 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
                             Text(offer.effectLabel),
                             Text(offer.behaviorLabel),
                             Text(
-                              'USD ${offer.total.toStringAsFixed(2)} • wallet-funded total',
+                              offer.dataType == 1
+                                  ? 'USD ${offer.total.toStringAsFixed(2)} • wallet-funded total'
+                                  : 'Choose days for a verified full total',
                             ),
                             const Text(
                               'Final allowance and expiry remain provisional until supplier confirmation.',
@@ -205,9 +208,13 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
                                 ),
                                 child: const Text('Preview quote'),
                               )
-                            else
-                              const Text(
-                                'Daily-extension quotes will be available later.',
+                            else if (offer.dataType >= 2 &&
+                                data.version != null)
+                              EsimDailyQuotePanel(
+                                key: ValueKey('daily-${offer.id}'),
+                                packageId: offer.id,
+                                profileId: widget.profileId,
+                                offerVersion: data.version,
                               ),
                           ],
                         ),
@@ -304,6 +311,8 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
                         children: [
                           Text('${row.label} • ${row.amountLabel}'),
                           Text(row.packageId),
+                          if (row.durationDays != null)
+                            Text('Selected duration: ${row.durationDays} days'),
                           SelectableText('Receipt ID: ${row.id}'),
                           Text(row.statusLabel),
                           Text(row.financialLabel),

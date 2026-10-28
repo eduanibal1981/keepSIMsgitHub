@@ -18,7 +18,18 @@ export function createRechargeHandler({authenticate,call}) {
       let b;try{b=JSON.parse(body);}catch(_){return reply(400,{status:'INVALID_REQUEST'});}
       if(!b||Array.isArray(b)||typeof b!=='object')return reply(400,{status:'INVALID_REQUEST'});
       let name,params;
-      if(b.action==='discover'&&uuid(b.profile_id)&&Object.keys(b).every(k=>['action','profile_id'].includes(k))) {
+      if(b.action==='quote_daily_purchase'&&typeof b.package_id==='string'&&b.package_id.length>0&&b.package_id.length<=100&&
+        Number.isInteger(b.period_count)&&b.period_count>=1&&b.period_count<=365&&Number.isInteger(b.quantity)&&b.quantity>=1&&b.quantity<=3&&
+        Object.keys(b).every(k=>['action','package_id','period_count','quantity'].includes(k))) {
+        name='quote_esim_daily_purchase';params={p_offer_id:b.package_id,p_period_count:b.period_count,p_quantity:b.quantity};
+      }else if(b.action==='quote_daily_extension'&&uuid(b.profile_id)&&uuid(b.offer_version)&&typeof b.package_id==='string'&&b.package_id.length>0&&b.package_id.length<=100&&
+        Number.isInteger(b.period_count)&&b.period_count>=1&&b.period_count<=365&&
+        Object.keys(b).every(k=>['action','profile_id','offer_version','package_id','period_count'].includes(k))) {
+        name='quote_esim_daily_extension';params={p_profile_id:b.profile_id,p_package_id:b.package_id,p_offer_version:b.offer_version,p_period_count:b.period_count};
+      }else if(b.action==='accept_daily_purchase'&&uuid(b.quote_id)&&uuid(b.acceptance_key)&&uuid(b.request_key)&&(b.device_id==null||uuid(b.device_id))&&
+        Object.keys(b).every(k=>['action','quote_id','acceptance_key','request_key','device_id'].includes(k))) {
+        name='accept_esim_daily_purchase';params={p_quote_id:b.quote_id,p_acceptance_key:b.acceptance_key,p_request_key:b.request_key,p_device_id:b.device_id??null};
+      }else if(b.action==='discover'&&uuid(b.profile_id)&&Object.keys(b).every(k=>['action','profile_id'].includes(k))) {
         name='request_esim_topups';params={p_profile_id:b.profile_id};
       }else if(b.action==='quote'&&uuid(b.profile_id)&&uuid(b.offer_version)&&typeof b.package_id==='string'&&b.package_id.length>0&&b.package_id.length<=100&&
         typeof b.expected_total==='number'&&Number.isFinite(b.expected_total)&&b.expected_total>0&&

@@ -1,0 +1,14 @@
+[
+  {
+    "result": {
+      "daily_price_rows": 0,
+      "daily_quote_rows": 0,
+      "client_import_denied": true,
+      "anonymous_quote_denied": true,
+      "missing_profile_refused": true,
+      "invalid_duration_refused": true,
+      "owner_quote_missing_price_refused": true,
+      "private_price_and_quote_reads_denied": true
+    }
+  }
+]

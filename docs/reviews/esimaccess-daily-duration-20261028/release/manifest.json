@@ -1,0 +1,68 @@
+{
+  "step": "ESIM-09",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "source_bases": {
+    "customer": "fa4ca67582e71093c36a46275f2d7fa6ec370e0e",
+    "backend": "3c3961d18cd428817efe1abc18dfbaefa9e27766"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_fulfillment_runtime.js",
+      "esim_recharge_discovery.js",
+      "esim_recharge_settlement.js",
+      "providers/esimaccess.js",
+      "providers/esimaccess_recharge.js",
+      "providers/esimaccess_daily.js"
+    ],
+    "previous_sha256": {
+      "esim_fulfillment_runtime.js": "24eaed199daa7f3a0430c853b97c900640eeeb0ba51f4556d04ed81c31374db1",
+      "esim_recharge_discovery.js": "dd908073378b98c949bf8fe3cc95bf3841ae42f3bb56b0ac41831c619d761475",
+      "esim_recharge_settlement.js": "e90ec341a49f358a8532a2203478206ed58547a031f0a50973fd313d134be654",
+      "providers/esimaccess.js": "58dc856e8eb948917a4cb7291dcd53fef08c0b87351bd8d5e78d07a0a46277b2",
+      "providers/esimaccess_recharge.js": "b8ce40cba7ed1b072bd762aa6287ce2a8240be3655edd07c3f883c7b827b87a4"
+    }
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "verify_jwt": true
+  },
+  "flags": {
+    "new_sales_enabled": false,
+    "recharge_enabled": false,
+    "recharge_contract_verified": false,
+    "wallet_boundary_verified": false,
+    "daily_duration_enabled": false,
+    "daily_contract_verified": false
+  },
+  "pricing": "No live schedule seeded. Exact account/variant/duration supplier totals and observed recharge limits must be independently verified and imported through service-only RPC.",
+  "limits": "1\u2013365 whole days; 1\u20133 new profiles; account-specific extension count requires fresh verified evidence, never unlimited.",
+  "provider_acceptance": "UNVERIFIED; no owned Access profile, paid test or wallet mutation.",
+  "files": {
+    "customer/lib/features/esim/domain/entities/esim_daily_selection.dart": "70a389e6622e3cd997d5f77a023287e76d29963742fe8281c2d05b0622d34330",
+    "customer/lib/features/esim/domain/entities/esim_recharge.dart": "71a1952fd1ceddce86fe25f1b321e7c857d56568dca0200eecb4633444661485",
+    "customer/lib/features/esim/domain/entities/user_esim.dart": "d3f4a6de9ac0acf6d062c8a15c480d62125dd040701d7ead3d20efcc40bf0ef9",
+    "customer/lib/features/esim/domain/repositories/esim_repository.dart": "ac20fe12e3bd6378cb22c4f1a9c9dc0bbb9c31f51f8d63838dd1c5638fdbf6d0",
+    "customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart": "f305ef22785f026ef08c3584eb8e551db1d39360791930d7313b54f2b3cf76a7",
+    "customer/lib/features/esim/presentation/controllers/esim_daily_controller.dart": "effa0e2d6cc388832c54779fd780e737c1e0dd1069c4b1145b3328dd942281b9",
+    "customer/lib/features/esim/presentation/controllers/esim_recharge_controller.dart": "b1b38f8ca5e8c5d2c84b9de616c7d53c15586a822212a58f55d26417dc12bd20",
+    "customer/lib/features/esim/presentation/widgets/esim_daily_quote_panel.dart": "aa8240b4cd348f7d31a8950a09a9f628e1d2fcc4be7597556454e48eb657220e",
+    "customer/lib/features/esim/presentation/widgets/esim_checkout_sheet.dart": "4ec2ec32f124ccabfee97197cb6e571d960d736b68d83e678b31315d89f9daf4",
+    "customer/lib/features/esim/presentation/widgets/esim_profile_card.dart": "7001edde3b76914070e4154133308008b928b2033c74afb94ca6ec63585fd997",
+    "customer/lib/features/esim/presentation/widgets/compare_offer_card.dart": "7f0cc552d26fcede6683464670f0c1d62ed11ee9214b985d1b36c1114b2638ef",
+    "customer/lib/features/esim/presentation/widgets/compare_offer_details_sheet.dart": "1049a656086e38bbb78ec2e35caea4173e673923745fbf45dc4d1416a40a63d3",
+    "customer/lib/features/esim/presentation/screens/esim_plans_screen.dart": "fb12103e5ba5bf593d5009e556964c4538482061001db87d9dfe5bc16db7cfa4",
+    "customer/lib/features/esim/presentation/screens/esim_recharge_screen.dart": "fd564f77659a338831c25cd95cb4eece88d4b36ef893a3524472ef9b937ce90d",
+    "backend/esim_fulfillment_runtime.js": "8d789819a8ffb5563690a8754ad53a792aa72f9e10b09ffa61d8b7025ef398fc",
+    "backend/esim_recharge_discovery.js": "ff8789562cdb2dd3f5fc0f5d282f0800c133bf12b5eb6d7eba285d3c7ffd0175",
+    "backend/esim_recharge_settlement.js": "de105565fff1b1a0dc036ba45aad254667effb55fd6b06e561130fbde2f53edd",
+    "backend/providers/esimaccess.js": "d3ba64f7d30dac11ed3e819bc4a8830e3ce69974edaff8bd907cce75555a4c43",
+    "backend/providers/esimaccess_recharge.js": "2cab9a2d3ca3b376f6354c373749fb3ba8f2de63a4a00fe9ce0018e7e3eb5d87",
+    "backend/providers/esimaccess_daily.js": "9cb1430cc07bd1d6688b82007cd7df897dede360aa17d1f2aa4b58bdf89aabac",
+    "edge/esim-recharge-discovery/index.ts": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d",
+    "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/_shared/esim-recharge-discovery.js": "4e4f3a32293370aeaacacffe7ce23206f7ef9ddb38f0c871502f906eccd84b0d",
+    "migrations/20261028053402_esim_daily_duration.sql": "4b193b01a04d9624de13ae48eabe99f1ecfef7f895ca99dedb0823c56edeae7c",
+    "migrations/20261028060244_esim_daily_quote_indexes.sql": "d76fa1e0c53453ef847f2dbc1f7375bb986870869e357aade1ce7f934ccb3f6a"
+  }
+}

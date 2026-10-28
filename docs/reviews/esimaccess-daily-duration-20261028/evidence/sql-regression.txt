@@ -1,0 +1,24 @@
+PASS migration compiles against actual deployed wallet/pricing/ESIM contracts
+PASS default gates refuse acceptance before any hold or provider job
+PASS another user cannot accept or read operations, and clients cannot call service settlement
+PASS duplicate taps adopt one quote/order/hold and distinct sibling actions cannot reserve again
+PASS available funds exclude other holds and failed allocation atomically creates no order
+PASS no submission marker without current lease, stable profile, price and fresh quote
+PASS timeout stays reserved across restarts and attempts to expire/refund/replay are refused
+PASS confirmed service captures once and preserves profile identity and installation credentials
+PASS failure after supplier success rolls back capture/entitlement, then receipt replay settles once
+PASS missing/incorrect top-up receipt, mismatched identity and conflicting receipt never capture
+PASS definitive validation rejection releases once, while unknown errors cannot release
+PASS a documented pre-submission refusal spends nothing and releases once
+PASS disabling new actions allows confirmed receipt recovery and capture
+PASS legacy debit settlement never reserves or debits a second time and refunds bounded original payer once
+PASS legacy wallet writers cannot spend an active eSIM reservation
+PASS an ordinary hold can capture beside a fully reserved eSIM wallet without touching its funds
+PASS a revoked, expired or wrong-account session cannot authorize a new financial action
+PASS new-profile checkout nonce adopts one reservation and binds the reviewed amount and account
+PASS partial new-profile issuance retains its reservation, complete issuance captures once, retry adopts
+PASS expired accepted quotes retain historical evidence during retention pruning
+PASS a failed accepted quote is never reused as a new intent
+PASS support timeline enforces trusted app metadata and exposes no activation or wholesale data
+PASS customer purchase view preserves invoker RLS and narrow column access
+23 ESIM-08 SQL scenario groups passed

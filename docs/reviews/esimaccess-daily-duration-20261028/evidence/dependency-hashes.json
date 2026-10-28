@@ -1,0 +1,98 @@
+[
+  {
+    "schema": "public",
+    "proname": "accept_esim_topup",
+    "signature": "accept_esim_topup(uuid,uuid,text)",
+    "md5": "91b7d0841def3fe11c0376e9688f9de9"
+  },
+  {
+    "schema": "public",
+    "proname": "capture_wallet_hold",
+    "signature": "capture_wallet_hold(uuid,text,text,jsonb)",
+    "md5": "91f7f88c75b0f25d55bb7a3e792a5f72"
+  },
+  {
+    "schema": "public",
+    "proname": "check_esim_topup_quote",
+    "signature": "check_esim_topup_quote(uuid)",
+    "md5": "74a45aafea2880356a7559c43b8d9988"
+  },
+  {
+    "schema": "public",
+    "proname": "gate_esim_order_submission",
+    "signature": "gate_esim_order_submission()",
+    "md5": "6f7459434b5e62f854408f21261c47b4"
+  },
+  {
+    "schema": "public",
+    "proname": "prune_esim_topup_discovery",
+    "signature": "prune_esim_topup_discovery()",
+    "md5": "e15c9c2840c350884b3bcacefab3d12d"
+  },
+  {
+    "schema": "public",
+    "proname": "release_wallet_hold",
+    "signature": "release_wallet_hold(uuid,text)",
+    "md5": "ad1590773eff9de011eeb255efac6f30"
+  },
+  {
+    "schema": "public",
+    "proname": "request_esim_purchase_v2",
+    "signature": "request_esim_purchase_v2(text,integer,text,uuid,numeric,uuid)",
+    "md5": "db6948961242741acf2ea9303235d879"
+  },
+  {
+    "schema": "public",
+    "proname": "reserve_wallet_funds",
+    "signature": "reserve_wallet_funds(uuid,numeric,text,text,text,integer)",
+    "md5": "75aaad1ad02b099728c55fb55619819d"
+  },
+  {
+    "schema": "public",
+    "proname": "service_esim_mark_submitted",
+    "signature": "service_esim_mark_submitted(uuid,uuid)",
+    "md5": "fee23c5c863d46d033099099f6d6d9cb"
+  },
+  {
+    "schema": "public",
+    "proname": "service_esim_record_topup_receipt",
+    "signature": "service_esim_record_topup_receipt(uuid,text,jsonb)",
+    "md5": "52ef4e4df11e3f4b05eb3a94428a6a55"
+  },
+  {
+    "schema": "public",
+    "proname": "service_esim_settle_topup",
+    "signature": "service_esim_settle_topup(uuid)",
+    "md5": "af3b36b9c66cb75b5856eb25df6fa3e5"
+  },
+  {
+    "schema": "public",
+    "proname": "snapshot_esim_catalogue_order",
+    "signature": "snapshot_esim_catalogue_order()",
+    "md5": "534b2e81544d59d8292ca303cf31b288"
+  },
+  {
+    "schema": "esim_private",
+    "proname": "alert_is_relevant",
+    "signature": "esim_private.alert_is_relevant(uuid,text,integer)",
+    "md5": "ff9c7cc053fdc6d7a0dda9e677130f4f"
+  },
+  {
+    "schema": "esim_private",
+    "proname": "guard_operation_hold",
+    "signature": "esim_private.guard_operation_hold()",
+    "md5": "a0ae1543207bba8a7d02933454dfb561"
+  },
+  {
+    "schema": "esim_private",
+    "proname": "reserve_order",
+    "signature": "esim_private.reserve_order(uuid)",
+    "md5": "ff8c96f9b0729ed4415043074bd3b7fe"
+  },
+  {
+    "schema": "esim_private",
+    "proname": "settle_order",
+    "signature": "esim_private.settle_order(uuid,boolean)",
+    "md5": "b0cbc5f5406cfeb1f033e8836bebce96"
+  }
+]

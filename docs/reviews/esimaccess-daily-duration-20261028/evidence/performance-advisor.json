@@ -1,0 +1,4 @@
+{
+  "remaining_daily_foreign_key_findings": [],
+  "fix": "Three supporting foreign-key indexes applied in forward migration."
+}

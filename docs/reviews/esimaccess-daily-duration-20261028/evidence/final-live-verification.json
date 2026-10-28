@@ -1,0 +1,45 @@
+[
+  {
+    "verification": {
+      "gates": {
+        "last_cycle": {
+          "errors": 0,
+          "events": 0,
+          "orders": 0,
+          "profiles": 0
+        },
+        "recharge_enabled": false,
+        "new_sales_enabled": false,
+        "last_worker_seen_at": "2026-10-28T06:03:17.587605+00:00",
+        "daily_duration_enabled": false,
+        "daily_contract_verified": false,
+        "wallet_boundary_verified": false,
+        "recharge_contract_verified": false
+      },
+      "counts": {
+        "profiles": 0,
+        "order_runs": 0,
+        "daily_prices": 0,
+        "daily_quotes": 0
+      },
+      "migrations": [
+        {
+          "name": "esim_daily_duration",
+          "version": "20261028055806",
+          "sql_sha256": "4b193b01a04d9624de13ae48eabe99f1ecfef7f895ca99dedb0823c56edeae7c"
+        },
+        {
+          "name": "esim_daily_quote_indexes",
+          "version": "20261028060252",
+          "sql_sha256": "d76fa1e0c53453ef847f2dbc1f7375bb986870869e357aade1ce7f934ccb3f6a"
+        }
+      ],
+      "capture_md5": "91f7f88c75b0f25d55bb7a3e792a5f72",
+      "view_options": [
+        "security_invoker=true",
+        "security_barrier=true"
+      ],
+      "wholesale_granted": false
+    }
+  }
+]

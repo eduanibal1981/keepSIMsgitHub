@@ -554,3 +554,15 @@ wholesale values. Order view invoker/barrier options are explicitly restored in
 20261028042532 and tested under non-owner RLS. No new anonymous RPC execution.
 All financial enablement flags remain false pending provider/wallet acceptance.
 See the ESIM-08 review and final ACL/advisor evidence.
+
+
+### ESIM-09 daily duration boundary — 2026-10-28
+Exact duration totals are imported through a service-only verified-price RPC; no
+marketing discount schedule or client price authorizes spending. Private price/
+quote tables deny clients. Customer quotes bind account/owner/payer/profile, exact
+variant, days, quantity, price revision and expiry. Separate daily enablement and
+contract gates default false, alongside the existing disabled money gates.
+Daily extension shares the existing reservation/receipt authority and captures
+once; it cannot restore daily quota or installed credentials. Missing daily usage
+and reset timing stay unknown and cannot drive a low-data alert. See the ESIM-09
+review for migrations, deployed source hashes, permission and concurrency evidence.

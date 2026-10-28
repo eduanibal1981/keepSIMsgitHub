@@ -1,0 +1,76 @@
+{
+  "backup": "/home/abdal/keepsims_backend/backups/esim09-20261028",
+  "worker": {
+    "name": "worker-esim-fulfillment",
+    "pid": 1066763,
+    "status": "online",
+    "restarts": 23
+  },
+  "unrelated_processes_unchanged": true,
+  "source_hashes": {
+    "esim_fulfillment_runtime.js": "8d789819a8ffb5563690a8754ad53a792aa72f9e10b09ffa61d8b7025ef398fc",
+    "esim_recharge_settlement.js": "de105565fff1b1a0dc036ba45aad254667effb55fd6b06e561130fbde2f53edd",
+    "esim_recharge_discovery.js": "ff8789562cdb2dd3f5fc0f5d282f0800c133bf12b5eb6d7eba285d3c7ffd0175",
+    "providers/esimaccess.js": "d3ba64f7d30dac11ed3e819bc4a8830e3ce69974edaff8bd907cce75555a4c43",
+    "providers/esimaccess_recharge.js": "2cab9a2d3ca3b376f6354c373749fb3ba8f2de63a4a00fe9ce0018e7e3eb5d87",
+    "providers/esimaccess_daily.js": "9cb1430cc07bd1d6688b82007cd7df897dede360aa17d1f2aa4b58bdf89aabac"
+  },
+  "all_sources_match": true,
+  "syntax_checks_passed": true,
+  "processes_after": [
+    {
+      "name": "server_baileys",
+      "pid": 997204,
+      "status": "online",
+      "restarts": 11
+    },
+    {
+      "name": "worker_instant_refill",
+      "pid": 1053118,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "pid": 1053124,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "pid": 1053125,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker_offers_cache",
+      "pid": 1025793,
+      "status": "online",
+      "restarts": 3
+    },
+    {
+      "name": "worker-esim-catalog",
+      "pid": 1058079,
+      "status": "online",
+      "restarts": 2
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "pid": 1066763,
+      "status": "online",
+      "restarts": 23
+    },
+    {
+      "name": "server_tg",
+      "pid": 65425,
+      "status": "online",
+      "restarts": 1
+    },
+    {
+      "name": "worker_dtone_control",
+      "pid": 1053131,
+      "status": "online",
+      "restarts": 0
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08 fixed recharge/settlement is implemented and deployed with spending gates closed; ESIM-09–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08 fixed recharge/settlement is implemented and deployed with spending gates closed; ESIM-09 daily duration/extension runtime is deployed with spending gated and customer source tested; ESIM-10–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -28,7 +28,7 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-06 | Installation links, guides and recovery | 03 | App tested locally; native acceptance unverified |
 | ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Runtime deployed/verified; app tested locally |
 | ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Runtime deployed/verified with spending disabled; apps tested locally |
-| ESIM-09 | Selectable Day Pass duration and extensions | 08 | Planned |
+| ESIM-09 | Selectable Day Pass duration and extensions | 08 | Runtime deployed/verified; prices and spending gated; app tested |
 | ESIM-10 | Eligible unused-profile cancellation/refunds | 04, 08 | Planned |
 | ESIM-11 | Suspend/resume and admin support tools | 04, 06 | Planned |
 | ESIM-12 | Optional capped automatic recharge | 05, 08, 09, 11 | Planned |
@@ -521,3 +521,38 @@ Evidence: [ESIM-08 review](../reviews/esimaccess-recharge-settlement-20261028.md
 [release manifest](../reviews/esimaccess-recharge-settlement-20261028/release/manifest.json),
 [final live state](../reviews/esimaccess-recharge-settlement-20261028/evidence/final-live-verification.json).
 Next eligible implementation: ESIM-09 (daily plans and selectable duration).
+
+
+### ESIM-09 progress — 28 October 2026
+
+- **Database/Edge/scoped fulfillment deployed and verified; customer source tested,
+  binaries unpublished.** Supported Day Pass duration is 1–365 whole days. New
+  purchase and same-variant extension quotes bind exact duration and server totals
+  to owner/payer, profile/package, price evidence, quantity and expiry. Existing
+  order/run reservations, capture/release and durable receipt recovery are reused.
+- No daily retail multiplication or marketing discount table is used. A private
+  service-only import accepts independently verified whole-duration supplier totals
+  and account recharge-count evidence. **No account prices or count limit are
+  seeded**: missing evidence refuses quotes/payment. Dedicated daily enablement and
+  contract gates default false; all previous spending gates remain false.
+- Daily allowance/reset timing and package totals are distinct; reset/usage remains
+  unknown when not supplied. Daily price-per-total-GB comparisons are absent.
+  Extensions preserve installation identity, today's quota/depletion and slowing;
+  only confirmed validity changes. Selected duration appears in operation receipts.
+- Applied `20261028055806` plus supporting-index migration `20261028060252`; stored
+  SQL hashes match. Recharge Edge v3 retains JWT and source parity. Six VM files
+  match the release; only fulfillment restarted, PID `1066763`. Fresh cycles have
+  zero errors; unrelated workers are unchanged. Owner/anon/private-price boundaries
+  pass; advisors show no new errors and the three new FK index findings are fixed.
+- Validation: 123 isolated customer tests, 53 worker tests, 11 Edge tests, 15 daily
+  SQL groups, 23 fixed regressions under ESIM-09 and eight native concurrency/
+  boundary groups pass. Scoped Dart analysis, Node syntax and frozen Deno checks
+  pass. No paid provider action or live wallet mutation occurred. Zero Access
+  profiles exist; live daily-price/provider/installation acceptance is UNVERIFIED.
+- Sources: `codex/esim09-daily-duration-20261028` in customer/backend. Next planned
+  implementation is ESIM-10. Enabling spending requires verified account pricing/
+  limits and separately scoped paid/provider/wallet acceptance.
+
+Evidence: [ESIM-09 review](../reviews/esimaccess-daily-duration-20261028.md),
+[manifest](../reviews/esimaccess-daily-duration-20261028/release/manifest.json),
+[final live verification](../reviews/esimaccess-daily-duration-20261028/evidence/final-live-verification.json).

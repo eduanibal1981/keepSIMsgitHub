@@ -1,3 +1,4 @@
+import 'esim_daily_quote_panel.dart';
 import 'esim_plan_facts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -114,6 +115,27 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
   @override
   Widget build(BuildContext context) {
     ref.watch(esimMoneyActionsProvider);
+    if (widget.plan.facts.isDaily) {
+      return SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Material(
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: EsimDailyQuotePanel(
+                packageId: widget.plan.id,
+                onAccepted: (id) {
+                  Navigator.pop(context);
+                  EsimOrderStatusModal.show(context, id, widget.plan.name);
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     final theme = Theme.of(context);
     final double balanceAfter = _walletBalance - widget.plan.priceUsd;
     final bool hasSufficientBalance = _walletBalance >= widget.plan.priceUsd;

@@ -9,6 +9,8 @@ import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_recharge.dart';
 import 'package:keep_sims/features/esim/domain/repositories/esim_repository.dart';
 
+import 'package:keep_sims/features/esim/domain/entities/esim_daily_selection.dart';
+
 class EsimGoRepositoryImpl implements EsimRepository {
   final SupabaseClient _supabase;
 
@@ -29,6 +31,41 @@ class EsimGoRepositoryImpl implements EsimRepository {
       return {'status': 'TEMPORARILY_UNAVAILABLE'};
     }
   }
+
+  @override
+  Future<EsimRechargeQuote> quoteDaily(EsimDailySelection selection) async {
+    if (!selection.valid) {
+      return const EsimRechargeQuote(status: 'INVALID_DURATION');
+    }
+    return EsimRechargeQuote.fromJson(
+      await _recharge({
+        'action': selection.profileId == null
+            ? 'quote_daily_purchase'
+            : 'quote_daily_extension',
+        'package_id': selection.packageId,
+        'period_count': selection.days,
+        if (selection.profileId != null) 'profile_id': selection.profileId,
+        if (selection.profileId != null)
+          'offer_version': selection.offerVersion,
+        if (selection.profileId == null) 'quantity': selection.quantity,
+      }),
+    );
+  }
+
+  @override
+  Future<EsimOperationAcceptance> acceptDailyPurchase(
+    String quoteId,
+    String acceptanceKey,
+    String requestKey,
+  ) async => EsimOperationAcceptance.fromJson(
+    await _recharge({
+      'action': 'accept_daily_purchase',
+      'quote_id': quoteId,
+      'acceptance_key': acceptanceKey,
+      'request_key': requestKey,
+      'device_id': await DeviceIdentityService(supabase: _supabase).deviceId(),
+    }),
+  );
 
   @override
   Future<EsimRechargeDiscovery> discoverTopups(String profileId) async =>

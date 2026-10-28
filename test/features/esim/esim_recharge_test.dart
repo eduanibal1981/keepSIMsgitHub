@@ -201,6 +201,12 @@ void main() {
       await tester.scrollUntilVisible(
         find.textContaining('Insufficient available'),
         150,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
       );
       await tester.pumpAndSettle();
       expect(find.textContaining('Reserved funds'), findsOneWidget);
