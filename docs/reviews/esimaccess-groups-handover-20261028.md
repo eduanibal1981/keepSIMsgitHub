@@ -116,3 +116,17 @@ ESIM-14 engineering acceptance and handover are complete; production rollout,
 paid/provider/device acceptance, callback hookup and app binary publication remain
 explicitly open. No further implementation step is automatically enabled by this
 report. Use the runbook and scoped budget/device/account evidence before rollout.
+
+
+## Source synchronization
+
+Reviewed release branches `codex/esim13-14-groups-handover-20261028` are pushed
+and independently verified in all three existing GitHub repositories. Source
+commits are customer `def1051e56f51e72a34b9db16815ae6c8257709b`, backend
+`aa25f0f0bb5df55d950ba5c641d67d8e79001375` and Admin
+`b781529f8f6d2dd8d8083d581256bd5b9693c2cd`. All 19 committed source artifacts
+match the frozen manifest. The scoped AdminApi excludes unrelated pending
+carrier/fleet edits. Primary HEADs and default branches are unchanged. This
+source-sync receipt is recorded in a subsequent customer documentation commit.
+See `evidence/source-sync.json`. Source uploads do not enable spending or publish
+application binaries.

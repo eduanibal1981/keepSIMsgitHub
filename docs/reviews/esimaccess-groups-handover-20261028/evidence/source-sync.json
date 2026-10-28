@@ -1,0 +1,33 @@
+{
+  "branch": "codex/esim13-14-groups-handover-20261028",
+  "status": "PUSHED_AND_REMOTE_VERIFIED",
+  "repositories": {
+    "customer": {
+      "implementation_commit": "def1051e56f51e72a34b9db16815ae6c8257709b",
+      "primary_head_unchanged": "aa8d47d76ffa4c5ffad87d631f9abc76bde39700",
+      "source_files_match_manifest": true,
+      "verified_release_head": "def1051e56f51e72a34b9db16815ae6c8257709b",
+      "pushed": true,
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepSIMsgitHub/tree/codex/esim13-14-groups-handover-20261028"
+    },
+    "backend": {
+      "implementation_commit": "aa25f0f0bb5df55d950ba5c641d67d8e79001375",
+      "primary_head_unchanged": "c18e2ac793f288165505990e9ecd26207fd99fe2",
+      "source_files_match_manifest": true,
+      "verified_release_head": "aa25f0f0bb5df55d950ba5c641d67d8e79001375",
+      "pushed": true,
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepsims-backend/tree/codex/esim13-14-groups-handover-20261028"
+    },
+    "admin": {
+      "implementation_commit": "b781529f8f6d2dd8d8083d581256bd5b9693c2cd",
+      "primary_head_unchanged": "15d9d02951e2b49390637327e1eaf875bc16c2f0",
+      "source_files_match_manifest": true,
+      "verified_release_head": "b781529f8f6d2dd8d8083d581256bd5b9693c2cd",
+      "pushed": true,
+      "remote_head_verified_equal": true,
+      "branch_url": "https://github.com/eduanibal1981/keepsims_admin/tree/codex/esim13-14-groups-handover-20261028"
+    }
+  }
+}
