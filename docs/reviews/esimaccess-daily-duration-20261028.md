@@ -133,3 +133,12 @@ source parity, advisors, access checks, live state and test logs.
 Source release branch: `codex/esim09-daily-duration-20261028` in customer/backend.
 ESIM-10 is the next planned implementation step; enabling daily spending is a
 separate verified-pricing/provider/wallet acceptance decision.
+
+Source synchronization: customer implementation commit
+`74c92d3b6a2b25c093f6b1383db142934275f1af` is committed locally. Automatic
+approval review rejected its GitHub push because deployment approval did not
+explicitly authorize private-source upload; no workaround/retry was attempted.
+Backend `cd7d5620c4e32d8d5bf23c410d5db0286cf03286` was pushed, and remote HEAD
+was verified equal. All three primary branches/heads and unrelated edits are
+preserved. See `evidence/source-sync.json`. Customer push awaits explicit approval;
+the runtime deployment and verification are complete.

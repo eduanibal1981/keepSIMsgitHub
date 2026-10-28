@@ -556,3 +556,7 @@ Next eligible implementation: ESIM-09 (daily plans and selectable duration).
 Evidence: [ESIM-09 review](../reviews/esimaccess-daily-duration-20261028.md),
 [manifest](../reviews/esimaccess-daily-duration-20261028/release/manifest.json),
 [final live verification](../reviews/esimaccess-daily-duration-20261028/evidence/final-live-verification.json).
+
+ESIM-09 source-sync note: backend release pushed and verified; customer release
+committed locally. Automatic approval review blocked the customer GitHub upload
+pending explicit approval. Runtime deployment is complete.

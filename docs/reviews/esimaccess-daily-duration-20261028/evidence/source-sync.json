@@ -1,0 +1,23 @@
+{
+  "branch": "codex/esim09-daily-duration-20261028",
+  "customer": {
+    "implementation_commit": "74c92d3b6a2b25c093f6b1383db142934275f1af",
+    "local_commit_verified": true,
+    "pushed": false,
+    "status": "Automatic approval review rejected the GitHub push because deployment approval did not explicitly authorize uploading private source to the repository. No retry or workaround was attempted. Await explicit user approval."
+  },
+  "backend": {
+    "implementation_commit": "cd7d5620c4e32d8d5bf23c410d5db0286cf03286",
+    "pushed": true,
+    "remote_head_verified_equal": true,
+    "repository": "https://github.com/eduanibal1981/keepsims-backend"
+  },
+  "admin": {"changed": false},
+  "primary_heads_unchanged": {
+    "customer": "aa8d47d76ffa4c5ffad87d631f9abc76bde39700",
+    "backend": "c18e2ac793f288165505990e9ecd26207fd99fe2",
+    "admin": "15d9d02951e2b49390637327e1eaf875bc16c2f0"
+  },
+  "runtime_deployed_and_verified": true,
+  "customer_binaries_published": false
+}
