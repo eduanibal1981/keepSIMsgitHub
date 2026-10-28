@@ -1,0 +1,15 @@
+{
+  "slug": "process-alert-outbox",
+  "version": 8,
+  "verify_jwt": false,
+  "files": {
+    "process-alert-outbox/index.ts": {
+      "matches_recorded_release": true,
+      "sha256": "09f4baa555be67e5356988206e4693cf1f8400043cee9e289edcce73e2f97381"
+    },
+    "process-alert-outbox/quiet_hours.ts": {
+      "matches_recorded_release": true,
+      "sha256": "801fd7f7febb0191ed7b6b64269c678d47bd34ba31d18d30ceaf5d701ef1c7c1"
+    }
+  }
+}

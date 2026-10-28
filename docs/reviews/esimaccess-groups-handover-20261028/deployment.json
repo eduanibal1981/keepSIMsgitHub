@@ -1,0 +1,61 @@
+{
+  "steps": [
+    "ESIM-13",
+    "ESIM-14"
+  ],
+  "date": "2026-10-28",
+  "timezone": "Asia/Muscat",
+  "status": "SCOPED_RUNTIME_VERIFIED; ENGINEERING_ACCEPTANCE_COMPLETE; PAID_DEVICE_ROLLOUT_HELD",
+  "migration": {
+    "project": "zwxswagokhgbuzrrbnhr",
+    "name": "esim_traveller_groups",
+    "version": "20261028131332",
+    "md5": "5272560b2107e3c5ca501d1dc8074ded",
+    "stored_source_matches": true
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "version": 5,
+    "verify_jwt": true,
+    "source_matches": true,
+    "unauthenticated_post": 401,
+    "options": 204
+  },
+  "vm": {
+    "changed_files": [
+      "esim_fulfillment_runtime.js"
+    ],
+    "process": "worker-esim-fulfillment",
+    "pid": 1076824,
+    "restarts": 25,
+    "cycle_errors": 0,
+    "source_matches": true,
+    "unrelated_processes_unchanged": true,
+    "backup": "/home/abdal/keepsims_backend/backups/esim13-14-20261028"
+  },
+  "tests": {
+    "customer_cases": 133,
+    "admin_cases": 4,
+    "worker_cases": 87,
+    "edge_cases": 30,
+    "baseline_cases": 13,
+    "supplier_visibility_sql_groups": 12,
+    "group_sql_groups": 22,
+    "fixed_settlement_sql_groups": 23,
+    "daily_sql_groups": 15,
+    "controls_sql_groups": 27,
+    "native_group_checks": 4,
+    "native_controls_checks": 5,
+    "scoped_analysis": "clean",
+    "frozen_deno_check": "passed"
+  },
+  "all_12_action_gates_disabled": true,
+  "group_max_members": 3,
+  "child_quantity": 1,
+  "provider_purchases": 0,
+  "live_wallet_mutations": 0,
+  "persistent_acceptance_rows": 0,
+  "binaries_published": false,
+  "provider_device_acceptance": "UNVERIFIED",
+  "production_rollout": "HELD"
+}

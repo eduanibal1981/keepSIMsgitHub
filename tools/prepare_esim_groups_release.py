@@ -1,0 +1,19 @@
+"""Freeze scoped ESIM-13/14 sources from the authoritative sibling workspaces."""
+from pathlib import Path
+import hashlib,json,subprocess
+root=Path(__file__).resolve().parents[1];backend=root.parent/'backend-sync-wt';admin=root.parent/'keep_sims_admin'
+out=root/'docs/reviews/esimaccess-groups-handover-20261028/release'
+bases={'customer':'a8f01510b2a3c082dc94bb240462151c8e550452','backend':'2867df368f93ec3f33ed346c9d778bc244c80d66','admin':'f5d294fb5cd2fc0d760d66a48781855ac0943c34'}
+customer=['lib/features/esim/domain/entities/esim_group.dart','lib/features/esim/domain/repositories/esim_group_repository.dart','lib/features/esim/data/repositories/esim_group_repository_impl.dart','lib/features/esim/presentation/controllers/esim_group_controller.dart','lib/features/esim/presentation/screens/esim_group_checkout_screen.dart','lib/features/esim/presentation/screens/esim_help_screen.dart','lib/features/esim/presentation/widgets/esim_group_panel.dart','lib/features/esim/presentation/widgets/esim_checkout_sheet.dart','lib/features/esim/presentation/widgets/esim_profile_card.dart','lib/features/esim/presentation/screens/esim_screen.dart']
+admin_files=['lib/core/admin/admin_api.dart','lib/features/control/providers/esim_group_provider.dart','lib/features/control/presentation/widgets/esim_group_inspector.dart','lib/features/control/presentation/operations_screen.dart']
+vm=['esim_fulfillment_runtime.js'];sha=lambda b:hashlib.sha256(b).hexdigest()
+files={**{'customer/'+n:(root/n).read_bytes() for n in customer},**{'admin/'+n:(admin/n).read_bytes() for n in admin_files},**{'backend/'+n:(backend/n).read_bytes() for n in vm},**{'edge/'+n:(root/'supabase/functions'/n).read_bytes() for n in ['esim-recharge-discovery/index.ts','esim-recharge-discovery/deno.lock','_shared/esim-recharge-discovery.js']},**{'migrations/'+p.name:p.read_bytes() for p in (root/'supabase/migrations').glob('*_esim_traveller_groups.sql')}}
+# The primary AdminApi includes unrelated pending carrier/fleet edits.
+s=(admin/'lib/core/admin/admin_api.dart').read_text();start=s.index('  Future<Map<String, dynamic>> esimGroup(');end=s.index('  Future<Map<String, dynamic>> esimSupport(',start)
+base=subprocess.check_output(['git','-C',str(admin),'show',bases['admin']+':lib/core/admin/admin_api.dart'],text=True)
+files['admin/lib/core/admin/admin_api.dart']=base.replace('  Future<Map<String, dynamic>> esimSupport(',s[start:end]+'  Future<Map<String, dynamic>> esimSupport(',1).encode()
+for n,b in files.items():target=out/n;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b)
+old={n:sha(subprocess.check_output(['git','-C',str(backend),'show',bases['backend']+':'+n])) for n in vm}
+deps={n:sha(subprocess.check_output(['git','-C',str(backend),'show',bases['backend']+':'+n])) for n in ['worker_esim_fulfillment.js','worker_esim_catalog.js','providers/esimaccess.js','providers/esimaccess_catalog.js','providers/esimaccess_profiles.js','providers/esimaccess_credentials.js','providers/esimaccess_daily.js','providers/esimaccess_recharge.js','esim_supplier_limiter.js','esim_receipt_journal.js','esim_recharge_settlement.js','esim_recharge_discovery.js','esim_profile_controls.js']}
+m={'steps':['ESIM-13','ESIM-14'],'project':'zwxswagokhgbuzrrbnhr','branch':'codex/esim13-14-groups-handover-20261028','source_bases':bases,'vm':{'process':'worker-esim-fulfillment','changed_files':vm,'previous_sha256':old,'dependencies':deps},'edge':{'slug':'esim-recharge-discovery','verify_jwt':True},'group_orders_enabled':False,'max_group_members':3,'provider_child_quantity':1,'paid_device_acceptance':'UNVERIFIED; no owned Access profiles, provider actions or budgeted device tests','all_existing_money_controls':'Remain disabled; read-only recovery and labels are independent','files':{n:sha(b) for n,b in files.items()}}
+(out/'manifest.json').write_text(json.dumps(m,indent=2)+'\n');print(out)

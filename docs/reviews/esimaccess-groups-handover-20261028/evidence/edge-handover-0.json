@@ -1,0 +1,19 @@
+{
+  "slug": "sync-esim-catalogue",
+  "version": 8,
+  "verify_jwt": false,
+  "files": {
+    "sync-esim-catalogue/index.ts": {
+      "matches_recorded_release": true,
+      "sha256": "bc2c1a3d90de92c492bd7de3fdefbb155d5e14736f01cefee8afb8249d559e76"
+    },
+    "_shared/esimaccess-limiter.js": {
+      "matches_recorded_release": true,
+      "sha256": "f24ee2330210933a79aae4f7fde06e8f16dd0a6175e1c807b5e340c7f8b0e1b3"
+    },
+    "_shared/esimaccess-catalog.js": {
+      "matches_recorded_release": true,
+      "sha256": "98baa72548084ac5d5d34075b53dbadbd6c354cf918a0e721e777a752cd63aba"
+    }
+  }
+}

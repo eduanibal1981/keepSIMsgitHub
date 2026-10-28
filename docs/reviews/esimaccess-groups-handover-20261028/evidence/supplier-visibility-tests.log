@@ -1,0 +1,13 @@
+PASS production bug reproduced; ACLs, search paths and RLS preserved
+PASS compare hides disabled and unregistered suppliers; enabled retail price preserved
+PASS legacy retail view honors the same switches and retains supplier markup
+PASS filter bounds exclude disabled-only data, durations, price extremes and unlimited
+PASS cached offer IDs cannot purchase from disabled or unregistered suppliers
+PASS enabled source still reaches order/debit path at the existing retail price
+PASS disable after loading blocks checkout and empties listing and bounds
+PASS re-enabling restores cached offers without sync and keeps inactive bundles hidden
+PASS affiliate offers retain their independent partner and global switches
+PASS customer roles can read retail results; anonymous RPC execution stays denied
+PASS migration can be reapplied without changing security or cached rows
+PASS rolled-back live acceptance SQL also passes against the isolated fixture
+12 isolated eSIM supplier visibility checks passed

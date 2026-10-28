@@ -273,3 +273,18 @@ and contract flags remain false. Customer/Admin source is tested; no binaries or
 paid provider acceptance are claimed. Refund policies and supplier credit require
 independent itemized evidence; daily pricing/limits remain gated. See the controls
 and automation release report. ESIM-13 is the next planned implementation.
+
+
+## ESIM-13/14 — 2026-10-28
+
+Private traveller labels/grouping and server-quoted parent groups with individually
+funded/fulfilled/refunded children are implemented and tested. Migration
+20261028131332, recharge Edge v5 and the scoped fulfillment runtime are deployed
+and verified; all twelve action gates remain false and the maximum remains three.
+Engineering acceptance includes fresh supplier/retail/financial/QR/privacy tests,
+real OM/EG/GCC catalogue evidence, source hashes, live ACL/quote checks and an
+operational handover/customer help. ESIM-14 paid/provider/device acceptance and
+production/cohort rollout remain held; no app binary is published. No further
+implementation step is automatically enabled. See the review, acceptance matrix
+and operations runbook for the separate named-profile/budget/pricing/callback and
+device acceptance requirements.

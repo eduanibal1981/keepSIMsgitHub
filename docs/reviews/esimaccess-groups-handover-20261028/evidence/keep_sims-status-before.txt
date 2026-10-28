@@ -1,0 +1,415 @@
+ M .agents/memory/ACTIVE_HANDOFF.md
+ D .agents/plugins/keepsims-mcp/mcp_config.example.json
+ M .codex/ARCHITECTURAL_DECISIONS.md
+ M .codex/BUSINESS_RULES.md
+ M .codex/CURRENT_STATUS_AND_ROADMAP.md
+ M .codex/DATA_BACKEND_SECURITY.md
+ M .codex/SYSTEM_ARCHITECTURE.md
+ M android/app/src/test/kotlin/com/keep_sims/AlertAlarmTimeTest.kt
+ M deployment/source-lock.json
+ M ios/Runner/AppDelegate.swift
+ M lib/core/router/app_router.dart
+ M lib/core/services/sync_queue_service.dart
+ M lib/core/utils/phone_number_validator.dart
+ M lib/features/calling/presentation/screens/smart_call_dashboard_screen.dart
+ M lib/features/calling/presentation/widgets/buy_virtual_number_sheet.dart
+ M lib/features/dashboard/presentation/controller/dashboard_controller.dart
+ M lib/features/dashboard/presentation/ui/dashboard_screen.dart
+ M lib/features/esim/data/repositories/esim_go_repository_impl.dart
+ M lib/features/esim/domain/entities/compare_offer.dart
+ M lib/features/esim/domain/entities/esim_order.dart
+ M lib/features/esim/domain/entities/esim_order.freezed.dart
+ M lib/features/esim/domain/entities/esim_order.g.dart
+ M lib/features/esim/domain/entities/esim_plan.dart
+ M lib/features/esim/domain/entities/esim_plan.freezed.dart
+ M lib/features/esim/domain/entities/esim_plan.g.dart
+ M lib/features/esim/domain/entities/user_esim.dart
+ M lib/features/esim/domain/entities/user_esim.freezed.dart
+ M lib/features/esim/domain/entities/user_esim.g.dart
+ M lib/features/esim/domain/repositories/esim_repository.dart
+ M lib/features/esim/presentation/controllers/esim_compare_controller.dart
+ M lib/features/esim/presentation/controllers/user_esims_controller.dart
+ M lib/features/esim/presentation/screens/esim_delivery_screen.dart
+ M lib/features/esim/presentation/screens/esim_plans_screen.dart
+ M lib/features/esim/presentation/screens/esim_screen.dart
+ M lib/features/esim/presentation/widgets/compare_filter_sheet.dart
+ M lib/features/esim/presentation/widgets/compare_offer_card.dart
+ M lib/features/esim/presentation/widgets/compare_offer_details_sheet.dart
+ M lib/features/esim/presentation/widgets/esim_checkout_sheet.dart
+ M lib/features/esim/presentation/widgets/esim_order_status_modal.dart
+ M lib/features/notifications/data/repositories/notifications_repository_impl.dart
+ M lib/features/notifications/domain/notification_event_catalog.dart
+ M lib/features/notifications/presentation/screens/notification_settings_screen.dart
+ M lib/features/notifications/presentation/screens/notifications_screen.dart
+ M lib/features/notifications/presentation/services/notification_navigation_service.dart
+ M lib/features/notifications/presentation/widgets/alert_preferences_dashboard.dart
+ M lib/features/offline_recharge/ui/offline_refill_screen.dart
+ M lib/features/profile/presentation/ui/onboarding_screen.dart
+ M lib/features/scheduled_topups/repository/scheduled_topup_repository.dart
+ M lib/features/scheduled_topups/ui/widgets/scheduled_topup_sheet.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.freezed.dart
+ M lib/features/sim_lines/data/models/sim_liveness_result.g.dart
+ M lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart
+ M lib/features/sim_lines/domain/plan_payment.dart
+ M lib/features/sim_lines/domain/refill_pricing.dart
+ M lib/features/sim_lines/domain/repositories/sim_lines_repository.dart
+ M lib/features/sim_lines/presentation/controllers/sim_lines_controller.dart
+ M lib/features/sim_lines/presentation/providers/sim_line_alert_clock_provider.dart
+ M lib/features/sim_lines/presentation/screens/sim_line_detail_screen.dart
+ M lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+ M lib/features/sim_lines/presentation/widgets/carrier_liveness_badge.dart
+ M lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/premium_refill_config_sheet.dart
+ M lib/features/sim_lines/presentation/widgets/provider_badge.dart
+ M lib/features/wallet/controller/wallet_controller.dart
+ M lib/features/wallet/repository/wallet_repository.dart
+ M lib/features/wallet/ui/gift_credit_sheet.dart
+ M lib/features/wallet/ui/wallet_screen.dart
+ M lib/l10n/app_ar.arb
+ M lib/l10n/app_bn.arb
+ M lib/l10n/app_en.arb
+ M lib/l10n/app_es.arb
+ M lib/l10n/app_hi.arb
+ M lib/l10n/app_localizations.dart
+ M lib/l10n/app_localizations_ar.dart
+ M lib/l10n/app_localizations_bn.dart
+ M lib/l10n/app_localizations_en.dart
+ M lib/l10n/app_localizations_es.dart
+ M lib/l10n/app_localizations_hi.dart
+ M lib/l10n/app_localizations_ne.dart
+ M lib/l10n/app_localizations_si.dart
+ M lib/l10n/app_localizations_tr.dart
+ M lib/l10n/app_localizations_ur.dart
+ M lib/l10n/app_ne.arb
+ M lib/l10n/app_si.arb
+ M lib/l10n/app_tr.arb
+ M lib/l10n/app_ur.arb
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+ M macos/Runner.xcworkspace/contents.xcworkspacedata
+ M output/dashboard-sim-card-compact/layout-measurements.json
+ M supabase/.temp/cli-latest
+ M supabase/config.toml
+ M supabase/functions/_shared/whatsapp_route.ts
+ M supabase/functions/_shared/whatsapp_router.ts
+ M supabase/functions/capture-paypal-order/index.ts
+ M supabase/functions/create-paypal-order/index.ts
+ M supabase/functions/delete_account/index.ts
+ M supabase/functions/health/index.ts
+ M supabase/functions/process-alert-outbox/index.ts
+ M supabase/functions/process-wallet-refund/index.ts
+ M supabase/functions/purge-accounts/index.ts
+ M supabase/functions/recovery-service/index.ts
+ M supabase/functions/refresh-fx-rates/index.ts
+ M supabase/functions/send-admin-email/index.ts
+ M supabase/functions/send-sim-otp/index.ts
+ M supabase/functions/sync-affiliate-network/index.ts
+ M supabase/functions/sync-esim-catalogue/index.ts
+ M supabase/functions/validate-sim-liveness/index.ts
+ M supabase/functions/verify-sim-otp/index.ts
+ M test/core/utils/phone_number_validator_test.dart
+ M test/features/esim/compare_filter_sheet_test.dart
+ M test/features/esim/compare_offer_details_sheet_test.dart
+ M test/features/notifications/alert_preferences_dashboard_test.dart
+ M test/features/profile/onboarding_currency_transition_test.dart
+ M test/features/profile/onboarding_notification_contacts_test.dart
+ M test/features/scheduled_topups/schedule_mutation_boundary_test.dart
+ M test/features/scheduled_topups/scheduled_topup_sheet_tier_pricing_test.dart
+ M test/turn_credentials_security.test.cjs
+ M tool/test_gb.dart
+ M tools/financial-tests/README.md
+ M tools/financial-tests/package.json
+ M tools/release_checks.py
+ M tools/reproducible_sources.py
+ M tools/scan_embedded_secrets.py
+ M tools/test_release_checks.py
+ M tools/test_reproducibility.py
+ M tools/test_scan_embedded_secrets.py
+?? .github/workflows/admin-windows-checks.yml
+?? .github/workflows/platform-database-checks.yml
+?? deno.lock
+?? docs/implementation-plans/carrier-offer-counts-premium-eligibility-plan-20261027.md
+?? docs/implementation-plans/carrier-offer-counts-premium-eligibility-snapshot-20261027.json
+?? docs/implementation-plans/esimaccess-integration-plan-20261028.md
+?? docs/implementation-plans/whatsapp-outbound-otp-verification-plan-20261026.md
+?? docs/reviews/alert-clock-refresh-20261020.md
+?? docs/reviews/any-number-enrollment-test-pass-20261027.md
+?? docs/reviews/any-number-enrollment-test-pass-live-20261027.json
+?? docs/reviews/audit-development-20261019/combined-catalog-tests.json
+?? docs/reviews/audit-development-20261019/combined-database/
+?? docs/reviews/audit-development-20261019/combined-upgrade-attempt.json
+?? docs/reviews/audit-development-20261019/deno-tool.json
+?? docs/reviews/audit-development-20261019/fleet-native.json
+?? docs/reviews/audit-development-20261019/frozen-pipeline/
+?? docs/reviews/audit-development-20261019/progress.md
+?? docs/reviews/canonical-carrier-detection-20261020.md
+?? docs/reviews/canonical-carrier-detection-live-20261020.json
+?? docs/reviews/carrier-offer-counts-and-test-catalogues-20261028.md
+?? docs/reviews/custom-refill-carrier-interval-20261020.md
+?? docs/reviews/customer-refill-rpc-compatibility-20261020.md
+?? docs/reviews/customer-refill-rpc-compatibility-live-20261020.json
+?? docs/reviews/customer-refill-rpc-compatibility-results-20261020.json
+?? docs/reviews/customer-retail-read-views-fix-20261019.md
+?? docs/reviews/dtone-primary-routing-20261027.md
+?? docs/reviews/dtone-primary-routing-apply-20261027.sql
+?? docs/reviews/dtone-primary-routing-before-20261027.json
+?? docs/reviews/dtone-primary-routing-final-20261027.json
+?? docs/reviews/esim-supplier-visibility-20261028.md
+?? docs/reviews/esim-supplier-visibility-live-20261028.json
+?? docs/reviews/esimaccess-alerts-20261028.md
+?? docs/reviews/esimaccess-alerts-20261028/
+?? docs/reviews/esimaccess-baseline-20261028.md
+?? docs/reviews/esimaccess-baseline-20261028/
+?? docs/reviews/esimaccess-catalogue-20261028.md
+?? docs/reviews/esimaccess-catalogue-20261028/
+?? docs/reviews/esimaccess-catalogue-deployment-20261028.md
+?? docs/reviews/esimaccess-controls-automation-20261028.md
+?? docs/reviews/esimaccess-controls-automation-20261028/
+?? docs/reviews/esimaccess-daily-duration-20261028.md
+?? docs/reviews/esimaccess-daily-duration-20261028/
+?? docs/reviews/esimaccess-groups-handover-20261028/
+?? docs/reviews/esimaccess-installation-20261028.md
+?? docs/reviews/esimaccess-installation-20261028/
+?? docs/reviews/esimaccess-profiles-events-20261028.md
+?? docs/reviews/esimaccess-profiles-events-20261028/
+?? docs/reviews/esimaccess-recharge-discovery-20261028.md
+?? docs/reviews/esimaccess-recharge-discovery-20261028/
+?? docs/reviews/esimaccess-recharge-settlement-20261028.md
+?? docs/reviews/esimaccess-recharge-settlement-20261028/
+?? docs/reviews/handoff-esim-state-20261028.md
+?? docs/reviews/handoff-esim08-state-20261028.md
+?? docs/reviews/line-reminder-compatibility-20261020.md
+?? docs/reviews/line-reminder-compatibility-live-20261020.json
+?? docs/reviews/line-reminder-compatibility-results-20261020.json
+?? docs/reviews/notification-audit-20261019/
+?? docs/reviews/premium-setup-activation-20261023.md
+?? docs/reviews/premium-setup-activation-live-20261023.json
+?? docs/reviews/premium-setup-activation-preview-20261023.json
+?? docs/reviews/sim-line-partial-save-20261020.md
+?? docs/reviews/temporary-whatsapp-test-pass-20261023.md
+?? docs/reviews/temporary-whatsapp-test-pass-live-20261023.json
+?? docs/reviews/wallet-availability-20261023.md
+?? docs/reviews/wallet-availability-live-20261023.json
+?? docs/reviews/wallet-availability-repair-20261023.sql
+?? docs/reviews/wallet-availability-results-20261023.json
+?? docs/reviews/wallet-spending-display-20261023.md
+?? docs/reviews/wallet-spending-display-results-20261023.json
+?? docs/reviews/whatsapp-confirmation-receiver-fix-20261022.md
+?? docs/reviews/whatsapp-line-ownership-20261022.md
+?? docs/reviews/whatsapp-outbound-otp-20261026/
+?? docs/reviews/whatsapp-outbound-otp-verification-20261026.md
+?? docs/reviews/whatsapp-receiver-fix-20261022/
+?? docs/reviews/windows-admin-google-sign-in-20261019.md
+?? lib/features/esim/data/repositories/esim_controls_repository_impl.dart
+?? lib/features/esim/data/services/
+?? lib/features/esim/domain/entities/esim_activation_payload.dart
+?? lib/features/esim/domain/entities/esim_catalogue_details.dart
+?? lib/features/esim/domain/entities/esim_controls.dart
+?? lib/features/esim/domain/entities/esim_daily_selection.dart
+?? lib/features/esim/domain/entities/esim_installation_policy.dart
+?? lib/features/esim/domain/entities/esim_recharge.dart
+?? lib/features/esim/domain/repositories/esim_controls_repository.dart
+?? lib/features/esim/presentation/controllers/esim_controls_controller.dart
+?? lib/features/esim/presentation/controllers/esim_daily_controller.dart
+?? lib/features/esim/presentation/controllers/esim_installation_controller.dart
+?? lib/features/esim/presentation/controllers/esim_recharge_controller.dart
+?? lib/features/esim/presentation/screens/esim_alert_target_screen.dart
+?? lib/features/esim/presentation/screens/esim_controls_screen.dart
+?? lib/features/esim/presentation/screens/esim_recharge_screen.dart
+?? lib/features/esim/presentation/widgets/esim_daily_quote_panel.dart
+?? lib/features/esim/presentation/widgets/esim_plan_facts.dart
+?? lib/features/esim/presentation/widgets/esim_profile_card.dart
+?? lib/features/scheduled_topups/repository/reminder_schedule_rpc.dart
+?? lib/features/sim_lines/data/models/carrier_detection_entry.dart
+?? lib/features/sim_lines/data/models/carrier_offer_availability.dart
+?? lib/features/sim_lines/data/repositories/whatsapp_ownership_repository.dart
+?? lib/features/sim_lines/domain/refill_service_unavailable_exception.dart
+?? lib/features/sim_lines/domain/whatsapp_verification.dart
+?? lib/features/sim_lines/presentation/controllers/whatsapp_verification_controller.dart
+?? lib/features/sim_lines/presentation/providers/carrier_offer_availability_provider.dart
+?? lib/features/sim_lines/presentation/widgets/carrier_offer_status.dart
+?? lib/features/sim_lines/presentation/widgets/whatsapp_ownership_section.dart
+?? macos/Podfile.lock
+?? macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+?? macos/Runner.xcworkspace/xcshareddata/swiftpm/
+?? output/admin-ui-overflow/
+?? output/carrier-catalogue-counts/
+?? output/carrier-offer-availability/
+?? output/dtone-catalogue-repair/
+?? output/premium-test-eligibility/
+?? output/whatsapp-outbound-otp-20261026/
+?? supabase/baselines/
+?? supabase/functions/_shared/carrier-identity.ts
+?? supabase/functions/_shared/esim-recharge-discovery.js
+?? supabase/functions/_shared/esimaccess-catalog.js
+?? supabase/functions/_shared/esimaccess-events.js
+?? supabase/functions/_shared/esimaccess-limiter.js
+?? supabase/functions/_shared/whatsapp_otp_crypto.ts
+?? supabase/functions/_shared/whatsapp_verification_handler.ts
+?? supabase/functions/_shared/whatsapp_verification_runtime.ts
+?? supabase/functions/admin-reloadly-credentials/
+?? supabase/functions/dtone-callback/
+?? supabase/functions/esim-recharge-discovery/
+?? supabase/functions/esimaccess-events/
+?? supabase/functions/health/deno.lock
+?? supabase/functions/request-whatsapp-verification/
+?? supabase/functions/sync-esim-catalogue/deno.lock
+?? supabase/functions/verify-whatsapp-verification/
+?? supabase/migrations/20261018222658_customer_retail_read_views_compatibility.sql
+?? supabase/migrations/20261019230943_customer_refill_rpc_compatibility.sql
+?? supabase/migrations/20261019233420_line_reminder_compatibility.sql
+?? supabase/migrations/20261020133325_canonical_carrier_detection.sql
+?? supabase/migrations/20261022105736_whatsapp_line_ownership.sql
+?? supabase/migrations/20261023020813_temporary_whatsapp_test_pass.sql
+?? supabase/migrations/20261023040000_sim_setup_reservation_retries.sql
+?? supabase/migrations/20261026040000_whatsapp_outbound_verification.sql
+?? supabase/migrations/20261026231921_any_number_enrollment_test_pass.sql
+?? supabase/migrations/20261027190854_provider_refill_routing_visibility.sql
+?? supabase/migrations/20261027195410_carrier_offer_availability_premium_eligibility.sql
+?? supabase/migrations/20261027203028_esim_supplier_visibility.sql
+?? supabase/migrations/20261027204143_carrier_catalogue_counts_include_test_environments.sql
+?? supabase/migrations/20261027211206_premium_eligibility_includes_test_offers.sql
+?? supabase/migrations/20261027231052_esim_catalogue_details.sql
+?? supabase/migrations/20261027233253_esim_catalogue_runtime_compatibility.sql
+?? supabase/migrations/20261027235408_esim_profile_identity_lifecycle.sql
+?? supabase/migrations/20261027235409_esim_event_inbox_reconciliation.sql
+?? supabase/migrations/20261028013756_esim_actionable_alerts.sql
+?? supabase/migrations/20261028032323_esim_fixed_recharge_settlement.sql
+?? supabase/migrations/20261028042528_esim_settlement_view_boundary.sql
+?? supabase/migrations/20261028053402_esim_daily_duration.sql
+?? supabase/migrations/20261028060244_esim_daily_quote_indexes.sql
+?? supabase/migrations/20261028061449_esim_controls_automation.sql
+?? supabase/migrations/20261028070000_esim_recharge_discovery_quotes.sql
+?? supabase/tests/canonical_carrier_detection_tests.sql
+?? supabase/tests/carrier_catalogue_counts_tests.sql
+?? supabase/tests/carrier_offer_availability_tests.sql
+?? supabase/tests/customer_refill_rpc_compatibility_tests.sql
+?? supabase/tests/customer_retail_read_views_compatibility_tests.sql
+?? supabase/tests/enrollment_test_pass_tests.sql
+?? supabase/tests/esim_catalogue_details_tests.sql
+?? supabase/tests/esim_controls_access_readonly_tests.sql
+?? supabase/tests/esim_daily_access_readonly_tests.sql
+?? supabase/tests/esim_installation_access_readonly_tests.sql
+?? supabase/tests/esim_profiles_events_readonly_tests.sql
+?? supabase/tests/esim_recharge_discovery_readonly_tests.sql
+?? supabase/tests/esim_supplier_visibility_tests.sql
+?? supabase/tests/fixtures/carrier_availability_contract.sql
+?? supabase/tests/fixtures/carrier_availability_deployed.json
+?? supabase/tests/fixtures/carrier_availability_guards.sql
+?? supabase/tests/fixtures/esim_recharge_tables.sql
+?? supabase/tests/fixtures/esim_settlement_support.sql
+?? supabase/tests/fixtures/esim_settlement_wallet.sql
+?? supabase/tests/fixtures/esim_supplier_visibility_deployed.json
+?? supabase/tests/fixtures/premium_test_deployed.json
+?? supabase/tests/fixtures/premium_test_offer_contract.sql
+?? supabase/tests/fixtures/setup_reservation_legacy.json
+?? supabase/tests/fixtures/setup_reservation_legacy.sql
+?? supabase/tests/line_reminder_compatibility_tests.sql
+?? supabase/tests/platform/
+?? supabase/tests/provider_refill_routing_visibility_tests.sql
+?? supabase/tests/reloadly_activation_runtime_predicate_tests.sql
+?? supabase/tests/sim_setup_reservation_retries_tests.sql
+?? supabase/tests/whatsapp_line_ownership_tests.sql
+?? supabase/tests/whatsapp_outbound_verification_tests.sql
+?? test/carrier_identity.test.cjs
+?? test/esim_alert_outbox.test.cjs
+?? test/esim_controls_edge.test.cjs
+?? test/esim_daily_edge.test.cjs
+?? test/esim_recharge_discovery.test.cjs
+?? test/esim_settlement_edge.test.cjs
+?? test/esimaccess_events.test.cjs
+?? test/features/esim/esim_alerts_test.dart
+?? test/features/esim/esim_catalogue_details_test.dart
+?? test/features/esim/esim_catalogue_repository_test.dart
+?? test/features/esim/esim_checkout_prerequisite_test.dart
+?? test/features/esim/esim_controls_test.dart
+?? test/features/esim/esim_daily_test.dart
+?? test/features/esim/esim_installation_fixtures.dart
+?? test/features/esim/esim_installation_policy_test.dart
+?? test/features/esim/esim_installation_screen_test.dart
+?? test/features/esim/esim_installation_service_test.dart
+?? test/features/esim/esim_installation_session_test.dart
+?? test/features/esim/esim_profiles_test.dart
+?? test/features/esim/esim_recharge_test.dart
+?? test/features/esim/esim_settlement_test.dart
+?? test/features/notifications/device_alarm_repository_test.dart
+?? test/features/scheduled_topups/notify_carrier_interval_test.dart
+?? test/features/scheduled_topups/reminder_schedule_rpc_test.dart
+?? test/features/sim_lines/alert_clock_refresh_test.dart
+?? test/features/sim_lines/carrier_detection_entry_test.dart
+?? test/features/sim_lines/carrier_detection_form_test.dart
+?? test/features/sim_lines/carrier_detection_repository_test.dart
+?? test/features/sim_lines/carrier_offer_availability_test.dart
+?? test/features/sim_lines/premium_upgrade_availability_test.dart
+?? test/features/sim_lines/refill_rpc_compatibility_test.dart
+?? test/features/sim_lines/sim_line_form_save_test.dart
+?? test/features/sim_lines/sim_otp_repository_test.dart
+?? test/features/sim_lines/sim_setup_finalization_test.dart
+?? test/features/sim_lines/whatsapp_ownership_test.dart
+?? test/features/wallet/spending_balance_consistency_test.dart
+?? test/features/wallet/wallet_balance_consistency_test.dart
+?? test/notification_dispatch_audit.test.cjs
+?? test/reloadly_credentials_backend.test.cjs
+?? test/sim_otp_provider.test.cjs
+?? test/telegram_bot_audit.test.cjs
+?? test/whatsapp_message_receiver.test.cjs
+?? test/whatsapp_outbound_otp.test.cjs
+?? test/whatsapp_ownership_backend.test.cjs
+?? tools/build_carrier_availability_migration.py
+?? tools/build_esim_catalogue_migration.py
+?? tools/build_esim_catalogue_runtime_fix.py
+?? tools/build_esim_controls_migration.py
+?? tools/build_esim_daily_migration.py
+?? tools/build_esim_settlement_migration.py
+?? tools/build_premium_test_migration.py
+?? tools/combined_database_checks.py
+?? tools/deploy_esim_controls_vm.py
+?? tools/esim-automation-core.sql
+?? tools/esim-controls-core.sql
+?? tools/esim-support-core.sql
+?? tools/esim08-core.sql
+?? tools/esim09-core.sql
+?? tools/esimaccess-baseline/
+?? tools/esimaccess-catalogue-schema.sql
+?? tools/financial-tests/admin-catalogue-read.mjs
+?? tools/financial-tests/carrier-availability.mjs
+?? tools/financial-tests/carrier-catalogue-counts.mjs
+?? tools/financial-tests/carrier-detection.mjs
+?? tools/financial-tests/dtone-callback.mjs
+?? tools/financial-tests/dtone-credentials.mjs
+?? tools/financial-tests/dtone-http.mjs
+?? tools/financial-tests/dtone-liveness.mjs
+?? tools/financial-tests/enrollment-test-pass.mjs
+?? tools/financial-tests/esim-alerts.mjs
+?? tools/financial-tests/esim-catalogue-details.mjs
+?? tools/financial-tests/esim-controls-concurrency.mjs
+?? tools/financial-tests/esim-controls-fixture.mjs
+?? tools/financial-tests/esim-controls.mjs
+?? tools/financial-tests/esim-daily-concurrency.mjs
+?? tools/financial-tests/esim-daily.mjs
+?? tools/financial-tests/esim-profiles-events.mjs
+?? tools/financial-tests/esim-recharge-discovery.mjs
+?? tools/financial-tests/esim-settlement-concurrency.mjs
+?? tools/financial-tests/esim-settlement-fixture.mjs
+?? tools/financial-tests/esim-settlement.mjs
+?? tools/financial-tests/esim-supplier-visibility.mjs
+?? tools/financial-tests/premium-test-eligibility.mjs
+?? tools/financial-tests/refill-compatibility.mjs
+?? tools/financial-tests/reloadly-credentials.mjs
+?? tools/financial-tests/reminder-compatibility.mjs
+?? tools/financial-tests/setup-reservations.mjs
+?? tools/financial-tests/whatsapp-outbound-otp.mjs
+?? tools/financial-tests/whatsapp-ownership.mjs
+?? tools/notification_alarm_jvm_checks.py
+?? tools/prepare_esim_alerts_release.py
+?? tools/prepare_esim_catalogue_release.py
+?? tools/prepare_esim_controls_release.py
+?? tools/prepare_esim_daily_release.py
+?? tools/prepare_esim_installation_release.py
+?? tools/prepare_esim_profiles_events_release.py
+?? tools/prepare_esim_recharge_release.py
+?? tools/prepare_esim_settlement_release.py
+?? tools/prepare_whatsapp_otp_release.py
+?? tools/test_combined_database_checks.py

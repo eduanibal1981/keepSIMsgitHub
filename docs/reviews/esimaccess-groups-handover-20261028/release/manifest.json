@@ -1,0 +1,67 @@
+{
+  "steps": [
+    "ESIM-13",
+    "ESIM-14"
+  ],
+  "project": "zwxswagokhgbuzrrbnhr",
+  "branch": "codex/esim13-14-groups-handover-20261028",
+  "source_bases": {
+    "customer": "a8f01510b2a3c082dc94bb240462151c8e550452",
+    "backend": "2867df368f93ec3f33ed346c9d778bc244c80d66",
+    "admin": "f5d294fb5cd2fc0d760d66a48781855ac0943c34"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_fulfillment_runtime.js"
+    ],
+    "previous_sha256": {
+      "esim_fulfillment_runtime.js": "f37854e719dcb626c88ab58af880d51da923528e44ffbb57cc4ee18d954ed068"
+    },
+    "dependencies": {
+      "worker_esim_fulfillment.js": "d538d047e0cbdaced6c21ce28d5db516477d40b4036f18c27e99fc8c17a8d492",
+      "worker_esim_catalog.js": "8fe8dbe4e844ebe631ae8005692bf9a0fa87381226e0ef0a2ba4af6754ae1572",
+      "providers/esimaccess.js": "d3ba64f7d30dac11ed3e819bc4a8830e3ce69974edaff8bd907cce75555a4c43",
+      "providers/esimaccess_catalog.js": "b824299aa5543b804c76cb27e283fdd816706ad1b5684eecebf13b21357a7940",
+      "providers/esimaccess_profiles.js": "025ca09b0efb81ab86db3121a0d5ec6d5c460af58c8409ce41c6b8bd58f64eb2",
+      "providers/esimaccess_credentials.js": "6163d9fcb2808980297247980788e67fc6bc7afab3fd6bf2b8983a4909a99b1c",
+      "providers/esimaccess_daily.js": "9cb1430cc07bd1d6688b82007cd7df897dede360aa17d1f2aa4b58bdf89aabac",
+      "providers/esimaccess_recharge.js": "2cab9a2d3ca3b376f6354c373749fb3ba8f2de63a4a00fe9ce0018e7e3eb5d87",
+      "esim_supplier_limiter.js": "c1ad76a94d2b4490dc14278149b53916c2e4d36f2b5e6389ebe6f77e11828ce0",
+      "esim_receipt_journal.js": "339483afe87ec5f44d834d6e378ba4ae77cd984f01a46ce0cb6efc51a1343458",
+      "esim_recharge_settlement.js": "de105565fff1b1a0dc036ba45aad254667effb55fd6b06e561130fbde2f53edd",
+      "esim_recharge_discovery.js": "ff8789562cdb2dd3f5fc0f5d282f0800c133bf12b5eb6d7eba285d3c7ffd0175",
+      "esim_profile_controls.js": "945b0972e71d2eea84c694ccb39c5642b6c37917d4ff25ce33d0eb018345bd07"
+    }
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "verify_jwt": true
+  },
+  "group_orders_enabled": false,
+  "max_group_members": 3,
+  "provider_child_quantity": 1,
+  "paid_device_acceptance": "UNVERIFIED; no owned Access profiles, provider actions or budgeted device tests",
+  "all_existing_money_controls": "Remain disabled; read-only recovery and labels are independent",
+  "files": {
+    "customer/lib/features/esim/domain/entities/esim_group.dart": "60f985a345f1f03ccfd2aa56542b498e4b7aac407c029f30c7ac290460e7526e",
+    "customer/lib/features/esim/domain/repositories/esim_group_repository.dart": "777dd2da1317e0917c70fdf1804eee2276b04758580808fa50801c00d6dba665",
+    "customer/lib/features/esim/data/repositories/esim_group_repository_impl.dart": "3c8d4ae4494c0437edfcf4f0e189b54dbda0671bf540cebbea38b88fa811cb48",
+    "customer/lib/features/esim/presentation/controllers/esim_group_controller.dart": "3e83a44473b917fc1d8c42c3502786a2275d12621dd2d5560b47eb41c2440ea4",
+    "customer/lib/features/esim/presentation/screens/esim_group_checkout_screen.dart": "ee1de98fcd945b086118e0a6f6a10972f9bd12507e35cc37b5adf89c6aafc6e1",
+    "customer/lib/features/esim/presentation/screens/esim_help_screen.dart": "0c1d8ac6a42bddeb0b6868dabc1bf0fb9337c00b3b40f5427f090313e9b55e9a",
+    "customer/lib/features/esim/presentation/widgets/esim_group_panel.dart": "04805a3ad5e695a6b6719c6f9637f5d1ee988b5ca441e9cab5462384a7352818",
+    "customer/lib/features/esim/presentation/widgets/esim_checkout_sheet.dart": "f66e237be1fe87973b7f61dc8e8df3e94333ea2595fa2a4d0e31a7be65842f15",
+    "customer/lib/features/esim/presentation/widgets/esim_profile_card.dart": "467a95af15c48b2ebfb291ffe303392507a3f8312b27e2f4f020b7500f4eb021",
+    "customer/lib/features/esim/presentation/screens/esim_screen.dart": "3c6d5bce56376b4589ee53e08a1feaefb6164e9d10799251dffc77c2c8119884",
+    "admin/lib/core/admin/admin_api.dart": "0ef3cfaf13f8d9a8f06c06b0d7e628c0dae666efe1e5090105a54cd05c474904",
+    "admin/lib/features/control/providers/esim_group_provider.dart": "30da13f9359d38ba65a6872ec73493a81144c1b4cb58192ad19fa45d8b4395e6",
+    "admin/lib/features/control/presentation/widgets/esim_group_inspector.dart": "5937791ed4b755462ffede67f51c44d737ee29e65c56345ddd98ae3151871674",
+    "admin/lib/features/control/presentation/operations_screen.dart": "b72cc5dc24af968c1fee2344bf63da6a73d7b41bc1d725b54f1b94640ab22bde",
+    "backend/esim_fulfillment_runtime.js": "6a3638dec4692530e56d6917514f3b6aa52ece47c980371b83de0f3a1445bc8f",
+    "edge/esim-recharge-discovery/index.ts": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d",
+    "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/_shared/esim-recharge-discovery.js": "e380e32f20996cd756a82924eda0d8f634c0cd71acfb519068e95b763628c226",
+    "migrations/20261028124423_esim_traveller_groups.sql": "391fe0db9b01dc0f4842cac05f5d6352eee86e5e7cdafbeffb1966fb6849902d"
+  }
+}

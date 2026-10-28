@@ -1,3 +1,4 @@
+import '../screens/esim_group_checkout_screen.dart';
 import 'esim_daily_quote_panel.dart';
 import 'esim_plan_facts.dart';
 import 'package:flutter/material.dart';
@@ -123,12 +124,23 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
             borderRadius: BorderRadius.circular(20),
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: EsimDailyQuotePanel(
-                packageId: widget.plan.id,
-                onAccepted: (id) {
-                  Navigator.pop(context);
-                  EsimOrderStatusModal.show(context, id, widget.plan.name);
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.plan.providerName == 'esimaccess')
+                    TextButton(
+                      onPressed: () =>
+                          EsimGroupCheckoutScreen.show(context, widget.plan),
+                      child: const Text('Buy for travellers'),
+                    ),
+                  EsimDailyQuotePanel(
+                    packageId: widget.plan.id,
+                    onAccepted: (id) {
+                      Navigator.pop(context);
+                      EsimOrderStatusModal.show(context, id, widget.plan.name);
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -375,6 +387,12 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
               ],
             ),
 
+            if (widget.plan.providerName == 'esimaccess')
+              TextButton(
+                onPressed: () =>
+                    EsimGroupCheckoutScreen.show(context, widget.plan),
+                child: const Text('Buy for travellers'),
+              ),
             const FxChargeNotice(),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),

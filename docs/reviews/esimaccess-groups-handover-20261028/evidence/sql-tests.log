@@ -1,0 +1,23 @@
+PASS private labels cannot be read or changed by another owner
+PASS labels validate control characters and length without touching activation data
+PASS one-to-three group bound is enforced by SQL
+PASS server quote shows per-profile prices and total without supplier cost or keys
+PASS forged payer/price fields and unsupported supplier offers are refused
+PASS inactive or stale catalogue refuses quotes
+PASS default group flag blocks reservations independently of sales
+PASS duplicate request adopts exactly one batch, two child orders and two holds
+PASS same request key with another quote refuses substitution
+PASS foreign quote acceptance and batch history leak nothing
+PASS changed second member rolls back earlier child reservations atomically
+PASS total unavailable funds cannot partially fund a group
+PASS partial delivery preserves separate profiles, pending funds and original member labels
+PASS each child captures only its own proven issuance; full group has distinct profiles
+PASS failed unsubmitted member releases only its own hold
+PASS disabled new group sales do not resubmit or release submitted uncertainty
+PASS global group pause releases only prepared work through existing proof path
+PASS profile identity collision cannot be assigned to another member
+PASS daily group requires verified duration pricing and records per-member exact days
+PASS ordinary customers cannot inspect private group rows or admin diagnostics
+PASS one cancelled member refunds only its proven charge while another remains pending
+PASS hour-based plans retain exact supplied duration instead of rounded days
+22 ESIM-13 SQL groups passed

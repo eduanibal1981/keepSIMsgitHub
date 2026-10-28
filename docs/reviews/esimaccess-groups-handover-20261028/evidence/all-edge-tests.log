@@ -1,0 +1,40 @@
+(node:15796) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ current eSIM events dispatch through the existing queue using push only (124.183833ms)
+✔ recovered usage, old cycles and stale observations cancel delayed eSIM push (2.869666ms)
+✔ saved category opt-out is rechecked before sending (1.077ms)
+✔ ownership mismatch cancels without sending (0.800958ms)
+✔ quiet hours defer eSIM updates in the saved IANA timezone (28.860709ms)
+✔ globally disabled push cannot fall through to email or Telegram (1.078334ms)
+✔ non-eSIM events retain their original enabled channels (0.791125ms)
+✔ control endpoint dispatches owner JWT with no supplied payer or provider (32.709375ms)
+✔ revoke and financial injection refused (5.844208ms)
+✔ unauthenticated controls denied (0.708625ms)
+✔ pause requires a consent revision and strict boolean (0.705959ms)
+✔ daily purchase and extension quote use only allowlisted intent under customer authority (27.070333ms)
+✔ invalid duration, quantity, injected prices/payers and service operations never reach SQL (2.95425ms)
+✔ daily purchase accepts a quote capability and stable nonce, never a client price (2.294833ms)
+✔ group quote and acceptance retain JWT authority and exact action parameters (50.27975ms)
+✔ four members, forged payer, price or child order rejected before RPC (1.130625ms)
+✔ daily days are strict whole numbers; labels do not dispatch supplier actions (0.3015ms)
+✔ anonymous organization lookup and unknown group fields are refused (0.30325ms)
+✔ anonymous/invalid identity and unexpected methods cannot reach SQL (31.611625ms)
+✔ authenticated discovery uses the customer client, exact profile and fixed RPC allowlist (5.451666ms)
+✔ payer overrides, acceptance, raw RPC names, malformed IDs and oversized requests are refused (10.86375ms)
+✔ quote/check bind only reviewed offer fields and owner-checked IDs (1.6885ms)
+✔ database errors and thrown auth errors never expose internal data (0.633875ms)
+✔ acceptance forwards only the quote capability and device ID using customer SQL authority (53.653459ms)
+✔ no client price, payer, supplier, receipt or settlement command can be injected into acceptance (2.974166ms)
+✔ history remains an owner-scoped RPC and a genuine empty result is preserved (0.889083ms)
+✔ missing/invalid secrets cause no event persistence, including URL tokens (50.540375ms)
+✔ durable acknowledgment stores only minimized hints, not activation or usage fields (12.77ms)
+✔ unknown event families, missing references, oversized and malformed bodies are rejected (5.451292ms)
+✔ missing authentication configuration and persistence failure fail closed (1.467041ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 343.084042

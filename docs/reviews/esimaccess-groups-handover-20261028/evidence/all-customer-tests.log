@@ -1,0 +1,133 @@
+00:00 +0: loading /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart
+00:00 +0: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_repository_test.dart: comparison uses v2 server filtering and retains daily facts through the repository
+00:00 +1: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_repository_test.dart: legacy plan listing reads the retail view and preserves supplied facts
+00:00 +2: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +3: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +4: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +5: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +6: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +7: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +8: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +9: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +10: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +11: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +12: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +13: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +14: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +15: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +16: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +17: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: owned QR renders locally with manual entry and an honest offline distinction
+00:01 +18: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: owned QR renders locally with manual entry and an honest offline distinction
+00:01 +19: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: owned QR renders locally with manual entry and an honest offline distinction
+00:01 +20: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: owned QR renders locally with manual entry and an honest offline distinction
+00:01 +21: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:01 +22: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:01 +23: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:01 +24: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +25: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:01 +26: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:01 +27: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:01 +28: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +29: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +30: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +31: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +32: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +33: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +34: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: opening Apple setup is a user action and never confirms installation
+00:01 +35: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: unverified legacy credentials cannot render a QR or guessed manual code
+00:01 +36: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: unverified legacy credentials cannot render a QR or guessed manual code
+00:01 +37: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: installation and recovery layout remains usable on a narrow screen
+00:01 +38: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: a completed order with no owned profile never fabricates delivery
+00:01 +39: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +40: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: group review rejects incomplete and unbalanced totals
+00:02 +41: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: daily traveller durations are exact and bounded
+00:02 +42: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: late quote response cannot cross an account change
+00:02 +43: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: foreign quote and disabled sales cannot request payment
+00:02 +44: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +45: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +46: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +47: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +48: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +49: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +50: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +51: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +52: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +53: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +54: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +55: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +56: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +57: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +58: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +59: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +60: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +61: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +62: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_groups_test.dart: checkout shows separate profiles, exact reviewed total and disabled purchase
+00:02 +63: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:02 +64: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +65: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +66: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +67: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +68: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +69: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_controls_test.dart: sign-out clears saved control data
+00:03 +70: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_controls_test.dart: sign-out clears saved control data
+00:03 +71: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_controls_test.dart: sign-out clears saved control data
+00:03 +72: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +73: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +74: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +75: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +76: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +77: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +78: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +79: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +80: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +81: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +82: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +83: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +84: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +85: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +86: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +87: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +88: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +89: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +90: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +91: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +92: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +93: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +94: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +95: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +96: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +97: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +98: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:03 +99: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data offers Unlimited as a mode, and no stray switch
+00:03 +100: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:03 +101: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:03 +102: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:03 +103: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:03 +104: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:03 +105: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:03 +106: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +107: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +108: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +109: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +110: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +111: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +112: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:04 +113: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_checkout_prerequisite_test.dart: checkout prerequisite reads available funds instead of the posted balance
+00:04 +114: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +115: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +116: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +117: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +118: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +119: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +120: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +121: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +122: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +123: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +124: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +125: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +126: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +127: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +128: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_daily_test.dart: invalid day input sends no quote and unavailable pricing is explicit
+00:04 +129: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_daily_test.dart: extension shows no-speed-restoration explanation and does not request funds by browsing
+00:04 +130: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_daily_test.dart: full server quote is shown with payment disabled, then account switch hides it
+00:04 +131: All tests passed!

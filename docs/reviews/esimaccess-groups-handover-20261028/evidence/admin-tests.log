@@ -1,0 +1,6 @@
+00:00 +0: loading /Users/thehonest/Work/KeepSIMs/keep_sims_admin/test/esim_group_inspector_test.dart
+00:00 +0: /Users/thehonest/Work/KeepSIMs/keep_sims_admin/test/esim_operation_inspector_test.dart: invalid order IDs never query a support operation
+00:00 +1: /Users/thehonest/Work/KeepSIMs/keep_sims_admin/test/esim_support_panel_test.dart: support shows minimized evidence and clears on sign-out
+00:00 +2: /Users/thehonest/Work/KeepSIMs/keep_sims_admin/test/esim_support_panel_test.dart: support shows minimized evidence and clears on sign-out
+00:00 +3: /Users/thehonest/Work/KeepSIMs/keep_sims_admin/test/esim_group_inspector_test.dart: group inspection requires a valid ID and hides private labels
+00:00 +4: All tests passed!

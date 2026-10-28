@@ -1,0 +1,106 @@
+{
+  "status": "SCOPED_RUNTIME_VERIFIED; ENGINEERING_ACCEPTANCE_COMPLETE; PAID_DEVICE_ROLLOUT_HELD",
+  "steps": [
+    {
+      "step": "ESIM-01",
+      "capability": "Baseline/provider contract",
+      "acceptance": "Engineering map and current guards verified; paid outcomes unverified"
+    },
+    {
+      "step": "ESIM-02",
+      "capability": "Catalogue/retail facts",
+      "acceptance": "Runtime source parity and current OM/EG/GCC evidence verified"
+    },
+    {
+      "step": "ESIM-03",
+      "capability": "Profile identity/usage",
+      "acceptance": "Fixtures and deployed access contracts pass; real profile/device unverified"
+    },
+    {
+      "step": "ESIM-04",
+      "capability": "Events/reconciliation",
+      "acceptance": "Protected hint ingress/source verified; provider registration/authentication remains pending"
+    },
+    {
+      "step": "ESIM-05",
+      "capability": "Alerts",
+      "acceptance": "Source/fixture and preference boundaries verified; real profile delivery unverified"
+    },
+    {
+      "step": "ESIM-06",
+      "capability": "Installation/recovery",
+      "acceptance": "Client/QR/privacy regressions pass; native installation unverified"
+    },
+    {
+      "step": "ESIM-07",
+      "capability": "Recharge discovery/quotes",
+      "acceptance": "Current owner/capability/price contracts verified; no owned live profile"
+    },
+    {
+      "step": "ESIM-08",
+      "capability": "Fixed recharge/settlement",
+      "acceptance": "Financial and native regressions pass; live spending held"
+    },
+    {
+      "step": "ESIM-09",
+      "capability": "Daily duration/extension",
+      "acceptance": "Exact-duration regressions pass; account pricing/limits and paid acceptance pending"
+    },
+    {
+      "step": "ESIM-10",
+      "capability": "Unused cancellation/refunds",
+      "acceptance": "Itemized original-payer scenarios pass; supplier credit/retail policy evidence pending"
+    },
+    {
+      "step": "ESIM-11",
+      "capability": "Suspend/resume/admin support",
+      "acceptance": "Owner/admin/session/source checks pass; provider actions unverified"
+    },
+    {
+      "step": "ESIM-12",
+      "capability": "Capped automation",
+      "acceptance": "Consent/cap/revocation/concurrency regressions pass; automation off"
+    },
+    {
+      "step": "ESIM-13",
+      "capability": "Traveller groups",
+      "acceptance": "22 SQL groups, 4 native checks, owner privacy and scoped deployment verified; group spending off"
+    },
+    {
+      "step": "ESIM-14",
+      "capability": "Final handover",
+      "acceptance": "Engineering/runtime acceptance and help/runbook complete; paid/device/cohort rollout held"
+    }
+  ],
+  "tests": {
+    "customer_cases": 133,
+    "admin_cases": 4,
+    "worker_cases": 87,
+    "edge_cases": 30,
+    "baseline_cases": 13,
+    "supplier_visibility_sql_groups": 12,
+    "group_sql_groups": 22,
+    "fixed_settlement_sql_groups": 23,
+    "daily_sql_groups": 15,
+    "controls_sql_groups": 27,
+    "native_group_checks": 4,
+    "native_controls_checks": 5,
+    "scoped_analysis": "clean",
+    "frozen_deno_check": "passed"
+  },
+  "open_acceptance": [
+    "Named purchaser/profile, allowed paid operations and spending ceiling",
+    "Real issuance, device installation/usage, fixed recharge, daily extension and unused cancellation receipts",
+    "Verified whole-duration account pricing/recharge limits and itemized cancellation credit/retail policy",
+    "Verified provider callback authentication or reviewed authenticated relay and successful registration",
+    "Verified server cohort restriction before account-wide spending gates open",
+    "Signed customer/Admin binary release and actual device acceptance"
+  ],
+  "gates": "All 12 remain false; no production rollout or paid acceptance is inferred",
+  "source_bases": {
+    "customer": "a8f01510b2a3c082dc94bb240462151c8e550452",
+    "backend": "2867df368f93ec3f33ed346c9d778bc244c80d66",
+    "admin": "f5d294fb5cd2fc0d760d66a48781855ac0943c34"
+  },
+  "evidence": "deployment.json, evidence/, release/manifest.json, operations-runbook.md"
+}

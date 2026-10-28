@@ -9,10 +9,13 @@ class EsimProfileCard extends StatelessWidget {
     required this.onBuyNew,
     this.onRecharge,
     this.onControls,
+    this.onLabel,
+    this.travellerLabel,
   });
   final UserEsim profile;
   final VoidCallback onInstall, onBuyNew;
-  final VoidCallback? onRecharge, onControls;
+  final VoidCallback? onRecharge, onControls, onLabel;
+  final String? travellerLabel;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -34,6 +37,8 @@ class EsimProfileCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (travellerLabel?.isNotEmpty == true)
+              Text(travellerLabel!, style: theme.textTheme.titleLarge),
             Text(profile.bundleName, style: theme.textTheme.titleMedium),
             Wrap(
               spacing: 8,
@@ -86,6 +91,12 @@ class EsimProfileCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
+                if (onLabel != null)
+                  OutlinedButton.icon(
+                    onPressed: onLabel,
+                    icon: const Icon(Icons.label_outline),
+                    label: const Text('Traveller labels'),
+                  ),
                 if (onControls != null)
                   OutlinedButton.icon(
                     onPressed: onControls,

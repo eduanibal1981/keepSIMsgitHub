@@ -584,3 +584,19 @@ have deny-client RLS/grants; Admin functions use assert_admin and audit reasons.
 JWT-protected recharge Edge v4 and three scoped fulfillment files match their
 release. All 11 spending/control gates remain false; provider acceptance is open.
 See docs/reviews/esimaccess-controls-automation-20261028.md.
+
+
+## ESIM-13/14 groups and handover — 2026-10-28
+
+Migration 20261028131332 adds private group quotes/batches/members/profile labels,
+owner/session-checked RPCs and audited Admin inspection/pause. Each member is a
+quantity-one existing operation, with atomic parent acceptance under the payer
+wallet lock and unique child/profile bindings. Authenticated fresh supplier facts
+precede one submission marker. Recovery never reallocates an ambiguous profile,
+reissues uncertainty or releases another member's funds. Original payer/refund
+primitives remain unchanged. Six definer notices and four private deny-client RLS
+notices are intentional and role-tested. Edge v5 keeps JWT verification; the one
+scoped fulfillment module and all thirteen dependencies match source. All twelve
+spending/control gates remain false. Paid/device/callback/cohort rollout evidence
+remains open; the acceptance matrix and runbook record the exact boundary. See
+docs/reviews/esimaccess-groups-handover-20261028.md.

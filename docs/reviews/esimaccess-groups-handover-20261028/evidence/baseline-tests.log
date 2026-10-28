@@ -1,0 +1,21 @@
+✔ baseline is valid, records unknown proof and enables no new action (0.935542ms)
+✔ unsupported and missing provider/capability never fall through to a supplier (0.130208ms)
+✔ merely switching recharge on cannot bypass missing evidence (0.192833ms)
+✔ an unknown or omitted prerequisite cannot become approval (0.138125ms)
+✔ wrong project and false runtime-enforcement claims invalidate assessment (0.185458ms)
+✔ old or future-dated evidence fails even when a read feature has all its gates passed (0.115792ms)
+✔ a real source change blocks a previously passing release assessment (2.065541ms)
+✔ source entries cannot read outside the named repositories (0.124958ms)
+✔ historical source drift cannot keep the captured audit release-ready (4.170417ms)
+✔ catalogue adapter contract is exercised with fixture fetch only (10.713792ms)
+✔ usage adapter uses stable profile reference when supplied; no real account is queried (0.429209ms)
+✔ missing usage proof remains null instead of becoming zero remaining (0.162875ms)
+✔ synthetic fixtures cannot be mistaken for live account evidence (0.081083ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.192292

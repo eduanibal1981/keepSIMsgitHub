@@ -4,6 +4,11 @@
 /// Detects device eSIM capability and provides profile management.
 library;
 
+import 'esim_help_screen.dart';
+import 'package:keep_sims/features/auth/controller/auth_controller.dart';
+import '../widgets/esim_group_panel.dart';
+import '../controllers/esim_group_controller.dart';
+
 import 'esim_controls_screen.dart';
 
 import 'package:keep_sims/features/esim/presentation/screens/esim_recharge_screen.dart';
@@ -132,6 +137,15 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final userEsimsAsync = ref.watch(userEsimsControllerProvider);
+    final organizationSnapshot = ref.watch(esimOrganizationProvider).value;
+    final labelAuth = ref.watch(authControllerProvider);
+    final organization =
+        !labelAuth.isLoading &&
+            !labelAuth.hasError &&
+            organizationSnapshot?.owner == labelAuth.value?.id
+        ? organizationSnapshot
+        : null;
+    final labels = organization?.labels ?? <String, Map<String, dynamic>>{};
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -208,6 +222,12 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
               const SizedBox(height: 20),
             ],
 
+            TextButton.icon(
+              onPressed: () => EsimHelpScreen.show(context),
+              icon: const Icon(Icons.help_outline),
+              label: const Text('eSIM help'),
+            ),
+            const EsimGroupPanel(),
             // Owned profiles remain available for QR display and recovery
             // help even when this device cannot provision an eSIM.
             // ── Installed eSIM Profiles ("My eSIMs") ────────────────
@@ -232,10 +252,25 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (activeEsims.isNotEmpty)
-                      ...activeEsims.map(
-                        (esim) => _buildEsimCard(context, esim, isDark),
-                      ),
+                    for (final group in {
+                      for (final e in activeEsims)
+                        labels[e.id]?['group_label'] as String? ?? '',
+                    }) ...[
+                      if (group.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            group,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ),
+                      for (final esim in activeEsims.where(
+                        (e) =>
+                            (labels[e.id]?['group_label'] as String? ?? '') ==
+                            group,
+                      ))
+                        _buildEsimCard(context, esim, isDark, labels[esim.id]),
+                    ],
 
                     if (archivedEsims.isNotEmpty) ...[
                       const SizedBox(height: 20),
@@ -248,7 +283,12 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
                         ),
                         children: archivedEsims
                             .map(
-                              (esim) => _buildEsimCard(context, esim, isDark),
+                              (esim) => _buildEsimCard(
+                                context,
+                                esim,
+                                isDark,
+                                labels[esim.id],
+                              ),
                             )
                             .toList(),
                       ),
@@ -330,14 +370,22 @@ class _EsimScreenState extends ConsumerState<EsimScreen> {
     ];
   }
 
-  Widget _buildEsimCard(BuildContext context, UserEsim esim, bool isDark) =>
-      EsimProfileCard(
-        profile: esim,
-        onInstall: () => EsimDeliveryScreen.show(context, esim),
-        onRecharge: () => EsimRechargeScreen.show(context, esim.id),
-        onControls: () => EsimControlsScreen.show(context, esim.id),
-        onBuyNew: () => context.push(AppRoutes.esimPlans),
-      );
+  Widget _buildEsimCard(
+    BuildContext context,
+    UserEsim esim,
+    bool isDark, [
+    Map<String, dynamic>? label,
+  ]) => EsimProfileCard(
+    profile: esim,
+    travellerLabel: label?['traveller_label'] as String?,
+    onLabel: esim.provider == 'esimaccess'
+        ? () => EsimLabelEditor.show(context, esim.id, label)
+        : null,
+    onInstall: () => EsimDeliveryScreen.show(context, esim),
+    onRecharge: () => EsimRechargeScreen.show(context, esim.id),
+    onControls: () => EsimControlsScreen.show(context, esim.id),
+    onBuyNew: () => context.push(AppRoutes.esimPlans),
+  );
 
   // ── Hero Card ───────────────────────────────────────────────────
   Widget _buildEsimHeroCard(

@@ -1,0 +1,4 @@
+PASS native concurrent taps adopt one parent, two children and two reservations
+PASS independent workers lease distinct child operations without duplicate issuance
+PASS competing group orders cannot spend another group reservation
+PASS native non-owner and potential manager receive no group or label access
