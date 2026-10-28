@@ -1,6 +1,6 @@
 # KeepSIMs eSIM Access integration — implement one step at a time
 
-Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08 fixed recharge/settlement is implemented and deployed with spending gates closed; ESIM-09 daily duration/extension runtime is deployed with spending gated and customer source tested; ESIM-10–14 remain planned.
+Date: 28 October 2026, Asia/Muscat. Status: ESIM-01 and ESIM-02 implemented/tested locally; ESIM-02 database/Edge/VM runtime deployed and verified after approval; app UI tested locally. Fresh VM/source checks now succeed; catalogue account access is live verified; paid provider acceptance remains UNKNOWN. ESIM-03 implementation and backend runtime are deployed/verified; ESIM-04 runtime is deployed/verified with real callback registration pending the provider authentication contract. Customer/Admin app changes are tested locally; no binaries were published. ESIM-05 alerts are implemented with backend runtime deployed/verified and customer app tested locally; ESIM-06 installation/recovery is tested locally with native acceptance unverified; ESIM-07 discovery/quotes runtime is deployed/verified and its app tested locally; ESIM-08 fixed recharge/settlement is implemented and deployed with spending gates closed; ESIM-09 daily duration/extension runtime is deployed with spending gated and customer source tested; ESIM-10–12 are implemented/tested with the scoped backend deployed/verified and new actions gated; ESIM-13–14 remain planned.
 
 This plan covers the useful standard-API capabilities discussed with the owner. It does not purchase Android direct installation, the Android SDK, or carrier-name customization. Standard API integration has no published setup/monthly platform fee; packages, recharges, development, infrastructure and any chargeable notification services still cost money. KeepSIMs controls its app branding. See [S1], [S2], [S3].
 
@@ -29,9 +29,9 @@ If an earlier step is only locally tested, a dependent change can be prepared lo
 | ESIM-07 | Compatible recharge discovery and quotes | 02, 03 | Runtime deployed/verified; app tested locally |
 | ESIM-08 | Safe manual fixed-bundle recharge | 04, 07 | Runtime deployed/verified with spending disabled; apps tested locally |
 | ESIM-09 | Selectable Day Pass duration and extensions | 08 | Runtime deployed/verified; prices and spending gated; app tested |
-| ESIM-10 | Eligible unused-profile cancellation/refunds | 04, 08 | Planned |
-| ESIM-11 | Suspend/resume and admin support tools | 04, 06 | Planned |
-| ESIM-12 | Optional capped automatic recharge | 05, 08, 09, 11 | Planned |
+| ESIM-10 | Eligible unused-profile cancellation/refunds | 04, 08 | Runtime deployed/verified; policy/provider acceptance gated |
+| ESIM-11 | Suspend/resume and admin support tools | 04, 06 | Runtime deployed/verified; apps tested; provider actions gated |
+| ESIM-12 | Optional capped automatic recharge | 05, 08, 09, 11 | Runtime deployed/verified; explicit consent implemented; spending off |
 | ESIM-13 | Family/traveller labels and group ordering | 06, 08, 10 | Planned |
 | ESIM-14 | Final acceptance and operational handover | All implemented steps | Planned |
 
@@ -560,3 +560,14 @@ Evidence: [ESIM-09 review](../reviews/esimaccess-daily-duration-20261028.md),
 ESIM-09 source-sync note: backend release pushed and verified; customer release
 committed locally. Automatic approval review blocked the customer GitHub upload
 pending explicit approval. Runtime deployment is complete.
+
+
+### ESIM-10/11/12 progress — 28 October 2026
+
+- Status: IMPLEMENTED/TESTED; scoped migration, Edge and VM runtime DEPLOYED and VERIFIED LIVE. Customer/Admin source is tested; binaries remain unpublished. No paid provider action or live wallet mutation occurred.
+- Delivered: unused-profile eligibility and itemized original-payer cancellation quotes; stable persisted controls and read-only recovery; separate supplier-credit/retail refund states with unique per-debit settlement; suspend/resume without a validity-freeze promise; audited redacted support/search/refresh/escalation and capability pauses; explicit versioned automatic-recharge consent with exact packages, reviewed prices, per-action and monthly caps, fresh observations, shared locks and revocation at submission.
+- Validation: 124 customer and 3 Admin cases, clean scoped analysis; 46 Node and 10 Edge cases; frozen Deno check; 27 isolated SQL groups, 23 settlement regressions with the new migration, and 5 independent-session native PostgreSQL checks. Live ACL/owner/session/forged-user_metadata/Admin/service boundaries pass in a rolled-back transaction.
+- Runtime: migration `20261028063614` / stored SQL MD5 `27fb2671d709ad83c2dabe97f2d15306`; recharge Edge v4 (JWT retained, source parity verified); three VM files match the manifest. Only fulfillment restarted (PID 1067931, restarts 24, online, zero-error cycles); other PM2 services are unchanged. Backup is `/home/abdal/keepsims_backend/backups/esim10-12-20261028`.
+- Gates/limits: all 11 existing/new action and contract switches remain false. No account refund policy or supplier credit evidence is fabricated; ambiguous/partial credit stays pending. Unsupported external/fee policies, unattributed legacy/batch charges and real-provider/device acceptance require support or separately scoped evidence. Automation caps are per profile in USD/UTC months and include prior-month unresolved exposure; daily quota depletion never triggers extensions.
+- Rollback: pause cancellation/service-controls/automation switches; retain schema, refund bindings, receipt journal and read-only recovery. Never replay an uncertain POST or release unknown funds. Next planned step: ESIM-13.
+- Evidence and reproducible source manifest: `docs/reviews/esimaccess-controls-automation-20261028.md` and its release/evidence directory. Source branches: `codex/esim10-12-controls-20261028` in all three repositories; unrelated primary-tree edits are preserved.

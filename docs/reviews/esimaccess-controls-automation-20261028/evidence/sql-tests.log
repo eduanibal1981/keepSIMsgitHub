@@ -1,0 +1,28 @@
+PASS non-owner cannot inspect or control profile
+PASS zero bytes alone never proves refund policy or eligibility
+PASS quote shows exact retail refund and original payer
+PASS duplicate suspend adopts one operation and blocks recharge
+PASS activation race blocks cancellation before POST
+PASS unknown control stays pending and cannot submit twice
+PASS suspend and resume preserve confirmed validity
+PASS partial supplier credit remains pending; duplicate refund credits once
+PASS scope cannot exceed attributable charge
+PASS all new actions default disabled
+PASS fresh consent reserves one automatic order
+PASS price above consent pauses without reservation
+PASS stale usage waits without charging
+PASS withdrawal before submission releases unsubmitted reservation
+PASS withdrawal after submission preserves funds and recovery
+PASS global disable blocks queued submissions
+PASS consent revision prevents stale overwrite
+PASS manual and automatic actions cannot reserve concurrently
+PASS unresolved prior-month exposure remains counted
+PASS daily quota depletion cannot trigger fixed bundle purchase
+PASS service and private calls denied to customers
+PASS all base and attached recharge charges must appear in refund scope
+PASS refund credits original payer when profile owner differs
+PASS monthly cap pauses a new cycle after settled exposure
+PASS low wallet pauses automation without a new reservation
+PASS base plus attached recharge refunds settle each charge exactly once
+PASS daily automation extends near expiry using exact verified whole-duration price
+27 ESIM-10/11/12 SQL groups passed

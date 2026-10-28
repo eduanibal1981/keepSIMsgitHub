@@ -1,0 +1,14 @@
+{
+  "version": 4,
+  "verify_jwt": true,
+  "files": {
+    "esim-recharge-discovery/index.ts": {
+      "matches": true,
+      "sha256": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d"
+    },
+    "_shared/esim-recharge-discovery.js": {
+      "matches": true,
+      "sha256": "2ae10278dcb502fef5304c032737183967de7909f5ec69f3527735bbaa18a1a5"
+    }
+  }
+}

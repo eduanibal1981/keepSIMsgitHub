@@ -8,10 +8,11 @@ class EsimProfileCard extends StatelessWidget {
     required this.onInstall,
     required this.onBuyNew,
     this.onRecharge,
+    this.onControls,
   });
   final UserEsim profile;
   final VoidCallback onInstall, onBuyNew;
-  final VoidCallback? onRecharge;
+  final VoidCallback? onRecharge, onControls;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -85,6 +86,12 @@ class EsimProfileCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
+                if (onControls != null)
+                  OutlinedButton.icon(
+                    onPressed: onControls,
+                    icon: const Icon(Icons.settings_outlined),
+                    label: const Text('Service & auto recharge'),
+                  ),
                 if (onRecharge != null)
                   OutlinedButton.icon(
                     onPressed: onRecharge,

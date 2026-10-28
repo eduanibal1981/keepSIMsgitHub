@@ -1,0 +1,96 @@
+ M .flutter-plugins-dependencies
+ M analysis_options.yaml
+ M android/gradle.properties
+ M lib/core/admin/admin_api.dart
+ M lib/core/admin/admin_providers.dart
+ M lib/core/admin/admin_widgets.dart
+ M lib/core/layout/admin_shell_screen.dart
+ M lib/core/providers.dart
+ M lib/core/providers.g.dart
+ M lib/core/providers/locale_provider.dart
+ M lib/core/router/app_router.dart
+ M lib/core/router/app_router.g.dart
+ M lib/core/router/placeholder_screens.dart
+ M lib/core/services/local_cache_service.dart
+ M lib/core/services/sync_queue_service.dart
+ M lib/core/services/sync_queue_service.g.dart
+ M lib/core/supabase_client.dart
+ M lib/core/theme/app_theme.dart
+ M lib/core/utils/currency_formatter.dart
+ M lib/core/widgets/empty_state.dart
+ M lib/core/widgets/error_state.dart
+ M lib/core/widgets/glass_card.dart
+ M lib/core/widgets/glass_toggle_switch.dart
+ M lib/core/widgets/shimmer_loading.dart
+ M lib/features/admin/presentation/providers/admin_providers.dart
+ M lib/features/admin/presentation/providers/admin_providers.g.dart
+ M lib/features/admin/presentation/screens/admin_dashboard_screen.dart
+ M lib/features/analytics/presentation/screens/analytics_dashboard_screen.dart
+ M lib/features/auth/contract/auth_contract.dart
+ M lib/features/auth/controller/auth_controller.dart
+ M lib/features/auth/repository/auth_repository.dart
+ M lib/features/auth/ui/email_auth_screen.dart
+ M lib/features/auth/ui/login_screen.dart
+ M lib/features/control/presentation/carriers_screen.dart
+ M lib/features/control/presentation/offline_screen.dart
+ M lib/features/control/presentation/operations_screen.dart
+ M lib/features/control/presentation/scheduled_jobs_screen.dart
+ M lib/features/control/presentation/suppliers_screen.dart
+ M lib/features/control/presentation/support_screen.dart
+ M lib/features/scheduled_topups/repository/topup_execution_repository.dart
+ M lib/features/server_management/data/repositories/ssh_repository.dart
+ M lib/features/server_management/presentation/providers/server_providers.dart
+ M lib/features/server_management/presentation/screens/server_dashboard_screen.dart
+ M lib/features/sim_lines/data/datasources/twilio_verification_service.dart
+ M lib/features/sim_lines/data/models/line_activity_log_model.dart
+ M lib/features/sim_lines/data/models/line_activity_log_model.freezed.dart
+ M lib/features/sim_lines/data/repositories/sim_lines_repository_impl.dart
+ M lib/features/sim_lines/domain/repositories/sim_lines_repository.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.dart
+ M lib/features/sim_lines/presentation/controllers/line_verification_controller.g.dart
+ D lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.dart
+ D lib/features/sim_lines/presentation/controllers/sim_line_detail_controller.g.dart
+ M lib/features/sim_lines/presentation/controllers/sim_lines_controller.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_detail_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_executions_history_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_line_form_screen.dart
+ D lib/features/sim_lines/presentation/screens/sim_lines_list_screen.dart
+ D lib/features/sim_lines/presentation/widgets/line_upgrade_sheet.dart
+ D lib/features/sim_lines/presentation/widgets/manual_refill_bottom_sheet.dart
+ D lib/features/sim_lines/presentation/widgets/number_verification_dialog.dart
+ D lib/features/sim_lines/presentation/widgets/sim_line_card.dart
+ M lib/features/testing_console/data/repositories/test_repository.dart
+ M lib/features/testing_console/presentation/screens/test_list_screen.dart
+ M lib/features/user_management/data/repositories/user_management_repository.dart
+ M lib/features/whatsapp_management/controller/whatsapp_management_controller.g.dart
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner/Configs/Release.xcconfig
+ M macos/Runner/DebugProfile.entitlements
+ M macos/Runner/MainFlutterWindow.swift
+ M macos/Runner/Release.entitlements
+ M pubspec.lock
+ M pubspec.yaml
+ M test/features/control/carriers_layout_test.dart
+ M test/widget_test.dart
+ M test_query.dart
+ M windows/runner/flutter_window.cpp
+ M windows/runner/flutter_window.h
+?? docs/
+?? lib/features/auth/repository/macos_google_sign_in.dart
+?? lib/features/auth/repository/windows_google_sign_in.dart
+?? lib/features/control/presentation/widgets/
+?? lib/features/control/presentation/worker_fleet_panel.dart
+?? lib/features/control/providers/
+?? lib/features/credentials/
+?? lib/features/scheduled_topups/model/schedule_mutation_request.dart
+?? macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+?? macos/Runner.xcworkspace/xcshareddata/swiftpm/
+?? output/
+?? test/core/admin/admin_api_carrier_availability_test.dart
+?? test/esim_operation_inspector_test.dart
+?? test/features/auth/
+?? test/features/control/worker_fleet_panel_test.dart
+?? test/features/credentials/
+?? test/features/scheduled_topups/
+?? test/features/sim_lines/
+?? tools/

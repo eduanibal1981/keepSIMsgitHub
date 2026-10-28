@@ -261,3 +261,15 @@ checks, durable reservations and receipt recovery; customer/Admin source tested.
 checks pass. Spending remains disabled; no paid/provider acceptance or binaries.
 View-option reset caught and corrected, owner-RLS regression now tested. See
 docs/reviews/esimaccess-recharge-settlement-20261028.md. Next step ESIM-09.
+
+
+## ESIM-10/11/12 — 2026-10-28
+
+Cancellation/refund controls, suspend/resume, redacted audited admin support and
+explicitly capped automatic recharge are implemented and tested. Migration
+20261028063614, recharge Edge v4 and the scoped fulfillment runtime are deployed
+and verified with source hashes, ACL checks and zero-error cycles. All 11 action
+and contract flags remain false. Customer/Admin source is tested; no binaries or
+paid provider acceptance are claimed. Refund policies and supplier credit require
+independent itemized evidence; daily pricing/limits remain gated. See the controls
+and automation release report. ESIM-13 is the next planned implementation.

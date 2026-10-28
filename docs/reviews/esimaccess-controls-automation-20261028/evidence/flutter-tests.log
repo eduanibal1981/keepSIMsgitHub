@@ -1,0 +1,7 @@
+00:00 +0: loading /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_controls_test.dart
+00:00 +0: money inputs preserve cents and reject invented precision
+00:00 +1: daily quota trigger cannot silently reuse fixed consent
+00:00 +2: default projection exposes no enabled control or consent
+00:00 +3: disabled controls explain pending refunds and never offer enabled automation
+00:00 +4: sign-out clears saved control data
+00:00 +5: All tests passed!

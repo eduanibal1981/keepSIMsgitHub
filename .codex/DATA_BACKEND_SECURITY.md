@@ -566,3 +566,21 @@ Daily extension shares the existing reservation/receipt authority and captures
 once; it cannot restore daily quota or installed credentials. Missing daily usage
 and reset timing stay unknown and cannot drive a low-data alert. See the ESIM-09
 review for migrations, deployed source hashes, permission and concurrency evidence.
+
+
+## ESIM-10/11/12 controls and automation — 2026-10-28 (deployed)
+
+Migration 20261028063614 adds private control operations, quoted refund scopes,
+per-debit refund bindings, versioned automation consent/exposure/audit and support
+cases. Owner RPCs verify identity; sensitive consent/control requests require a
+live auth session. Service-only markers precede one provider POST; reconciliation
+only queries stable references. Cancellation state never proves financial credit.
+An independently verified itemized credit settles original payers once through
+credit_wallet, bounded to real captured unrefunded charges. Shared profile locks
+serialize controls and manual/automatic recharge. Automation reserves through the
+existing quote/wallet engine, counts unresolved exposure, and rechecks consent
+revision, account switches and caps immediately before submission. Private tables
+have deny-client RLS/grants; Admin functions use assert_admin and audit reasons.
+JWT-protected recharge Edge v4 and three scoped fulfillment files match their
+release. All 11 spending/control gates remain false; provider acceptance is open.
+See docs/reviews/esimaccess-controls-automation-20261028.md.

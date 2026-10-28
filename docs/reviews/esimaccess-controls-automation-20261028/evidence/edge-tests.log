@@ -1,0 +1,18 @@
+✔ control endpoint dispatches owner JWT with no supplied payer or provider (11.002375ms)
+✔ revoke and financial injection refused (0.5705ms)
+✔ unauthenticated controls denied (0.204375ms)
+✔ pause requires a consent revision and strict boolean (0.267625ms)
+✔ daily purchase and extension quote use only allowlisted intent under customer authority (11.939292ms)
+✔ invalid duration, quantity, injected prices/payers and service operations never reach SQL (1.165833ms)
+✔ daily purchase accepts a quote capability and stable nonce, never a client price (0.310917ms)
+✔ acceptance forwards only the quote capability and device ID using customer SQL authority (11.844375ms)
+✔ no client price, payer, supplier, receipt or settlement command can be injected into acceptance (0.99125ms)
+✔ history remains an owner-scoped RPC and a genuine empty result is preserved (0.286416ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 112.149209

@@ -1,0 +1,70 @@
+{
+  "steps": [
+    "ESIM-10",
+    "ESIM-11",
+    "ESIM-12"
+  ],
+  "project": "zwxswagokhgbuzrrbnhr",
+  "branch": "codex/esim10-12-controls-20261028",
+  "source_bases": {
+    "customer": "789fa5daa28376c60968c359e1a8a6f2e5d00c2b",
+    "backend": "cd7d5620c4e32d8d5bf23c410d5db0286cf03286",
+    "admin": "29e6c0f027ad8195f2074cfab7178c14f51801be"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_fulfillment_runtime.js",
+      "esim_profile_controls.js",
+      "providers/esimaccess_profiles.js"
+    ],
+    "previous_sha256": {
+      "esim_fulfillment_runtime.js": "8d789819a8ffb5563690a8754ad53a792aa72f9e10b09ffa61d8b7025ef398fc",
+      "esim_profile_controls.js": null,
+      "providers/esimaccess_profiles.js": "ed37329129ec704f90e244931fb467497d5f04cd301edd061571bb0666714517"
+    },
+    "dependencies": {
+      "worker_esim_fulfillment.js": "d538d047e0cbdaced6c21ce28d5db516477d40b4036f18c27e99fc8c17a8d492",
+      "providers/esimaccess.js": "d3ba64f7d30dac11ed3e819bc4a8830e3ce69974edaff8bd907cce75555a4c43",
+      "providers/esimaccess_credentials.js": "6163d9fcb2808980297247980788e67fc6bc7afab3fd6bf2b8983a4909a99b1c",
+      "esim_supplier_limiter.js": "c1ad76a94d2b4490dc14278149b53916c2e4d36f2b5e6389ebe6f77e11828ce0",
+      "esim_recharge_settlement.js": "de105565fff1b1a0dc036ba45aad254667effb55fd6b06e561130fbde2f53edd",
+      "esim_receipt_journal.js": "339483afe87ec5f44d834d6e378ba4ae77cd984f01a46ce0cb6efc51a1343458",
+      "esim_recharge_discovery.js": "ff8789562cdb2dd3f5fc0f5d282f0800c133bf12b5eb6d7eba285d3c7ffd0175",
+      "providers/esimaccess_daily.js": "9cb1430cc07bd1d6688b82007cd7df897dede360aa17d1f2aa4b58bdf89aabac",
+      "providers/esimaccess_recharge.js": "2cab9a2d3ca3b376f6354c373749fb3ba8f2de63a4a00fe9ce0018e7e3eb5d87"
+    }
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "verify_jwt": true
+  },
+  "new_flags": {
+    "cancellation_enabled": false,
+    "cancellation_contract_verified": false,
+    "service_controls_enabled": false,
+    "service_controls_contract_verified": false,
+    "automation_enabled": false
+  },
+  "acceptance": "No paid supplier tests, live profile actions, refunds, wallet mutations or binary publication. Refund policies/itemized credits require independently verified source evidence.",
+  "files": {
+    "customer/lib/features/esim/domain/entities/esim_controls.dart": "003991fe79928828a9e2d9c36f99fb231ecbe56a8efd08f14a50b52d2cf0198c",
+    "customer/lib/features/esim/domain/repositories/esim_controls_repository.dart": "da5bec3cec329943867b5fcc439653e4440838a6ba78ff40072f38fe3386bd5d",
+    "customer/lib/features/esim/data/repositories/esim_controls_repository_impl.dart": "299460208691b77891ad2f2210de08b61e9d77d9c96792c3ddc96f58c48f1210",
+    "customer/lib/features/esim/presentation/controllers/esim_controls_controller.dart": "06fd3c9ec75133642216483caf2733aefe4da69986feaff8a49f6a5bb61d5a5a",
+    "customer/lib/features/esim/presentation/screens/esim_controls_screen.dart": "7de912727fc7773e9e604b45faac2375318367420fe20da91352a212117abf3f",
+    "customer/lib/features/esim/presentation/screens/esim_screen.dart": "26b2ec40fa43b339a1902cbe75b8eae07707d1aa9ce4f37594fd1e54e21889f1",
+    "customer/lib/features/esim/presentation/widgets/esim_profile_card.dart": "195cf8de25b521d50192685e16f509559ff4ad58e28137e7c586f1ac4fe1d29b",
+    "admin/lib/core/admin/admin_api.dart": "7b972ae2d36d41a809179b4c8d9fdd49297ebe805f66e0c06e69231498d9bf1d",
+    "admin/lib/features/control/providers/esim_support_provider.dart": "bd5524eec5b4f817e72c0e74499116709dc75343b1b0d4bf9bfe796b4c6fe050",
+    "admin/lib/features/control/presentation/widgets/esim_support_panel.dart": "c37802e264a897ad7fde80dd72201ddb26f4fce986ad042c2cfcdedf43c67869",
+    "admin/lib/features/control/presentation/operations_screen.dart": "24e70d32739ffd0e286d33b78b330e709bc1323f83b0d846083c76dfbf427278",
+    "backend/esim_fulfillment_runtime.js": "f37854e719dcb626c88ab58af880d51da923528e44ffbb57cc4ee18d954ed068",
+    "backend/esim_profile_controls.js": "945b0972e71d2eea84c694ccb39c5642b6c37917d4ff25ce33d0eb018345bd07",
+    "backend/providers/esimaccess_profiles.js": "025ca09b0efb81ab86db3121a0d5ec6d5c460af58c8409ce41c6b8bd58f64eb2",
+    "edge/esim-recharge-discovery/index.ts": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d",
+    "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/_shared/esim-recharge-discovery.js": "2ae10278dcb502fef5304c032737183967de7909f5ec69f3527735bbaa18a1a5",
+    "migrations/20261028061449_esim_controls_automation.sql": "727ce195a350486b3ab6ad581e082985bc050c35ee2324570f3001a55d54f38b"
+  }
+}

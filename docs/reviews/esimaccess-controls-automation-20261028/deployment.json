@@ -1,0 +1,58 @@
+{
+  "steps": [
+    "ESIM-10",
+    "ESIM-11",
+    "ESIM-12"
+  ],
+  "date": "2026-10-28",
+  "timezone": "Asia/Muscat",
+  "status": "SCOPED_RUNTIME_DEPLOYED_VERIFIED",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "migration": {
+    "version": "20261028063614",
+    "name": "esim_controls_automation",
+    "md5": "27fb2671d709ad83c2dabe97f2d15306",
+    "stored_source_matches": true
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "version": 4,
+    "verify_jwt": true,
+    "source_matches": true,
+    "anonymous_post": 401,
+    "options": 204
+  },
+  "vm": {
+    "files": [
+      "esim_fulfillment_runtime.js",
+      "esim_profile_controls.js",
+      "providers/esimaccess_profiles.js"
+    ],
+    "source_matches": true,
+    "process": "worker-esim-fulfillment",
+    "pid": 1067931,
+    "restarts": 24,
+    "status": "online",
+    "unrelated_processes_unchanged": true,
+    "backup": "/home/abdal/keepsims_backend/backups/esim10-12-20261028",
+    "cycle_errors": 0
+  },
+  "tests": {
+    "customer_feature_cases": 124,
+    "admin_cases": 3,
+    "worker_cases": 46,
+    "edge_cases": 10,
+    "new_sql_groups": 27,
+    "settlement_regression_groups": 23,
+    "native_concurrency_groups": 5,
+    "dart_analysis": "clean",
+    "deno_check": "frozen passed",
+    "live_access": "passed; transaction rolled back"
+  },
+  "all_11_action_contract_flags": false,
+  "live_profile_actions": false,
+  "live_wallet_mutations": false,
+  "paid_provider_acceptance": "UNVERIFIED",
+  "application_binaries_published": false,
+  "next_planned_step": "ESIM-13"
+}

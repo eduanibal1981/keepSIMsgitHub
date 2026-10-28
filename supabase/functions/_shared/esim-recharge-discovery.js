@@ -18,7 +18,15 @@ export function createRechargeHandler({authenticate,call}) {
       let b;try{b=JSON.parse(body);}catch(_){return reply(400,{status:'INVALID_REQUEST'});}
       if(!b||Array.isArray(b)||typeof b!=='object')return reply(400,{status:'INVALID_REQUEST'});
       let name,params;
-      if(b.action==='quote_daily_purchase'&&typeof b.package_id==='string'&&b.package_id.length>0&&b.package_id.length<=100&&
+      if(['controls','automation'].includes(b.action)&&uuid(b.profile_id)&&Object.keys(b).every(k=>['action','profile_id'].includes(k))){
+        name=b.action==='controls'?'get_esim_controls':'get_esim_automation';params={p_profile_id:b.profile_id};
+      }else if(b.action==='control'&&uuid(b.profile_id)&&uuid(b.request_key)&&['cancel','suspend','resume'].includes(b.control)&&
+        (b.quote_id==null||uuid(b.quote_id))&&(b.acceptance_key==null||uuid(b.acceptance_key))&&Object.keys(b).every(k=>['action','profile_id','request_key','control','quote_id','acceptance_key'].includes(k))){
+        name='request_esim_control';params={p_profile_id:b.profile_id,p_action:b.control,p_request_key:b.request_key,p_quote_id:b.quote_id??null,p_acceptance_key:b.acceptance_key??null};
+      }else if(b.action==='set_automation'&&uuid(b.profile_id)&&Number.isInteger(b.expected_revision)&&b.expected_revision>=0&&typeof b.enabled==='boolean'&&
+        (b.device_id==null||uuid(b.device_id))&&(b.settings==null||(typeof b.settings==='object'&&!Array.isArray(b.settings)))&&Object.keys(b).every(k=>['action','profile_id','expected_revision','enabled','settings','device_id'].includes(k))){
+        name='set_esim_automation';params={p_profile_id:b.profile_id,p_expected_revision:b.expected_revision,p_enabled:b.enabled,p_settings:b.settings??null,p_device_id:b.device_id??null};
+      }else if(b.action==='quote_daily_purchase'&&typeof b.package_id==='string'&&b.package_id.length>0&&b.package_id.length<=100&&
         Number.isInteger(b.period_count)&&b.period_count>=1&&b.period_count<=365&&Number.isInteger(b.quantity)&&b.quantity>=1&&b.quantity<=3&&
         Object.keys(b).every(k=>['action','package_id','period_count','quantity'].includes(k))) {
         name='quote_esim_daily_purchase';params={p_offer_id:b.package_id,p_period_count:b.period_count,p_quantity:b.quantity};

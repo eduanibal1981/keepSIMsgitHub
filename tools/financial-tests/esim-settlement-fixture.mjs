@@ -59,6 +59,10 @@ export async function createFixture(database=null) {
   const name=fs.readdirSync(new URL('supabase/migrations/',root)).find(n=>n.endsWith('_esim_daily_duration.sql'));
   await db.exec(read('supabase/migrations/'+name).replace(/DO \$preflight\$[\s\S]*?END \$preflight\$;/,''));
  }
+ if(process.env.KEEPSIMS_TEST_CONTROLS_MIGRATION==='1') {
+  const name=fs.readdirSync(new URL('supabase/migrations/',root)).find(n=>n.endsWith('_esim_controls_automation.sql'));
+  await db.exec(read('supabase/migrations/'+name).replace(/DO \$preflight\$[\s\S]*?END \$preflight\$;/,''));
+ }
  // Actual live orders RLS and view ACL predate the ESIM-03 migration.
  await db.exec(`ALTER TABLE public.esim_orders ENABLE ROW LEVEL SECURITY;CREATE POLICY "Users can read own esim orders" ON public.esim_orders FOR SELECT TO authenticated USING(auth.uid()=user_id);GRANT SELECT ON public.customer_esim_orders TO authenticated,service_role;`);
  await db.exec(`insert into auth.users(id) values('${owner}'),('${other}');insert into auth.sessions(id,user_id) values('${owner}','${owner}'),('${other}','${other}');

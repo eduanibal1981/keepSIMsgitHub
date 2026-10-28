@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import net from 'node:net';
+import {randomUUID} from 'node:crypto';
+import EmbeddedPostgres from 'embedded-postgres';
+import {createControlsFixture,owner,other} from './esim-controls-fixture.mjs';
+const port=await new Promise(resolve=>{const s=net.createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>resolve(p));});});
+const dir=await fs.mkdtemp(path.join(os.tmpdir(),'keepsims-controls-native-'));
+const server=new EmbeddedPostgres({databaseDir:dir,user:'postgres',password:randomUUID(),port,persistent:false,
+ initdbFlags:['--locale=C'],postgresFlags:['-h','127.0.0.1','-k','/tmp'],onLog(){},onError(){}});
+const clients=[];
+const connect=async()=>{const c=server.getPgClient();await c.connect();clients.push(c);return c;};
+const scalar=async(c,s,p=[])=>Object.values((await c.query(s,p)).rows[0])[0];
+const auth=async(c,u=owner)=>{await c.query('SET ROLE authenticated');await c.query("select set_config('request.jwt.claim.role','authenticated',false),set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claims',$2,false)",[u,JSON.stringify({role:'authenticated',sub:u,session_id:u})]);};
+const service=async c=>{await c.query('RESET ROLE');await c.query("select set_config('request.jwt.claim.role','service_role',false),set_config('request.jwt.claim.sub','',false),set_config('request.jwt.claims','{\"role\":\"service_role\"}',false)");};
+try{
+ await server.initialise();await server.start();const c=await connect(),a=await connect(),b=await connect();
+ const f=await createControlsFixture({exec:s=>c.query(s),query:(s,p)=>c.query(s,p),close:async()=>{}});await f.enable();
+ await c.query('update esim_private.accounts set automation_enabled=true,service_controls_enabled=true,service_controls_contract_verified=true,cancellation_enabled=true,cancellation_contract_verified=true');
+ await c.query(`update user_esims set plan_details='{"topup_support":"supported","plan_type":"total_bundle"}',data_total_bytes=1000,data_remaining_bytes=100,usage_observed_at=now(),last_observation_at=now() where id=$1`,[f.profile]);
+ await f.makeQuote();await f.user();const settings={package_id:'TOPUP_A',trigger:'fixed_low_data',max_charge:1.73,monthly_cap:1.73,threshold:20,minimum_interval_hours:6};
+ assert.equal((await scalar(c,'select set_esim_automation($1,0,true,$2)',[f.profile,JSON.stringify(settings)])).status,'SAVED');
+ await f.service();await service(a);await service(b);const auto=await Promise.all([a,b].map(x=>scalar(x,'select service_esim_evaluate_automation()')));
+ assert.equal(auto.filter(x=>x.status==='ACCEPTED').length,1);assert.equal(Number(await scalar(c,'select count(*) from wallet_holds')),1);
+ console.log('PASS two evaluators reserve one order within monthly cap');
+ const j=await f.claim();await f.user();await scalar(c,'select set_esim_automation($1,1,false)',[f.profile]);await f.service();assert.equal(await f.submit(j),false);
+ console.log('PASS native revocation releases only an unsubmitted reservation');
+ const quote=await f.makeQuote();await auth(a);await auth(b);
+ const race=await Promise.all([scalar(a,'select accept_esim_topup($1,$2)',[quote.quote_id,quote.acceptance_key]),scalar(b,"select request_esim_control($1,'suspend',$2)",[f.profile,randomUUID()])]);
+ assert.equal(race.filter(x=>x.status==='ACCEPTED').length,1);assert.equal(race.filter(x=>x.status==='UNRESOLVED_OPERATION').length,1);
+ console.log('PASS manual recharge and suspension serialize on the profile');
+ await f.service();await c.query("update esim_private.controls set state='failed' where state='prepared'");
+ const active=await scalar(c,"select count(*) from esim_private.order_runs where state='prepared'");if(Number(active)){const pending=await f.claim();await scalar(c,"select service_esim_fail_before_submit($1,$2,'COMPATIBILITY_CHANGED')",[pending.order_id,pending.lease]);}
+ await c.query(`update user_esims set profile_state='issued',installation_state='released',bundle_state='not_started',provider_state='{"esimStatus":"GOT_RESOURCE","smdpStatus":"RELEASED","activeType":2}',last_observation_at=now() where id=$1`,[f.profile]);
+ await c.query("update esim_private.order_runs set provider_order_ref='FIXTURE_ORDER' where order_id=$1",[f.order]);
+ const debit=await scalar(c,`insert into wallet_transactions(wallet_id,user_id,type,amount,balance_before,balance_after,status,reference_id) select id,user_id,'esim_purchase_debit',1.5,balance,balance-1.5,'completed','esim_'||$2::text from wallets where user_id=$1 returning id`,[owner,f.order]);
+ await c.query('update wallets set balance=balance-1.5 where user_id=$1',[owner]);await c.query("update esim_private.order_runs set finance_kind='legacy_debit',payer_id=$2,debit_tx_id=$3,settlement_tx_id=$3,settlement_state='captured' where order_id=$1",[f.order,owner,debit]);
+ const items=JSON.stringify([{debit_id:debit,amount:1.5}]);await scalar(c,"select service_esim_set_refund_scope($1,$2,'fixture:retail-policy',clock_timestamp())",[f.profile,items]);await f.user();const preview=await scalar(c,'select get_esim_controls($1)',[f.profile]);
+ await scalar(c,"select request_esim_control($1,'cancel',$2,$3,$4)",[f.profile,randomUUID(),preview.quote_id,preview.acceptance_key]);await f.service();const op=await scalar(c,'select service_esim_claim_control()');
+ const obs={supplier_profile_ref:'FIXTURE_PROFILE',iccid:'8900000000000000001',provider_order_ref:'FIXTURE_ORDER',profile_state:'issued',data_used_bytes:'0',provider_state:{esimStatus:'GOT_RESOURCE',smdpStatus:'RELEASED',activeType:2}};
+ assert.equal(await scalar(c,"select service_esim_mark_control_submitted($1,$2,$3::jsonb||jsonb_build_object('checked_at',clock_timestamp()))",[op.id,op.lease,JSON.stringify(obs)]),true);
+ assert.equal(await scalar(c,"select service_esim_finish_control($1,$2,$3::jsonb||jsonb_build_object('checked_at',clock_timestamp()))",[op.id,op.lease,JSON.stringify({...obs,profile_state:'cancelled',provider_state:{esimStatus:'CANCEL',smdpStatus:'RELEASED'}})]),true);
+ await service(a);await service(b);const refunds=await Promise.all([a,b].map(x=>scalar(x,"select service_esim_settle_cancellation($1,$2,'fixture:itemized-credit')",[op.id,items])));
+ assert.equal(refunds.filter(x=>x.status==='REFUNDED').length,1);assert.equal(refunds.filter(x=>x.status==='ADOPTED').length,1);
+ assert.equal(Number(await scalar(c,"select count(*) from wallet_transactions where type='esim_purchase_refund'")),1);
+ console.log('PASS concurrent cancellation settlement credits once');
+ assert.equal(Number(await scalar(c,'select drift from wallet_reconciliation where user_id=$1',[owner])),0);
+ console.log('PASS native wallet reconciliation remains balanced');
+}finally{for(const c of clients)await c.end().catch(()=>{});await server.stop().catch(()=>{});await fs.rm(dir,{recursive:true,force:true});}
