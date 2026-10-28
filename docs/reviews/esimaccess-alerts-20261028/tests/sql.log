@@ -1,0 +1,16 @@
+PASS ESIM-03/04/05 compile against captured table shapes
+PASS ready alert is durable, minimal, owner-bound and push-only
+PASS event hints and repeated polling share one saved-state alert policy
+PASS 20 percent then 10 percent alerts happen once each
+PASS first observation below critical suppresses the weaker threshold
+PASS unknown zero-total stale failed and inconsistent usage cannot trigger low-data
+PASS genuine zero remaining is alertable, stale lifecycle is not
+PASS opt-outs survive seeding and suppress alerts and dispatch
+PASS expiry uses provider truth; purchase date never makes an expired event
+PASS delayed push rechecks ownership, freshness and current entitlement cycle
+PASS a verified new entitlement resets thresholds once; replay and usage corrections do not
+PASS order results deduplicate without suggesting financial settlement
+PASS notification deletion does not permit a repeat send
+PASS disabled policy stops generation and delayed delivery
+PASS clients cannot call service APIs or reset cycles
+15 ESIM-05 SQL scenario groups passed; no external calls

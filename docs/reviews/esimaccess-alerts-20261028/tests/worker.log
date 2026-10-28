@@ -1,0 +1,45 @@
+✔ each idle recovery cycle evaluates alerts without a provider call or purchase gate (0.546417ms)
+✔ an alert database outage reports a failed cycle and retains recovery (0.467542ms)
+✔ issuance requires a stable profile reference, ICCID and genuine activation payload (1.571416ms)
+✔ issued is not installed and pre-activation expiry is never inferred (0.073ms)
+✔ authoritative active/expired/suspended/depleted states remain distinct (0.115541ms)
+✔ zero, missing usage and a different profile response never collapse together (0.327917ms)
+✔ unknown order reference refuses unfiltered recovery lookup (0.257333ms)
+✔ lookup validates the exact order/profile reference and walks advertised pages (0.297292ms)
+✔ supplier transport uncertainty produces one POST, no refund and no reissue (0.591541ms)
+✔ a failed local checkpoint after provider acceptance never causes another provider POST (0.159125ms)
+✔ partial issuance saves only evidenced profiles and leaves completion to the atomic RPC (0.222459ms)
+✔ a callback order hint needs supplier-confirmed transaction identity before adoption (0.266208ms)
+✔ a missing usage refresh retains lifecycle evidence without inventing zero bytes (0.4745ms)
+✔ the shared limiter refuses supplier requests when database coordination is unavailable (0.126416ms)
+✔ provider dataType 1 controls classification (1.065875ms)
+✔ provider dataType 2 controls classification (0.0775ms)
+✔ provider dataType 3 controls classification (0.066416ms)
+✔ provider dataType 4 controls classification (0.060209ms)
+✔ provider dataType 99 controls classification (0.067208ms)
+✔ missing facts do not become unlimited, throttling, coverage or activation claims (0.312916ms)
+✔ facts retain both identifiers, exact bytes, source timestamps and supplied network/FUP/APN (0.085333ms)
+✔ activeType never enables a disabled package; duration units are not guessed (0.323167ms)
+✔ TOPUP discovery cannot enter the BASE cache (0.086916ms)
+✔ BASE and compatible TOPUP queries are explicit and malformed success is refused (0.852917ms)
+✔ Edge and Node normalizers have identical source and output (1.522458ms)
+✔ catalogue worker uses Vault credentials rather than stale environment credentials (0.752292ms)
+✔ Vault errors and invalid replacements never fall back to environment credentials (0.147292ms)
+✔ assembleLpaString — builds correct LPA format (0.803209ms)
+✔ assembleLpaString — handles pre-prefixed LPA strings safely (0.100917ms)
+✔ formatOrderPayload — creates transaction order payload (0.060916ms)
+✔ formatOrderPayload — creates validate dry-run payload (0.04425ms)
+✔ parseEsimGoOrderResponse — parses ICCID and LPA string correctly (0.084875ms)
+✔ parseZenditOrderConfirmation — parses Zendit ICCID and LPA string correctly (0.066875ms)
+✔ parseEsimAccessOrderConfirmation — parses eSIM Access ICCID and LPA string correctly (0.72325ms)
+✔ parseEsimAccessOrderConfirmation — handles empty or invalid poll result (0.312375ms)
+✔ purchaseEsim (esimaccess) — submits order with correct price unit and transactionId (0.282792ms)
+✔ getEsimUsage (esimaccess) — computes remaining MB accurately from bytes (0.205541ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 144.7255

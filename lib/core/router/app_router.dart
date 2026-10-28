@@ -41,6 +41,7 @@ import 'package:keep_sims/features/support/presentation/screens/ticket_detail_sc
 import 'package:keep_sims/features/support/presentation/ui/faq_screen.dart';
 import 'package:keep_sims/features/support/presentation/screens/submit_feedback_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_screen.dart';
+import 'package:keep_sims/features/esim/presentation/screens/esim_alert_target_screen.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_plans_screen.dart';
 import 'package:keep_sims/features/price_watch/presentation/screens/price_watch_screen.dart';
 import 'package:keep_sims/features/roam_calculator/presentation/screens/roam_calculator_screen.dart';
@@ -480,6 +481,18 @@ RouterConfig<Object> appRouter(Ref ref) {
             name: 'esim',
             builder: (context, state) => const EsimScreen(),
             routes: [
+              GoRoute(
+                path: 'profiles/:id',
+                builder: (context, state) =>
+                    EsimAlertTargetScreen(id: state.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: 'orders/:id',
+                builder: (context, state) => EsimAlertTargetScreen(
+                  id: state.pathParameters['id']!,
+                  isOrder: true,
+                ),
+              ),
               GoRoute(
                 path: 'plans',
                 name: 'esimPlans',

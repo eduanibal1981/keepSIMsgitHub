@@ -81,13 +81,23 @@ async function currentChannels(job: Job): Promise<string[] | null> {
         currentKey !== payload.source_event_key) return null;
   }
 
+  // Revalidate ownership, cycle and freshness after quiet-hours/retry delays.
+  if (String(payload.event_type || "").startsWith("esim_")) {
+    const { data: current, error } = await db.rpc("service_esim_alert_is_current", {
+      p_notification_id: job.notification_id,
+    });
+    if (error) throw error;
+    if (current !== true) return null;
+  }
+
   const categoryChannels = settingsResult.data?.channels as string[] | null;
   const enabled = new Map((channelsResult.data ?? []).map((row) =>
     [row.channel_type as string, row.is_enabled === true]));
   const global = new Set((catalogResult.data ?? [])
     .filter((row) => row.is_globally_enabled)
     .map((row) => row.channel_key as string));
-  const candidates = original.filter((channel) => global.has(channel) &&
+  const candidates = original.filter((channel) =>
+    (!String(payload.event_type || "").startsWith("esim_") || channel === "push") && global.has(channel) &&
     (!categoryChannels || categoryChannels.includes(channel)) &&
     (enabled.get(channel) === true || (channel === "push" && !enabled.has("push"))));
   const eligibility = await Promise.all(candidates.map(async (channel) => {

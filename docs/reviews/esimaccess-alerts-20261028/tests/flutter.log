@@ -1,0 +1,31 @@
+00:00 +0: loading /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_alerts_test.dart
+00:00 +0: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one mapper reads deployed and captured legacy names without guessed dates
+00:00 +1: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: purchase is not installation and missing activation data has no fallback
+00:00 +2: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: unknown and zero allowance are distinct; refresh errors preserve values
+00:00 +3: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: default diagnostics never print activation material or ICCID
+00:00 +4: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one batched refresh RPC precedes the owner projection with no per-profile requests
+00:00 +5: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one batched refresh RPC precedes the owner projection with no per-profile requests
+00:00 +6: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one batched refresh RPC precedes the owner projection with no per-profile requests
+00:00 +7: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one batched refresh RPC precedes the owner projection with no per-profile requests
+00:00 +8: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: one batched refresh RPC precedes the owner projection with no per-profile requests
+00:00 +9: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/notifications/notification_navigation_test.dart: NotificationNavigationService - resolveDestination routes to allowlisted core app routes
+00:00 +10: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +11: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +12: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +13: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +14: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +15: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +16: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +17: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +18: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +19: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +20: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +21: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +22: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +23: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +24: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +25: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +26: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:00 +27: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: unverified legacy credentials cannot render a QR or guessed manual code
+00:00 +28: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_profiles_test.dart: a completed order with no owned profile never fabricates delivery
+00:00 +29: All tests passed!

@@ -1,0 +1,27 @@
+(node:46784) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ current eSIM events dispatch through the existing queue using push only (46.351125ms)
+✔ recovered usage, old cycles and stale observations cancel delayed eSIM push (1.742958ms)
+✔ saved category opt-out is rechecked before sending (0.857834ms)
+✔ ownership mismatch cancels without sending (0.737792ms)
+✔ quiet hours defer eSIM updates in the saved IANA timezone (22.513375ms)
+✔ globally disabled push cannot fall through to email or Telegram (0.963792ms)
+✔ non-eSIM events retain their original enabled channels (0.803541ms)
+(node:46785) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ repeated channel names and repeated dispatch do not resend an accepted Telegram target (47.356416ms)
+✔ unverified Telegram binding never calls the provider (2.214583ms)
+✔ Telegram 429 is retryable and retains the original text on retry (2.477375ms)
+✔ lost Telegram response quarantines the target across another dispatch (1.805333ms)
+✔ Telegram rejection does not prevent selected Push from being attempted (2.478667ms)
+✔ Email ignores editable destination config, escapes text, and keeps an idempotency key (1.876709ms)
+✔ unconfirmed account Email cannot use editable config as a destination (1.43275ms)
+✔ current policy: unavailable WhatsApp alone adds no Push or Email fallback (2.173917ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 194.071959

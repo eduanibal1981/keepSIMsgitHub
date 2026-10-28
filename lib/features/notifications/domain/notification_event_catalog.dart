@@ -12,7 +12,14 @@ enum NotificationEventType {
   rechargeFailed('recharge_failed'),
   walletLow('wallet_low'),
   rechargeBlockedFunds('recharge_blocked_funds'),
-  lineCritical('line_critical');
+  lineCritical('line_critical'),
+  esimReady('esim_ready'),
+  esimActivated('esim_activated'),
+  esimLowData('esim_low_data'),
+  esimNearExpiry('esim_near_expiry'),
+  esimExpired('esim_expired'),
+  esimOrderCompleted('esim_order_completed'),
+  esimOrderSupportRequired('esim_order_support_required');
 
   final String wireName;
   const NotificationEventType(this.wireName);
@@ -34,11 +41,7 @@ abstract final class NotificationChannels {
 }
 
 /// Notification transport priority.
-enum NotificationPriority {
-  quiet,
-  normal,
-  urgent,
-}
+enum NotificationPriority { quiet, normal, urgent }
 
 /// Rendered notification title and body.
 class RenderedNotification {
@@ -133,6 +136,15 @@ class NotificationEventCatalog {
         return 'wallet_depleted';
       case NotificationEventType.lineCritical:
         return 'line_critical';
+      case NotificationEventType.esimLowData:
+        return 'esim_low_data';
+      case NotificationEventType.esimReady:
+      case NotificationEventType.esimActivated:
+      case NotificationEventType.esimNearExpiry:
+      case NotificationEventType.esimExpired:
+      case NotificationEventType.esimOrderCompleted:
+      case NotificationEventType.esimOrderSupportRequired:
+        return 'esim_updates';
     }
   }
 
@@ -144,22 +156,24 @@ class NotificationEventCatalog {
   }) {
     final isAr = language.startsWith('ar');
 
-    final line = (data['line'] as String?) ??
+    final line =
+        (data['line'] as String?) ??
         formatLineIdentity(
           nickname: data['nickname'] as String?,
           rawPhoneNumber: (data['phone_number'] as String?) ?? '',
           language: language,
         );
 
-    final dateStr = (data['date_str'] as String?) ??
+    final dateStr =
+        (data['date_str'] as String?) ??
         (data['date'] is DateTime
             ? formatDate(data['date'] as DateTime, language: language)
             : (DateTime.tryParse(data['date']?.toString() ?? '') != null
-                ? formatDate(
-                    DateTime.parse(data['date'].toString()),
-                    language: language,
-                  )
-                : (data['date']?.toString() ?? '')));
+                  ? formatDate(
+                      DateTime.parse(data['date'].toString()),
+                      language: language,
+                    )
+                  : (data['date']?.toString() ?? '')));
 
     final amount = data['amount']?.toString() ?? '';
     final currency = data['currency']?.toString() ?? '';
@@ -168,6 +182,46 @@ class NotificationEventCatalog {
         : int.tryParse(data['days']?.toString() ?? '') ?? 0;
 
     switch (eventType) {
+      case NotificationEventType.esimReady:
+      case NotificationEventType.esimActivated:
+      case NotificationEventType.esimLowData:
+      case NotificationEventType.esimNearExpiry:
+      case NotificationEventType.esimExpired:
+      case NotificationEventType.esimOrderCompleted:
+      case NotificationEventType.esimOrderSupportRequired:
+        final title = switch (eventType) {
+          NotificationEventType.esimReady =>
+            isAr ? 'شريحتك جاهزة للتثبيت' : 'Your eSIM is ready to install',
+          NotificationEventType.esimActivated =>
+            isAr ? 'شريحتك مفعّلة' : 'Your eSIM is active',
+          NotificationEventType.esimLowData =>
+            isAr ? 'بيانات شريحتك منخفضة' : 'Your eSIM data is running low',
+          NotificationEventType.esimNearExpiry =>
+            isAr
+                ? 'صلاحية شريحتك تنتهي قريباً'
+                : 'Your eSIM validity is ending soon',
+          NotificationEventType.esimExpired =>
+            isAr ? 'انتهت صلاحية شريحتك' : 'Your eSIM has expired',
+          NotificationEventType.esimOrderCompleted =>
+            isAr ? 'طلب شريحتك جاهز' : 'Your eSIM order is ready',
+          _ =>
+            isAr
+                ? 'طلب شريحتك يحتاج إلى الدعم'
+                : 'Your eSIM order needs support',
+        };
+        return RenderedNotification(
+          title: title,
+          body: isAr
+              ? 'افتح شريحتك بأمان في KeepSIMs لمراجعة أحدث التفاصيل.'
+              : 'Open your eSIM securely in KeepSIMs to review the latest details.',
+          channelId: NotificationChannels.updates,
+          priority: NotificationPriority.normal,
+          largeIcon:
+              eventType == NotificationEventType.esimLowData ||
+                  eventType == NotificationEventType.esimNearExpiry
+              ? iconWarning
+              : iconReminder,
+        );
       case NotificationEventType.lineAdded:
         return RenderedNotification(
           title: isAr ? '✅ تمت إضافة الرقم' : '✅ Number added',
@@ -181,7 +235,9 @@ class NotificationEventCatalog {
 
       case NotificationEventType.autoRechargeScheduled:
         return RenderedNotification(
-          title: isAr ? '✅ تمت جدولة الشحن التلقائي' : '✅ Auto-recharge scheduled',
+          title: isAr
+              ? '✅ تمت جدولة الشحن التلقائي'
+              : '✅ Auto-recharge scheduled',
           body: isAr
               ? 'الرقم $line. موعد الشحن التلقائي القادم: $dateStr.'
               : '$line. Next automatic recharge: $dateStr.',
@@ -192,7 +248,9 @@ class NotificationEventCatalog {
 
       case NotificationEventType.lineSetupIncomplete:
         return RenderedNotification(
-          title: isAr ? '⚠️ أكمل إعداد رقمك' : '⚠️ Finish setting up your number',
+          title: isAr
+              ? '⚠️ أكمل إعداد رقمك'
+              : '⚠️ Finish setting up your number',
           body: isAr
               ? 'تمت إضافة الرقم $line. افتح KeepSIMs لإكمال إعداد التذكيرات.'
               : '$line was added. Open KeepSIMs to finish setting up reminders.',
@@ -228,7 +286,9 @@ class NotificationEventCatalog {
 
       case NotificationEventType.rechargeReminder:
         final title = days > 0
-            ? (isAr ? '🔔 موعد الشحن بعد $days أيام' : '🔔 Recharge due in $days days')
+            ? (isAr
+                  ? '🔔 موعد الشحن بعد $days أيام'
+                  : '🔔 Recharge due in $days days')
             : (isAr ? '🔔 تذكير بالشحن' : '🔔 Recharge reminder');
         return RenderedNotification(
           title: title,
@@ -286,7 +346,9 @@ class NotificationEventCatalog {
 
       case NotificationEventType.lineCritical:
         return RenderedNotification(
-          title: isAr ? '⚠️ رقمك بحاجة إلى إجراء' : '⚠️ Your number needs attention',
+          title: isAr
+              ? '⚠️ رقمك بحاجة إلى إجراء'
+              : '⚠️ Your number needs attention',
           body: isAr
               ? 'الرقم $line. افتح KeepSIMs لمراجعة رقمك.'
               : '$line. Open KeepSIMs to review your line.',

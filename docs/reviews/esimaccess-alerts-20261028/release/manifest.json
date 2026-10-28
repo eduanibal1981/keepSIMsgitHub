@@ -1,0 +1,35 @@
+{
+  "step": "ESIM-05",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "new_sales_enabled": false,
+  "channels": [
+    "in_app",
+    "push"
+  ],
+  "edge": {
+    "slug": "process-alert-outbox",
+    "base_version": 7,
+    "verify_jwt": false,
+    "authentication": "existing service bearer or Vault dispatch shared secret"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_fulfillment_runtime.js"
+    ],
+    "before_sha256": "0e9ec8df3f72bf7fbd0d1d7f1944c42beebfe22366bd563d37a80056619c2848"
+  },
+  "omitted": [
+    "other workers",
+    "fleet telemetry",
+    "provider callback registration",
+    "app binaries",
+    "paid provider actions"
+  ],
+  "files": {
+    "backend/esim_fulfillment_runtime.js": "543f438ee844e98b99c9591bf9d77918c9426ef7654e6ec41569c22a2c4e1557",
+    "edge/process-alert-outbox/index.ts": "09f4baa555be67e5356988206e4693cf1f8400043cee9e289edcce73e2f97381",
+    "edge/process-alert-outbox/quiet_hours.ts": "801fd7f7febb0191ed7b6b64269c678d47bd34ba31d18d30ceaf5d701ef1c7c1",
+    "migrations/20261028013756_esim_actionable_alerts.sql": "4336a0de38df334a3b8d8342242bc0f99a96446bae3f0e2977d73002920a178b"
+  }
+}

@@ -41,9 +41,7 @@ class NotificationTapPayload {
       simLineId: map['sim_line_id']?.toString(),
       actionUrl: map['action_url']?.toString(),
       eventType: map['event_type']?.toString(),
-      target: target is Map
-          ? Map<String, dynamic>.from(target)
-          : null,
+      target: target is Map ? Map<String, dynamic>.from(target) : null,
     );
   }
 }
@@ -57,7 +55,9 @@ class NotificationNavigationService {
   StreamSubscription<RemoteMessage>? _foregroundSub;
   final _foregroundPush = ForegroundPushService();
   void _clickListener(OSNotificationClickEvent event) {
-    _handleTap(NotificationTapPayload.fromMap(event.notification.additionalData));
+    _handleTap(
+      NotificationTapPayload.fromMap(event.notification.additionalData),
+    );
   }
 
   NotificationNavigationService(this._ref);
@@ -71,10 +71,14 @@ class NotificationNavigationService {
 
     // Make room before OneSignal displays once. Quiet channels control sound
     // and heads-up behavior without discarding confirmations.
-    OneSignal.Notifications.addForegroundWillDisplayListener(_foregroundPush.showOneSignal);
-    unawaited(_foregroundPush.initialize((data) {
-      _handleTap(NotificationTapPayload.fromMap(data));
-    }));
+    OneSignal.Notifications.addForegroundWillDisplayListener(
+      _foregroundPush.showOneSignal,
+    );
+    unawaited(
+      _foregroundPush.initialize((data) {
+        _handleTap(NotificationTapPayload.fromMap(data));
+      }),
+    );
 
     // 3. FCM background tap listener
     try {
@@ -153,7 +157,8 @@ class NotificationNavigationService {
   static String resolveDestination(NotificationTapPayload payload) {
     // 1. Line ID direct route
     if (payload.simLineId != null && payload.simLineId!.trim().isNotEmpty) {
-      return '/sim-lines/detail/${payload.simLineId!.trim()}';
+      final route = '/sim-lines/detail/${payload.simLineId!.trim()}';
+      return _isAllowlistedRoute(route) ? route : '/notifications';
     }
 
     // 2. Structured target route
@@ -162,7 +167,8 @@ class NotificationNavigationService {
       final id = payload.target!['id']?.toString().trim();
       if (route != null && route.isNotEmpty) {
         if (route.contains(':id') && id != null) {
-          return route.replaceAll(':id', id);
+          final resolved = route.replaceAll(':id', id);
+          return _isAllowlistedRoute(resolved) ? resolved : '/notifications';
         }
         if (_isAllowlistedRoute(route)) {
           return route;
@@ -174,17 +180,14 @@ class NotificationNavigationService {
     final rawUrl = payload.actionUrl?.trim();
     if (rawUrl != null && rawUrl.isNotEmpty) {
       // Legacy /sim_lines/:id mapping
-      final legacyMatch =
-          RegExp(r'^/sim_lines/([a-zA-Z0-9_-]+)').firstMatch(rawUrl);
+      final legacyMatch = RegExp(
+        r'^/sim_lines/([a-zA-Z0-9_-]+)$',
+      ).firstMatch(rawUrl);
       if (legacyMatch != null) {
         return '/sim-lines/detail/${legacyMatch.group(1)}';
       }
 
       // Canonical /sim-lines/detail/:id
-      if (rawUrl.startsWith('/sim-lines/detail/')) {
-        return rawUrl;
-      }
-
       if (_isAllowlistedRoute(rawUrl)) {
         return rawUrl;
       }
@@ -201,13 +204,19 @@ class NotificationNavigationService {
       '/notifications',
       '/settings',
       '/settings/preferences',
+      '/esim',
     };
-    return allowlist.contains(route);
+    return allowlist.contains(route) ||
+        RegExp(
+          r'^/(sim-lines/detail|esim/profiles|esim/orders)/[a-zA-Z0-9_-]+$',
+        ).hasMatch(route);
   }
 
   void dispose() {
     OneSignal.Notifications.removeClickListener(_clickListener);
-    OneSignal.Notifications.removeForegroundWillDisplayListener(_foregroundPush.showOneSignal);
+    OneSignal.Notifications.removeForegroundWillDisplayListener(
+      _foregroundPush.showOneSignal,
+    );
     _foregroundSub?.cancel();
     _foregroundSub = null;
     _foregroundPush.dispose();
@@ -219,8 +228,8 @@ class NotificationNavigationService {
 
 final notificationNavigationServiceProvider =
     Provider<NotificationNavigationService>((ref) {
-  final service = NotificationNavigationService(ref);
-  service.initialize();
-  ref.onDispose(() => service.dispose());
-  return service;
-});
+      final service = NotificationNavigationService(ref);
+      service.initialize();
+      ref.onDispose(() => service.dispose());
+      return service;
+    });

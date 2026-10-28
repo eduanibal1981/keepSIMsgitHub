@@ -24,6 +24,18 @@ class NotificationSettingsScreen extends ConsumerWidget {
 
   // Helpers to map categories to labels, descriptions, and icons
   static final Map<String, _CategoryMeta> _meta = {
+    'esim_updates': _CategoryMeta(
+      name: 'eSIM status and validity',
+      description: 'Installation readiness, activation, expiry and order results. In-app and push alerts only.',
+      icon: Icons.sim_card_rounded,
+      color: AppColors.info,
+    ),
+    'esim_low_data': _CategoryMeta(
+      name: 'eSIM low data',
+      description: 'Warn me when my eSIM data allowance is running low. In-app and push alerts only.',
+      icon: Icons.data_usage_rounded,
+      color: AppColors.warning,
+    ),
     'top_up_success': _CategoryMeta(
       name: 'Top-up Successful',
       description:
@@ -909,7 +921,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ..._perCategoryChannels.map((channel) {
+          ...(item.category.startsWith('esim_') ? ['push'] : _perCategoryChannels).map((channel) {
             final selected = item.channels.contains(channel);
             final offGlobally = !globallyEnabled.contains(channel);
             final label = channel == 'push'

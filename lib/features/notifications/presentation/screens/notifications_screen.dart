@@ -259,6 +259,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         case NotificationEventType.lineAdded:
         case NotificationEventType.autoRechargeScheduled:
         case NotificationEventType.rechargeSucceeded:
+        case NotificationEventType.esimReady:
+        case NotificationEventType.esimActivated:
+        case NotificationEventType.esimOrderCompleted:
           indicatorColor = AppColors.success;
           icon = Icons.check_circle_rounded;
           break;
@@ -270,12 +273,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         case NotificationEventType.lineSetupIncomplete:
         case NotificationEventType.rechargeDateMissing:
         case NotificationEventType.walletLow:
+        case NotificationEventType.esimLowData:
+        case NotificationEventType.esimNearExpiry:
           indicatorColor = AppColors.warning;
           icon = Icons.warning_amber_rounded;
           break;
         case NotificationEventType.rechargeFailed:
         case NotificationEventType.rechargeBlockedFunds:
         case NotificationEventType.lineCritical:
+        case NotificationEventType.esimExpired:
+        case NotificationEventType.esimOrderSupportRequired:
           indicatorColor = AppColors.healthRed;
           icon = Icons.error_outline_rounded;
           break;
