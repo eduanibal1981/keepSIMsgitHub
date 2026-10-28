@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/core/utils/error_formatter.dart';
 import 'package:keep_sims/core/fx/money.dart';
-import 'package:keep_sims/features/esim/data/repositories/esim_provider_factory.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_plan.dart';
 import 'package:keep_sims/features/esim/presentation/widgets/esim_order_status_modal.dart';
-import 'package:keep_sims/core/services/biometric_auth_service.dart';
+import 'package:keep_sims/features/esim/presentation/controllers/esim_recharge_controller.dart';
+import 'package:uuid/uuid.dart';
 import 'package:keep_sims/features/payments/presentation/screens/paypal_checkout_screen.dart';
 import 'package:keep_sims/features/sim_lines/domain/plan_payment.dart';
 import 'package:keep_sims/features/wallet/controller/wallet_controller.dart';
@@ -37,6 +37,7 @@ class EsimCheckoutSheet extends ConsumerStatefulWidget {
 
 class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
   bool _isSubmitting = false;
+  final String _requestKey = const Uuid().v4();
   bool _isLoadingWallet = true;
   bool _walletReadFailed = false;
   double _walletBalance = 0.0;
@@ -80,24 +81,16 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
       return;
     }
 
-    final authGuard = ref.read(paymentAuthGuardProvider);
-    final authResult = await authGuard.confirmPayment(
-      reason: 'Authenticate to confirm eSIM purchase',
-    );
-    if (authResult == BiometricResult.cancelled ||
-        authResult == BiometricResult.failed ||
-        authResult == BiometricResult.lockedOut) {
-      return;
-    }
-
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
     });
 
     try {
-      final repository = ref.read(esimRepositoryProvider);
-      final orderId = await repository.requestPurchase(widget.plan.id);
+      final orderId = await ref
+          .read(esimMoneyActionsProvider)
+          .purchase(widget.plan.id, _requestKey, widget.plan.priceUsd);
+      if (orderId == null) return;
 
       if (!mounted) return;
       Navigator.pop(context); // Close checkout sheet
@@ -111,12 +104,16 @@ class _EsimCheckoutSheetState extends ConsumerState<EsimCheckoutSheet> {
         _errorMessage = RateLimitErrorFormatter.format(e, context);
       });
     } finally {
-      if (mounted) ref.invalidate(walletControllerProvider);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ref.invalidate(walletControllerProvider);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(esimMoneyActionsProvider);
     final theme = Theme.of(context);
     final double balanceAfter = _walletBalance - widget.plan.priceUsd;
     final bool hasSufficientBalance = _walletBalance >= widget.plan.priceUsd;

@@ -6,6 +6,18 @@ import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
 import 'package:keep_sims/features/esim/domain/entities/esim_recharge.dart';
 
 abstract class EsimRepository {
+  Future<EsimOperationAcceptance> acceptTopup(
+    String quoteId,
+    String acceptanceKey,
+  );
+  Future<List<EsimOperation>> getOperationHistory(String profileId);
+  Future<String> requestPurchaseIntent(
+    String offerId, {
+    int quantity = 1,
+    required String requestKey,
+    required double reviewedTotal,
+    required String expectedUserId,
+  });
   Future<EsimRechargeDiscovery> discoverTopups(String profileId);
   Future<EsimRechargeQuote> quoteTopup(
     String profileId,

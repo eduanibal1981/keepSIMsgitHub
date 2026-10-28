@@ -53,6 +53,62 @@ class EsimGoRepositoryImpl implements EsimRepository {
   );
 
   @override
+  Future<EsimOperationAcceptance> acceptTopup(
+    String quoteId,
+    String acceptanceKey,
+  ) async => EsimOperationAcceptance.fromJson(
+    await _recharge({
+      'action': 'accept',
+      'quote_id': quoteId,
+      'acceptance_key': acceptanceKey,
+      'device_id': await DeviceIdentityService(supabase: _supabase).deviceId(),
+    }),
+  );
+
+  @override
+  Future<List<EsimOperation>> getOperationHistory(String profileId) async {
+    final r = await _supabase.functions.invoke(
+      'esim-recharge-discovery',
+      body: {'action': 'history', 'profile_id': profileId},
+    );
+    if (r.status != 200 || r.data is! List) {
+      throw Exception('Could not load eSIM operation history.');
+    }
+    return (r.data as List)
+        .map((j) => EsimOperation.fromJson(Map<String, dynamic>.from(j as Map)))
+        .toList();
+  }
+
+  @override
+  Future<String> requestPurchaseIntent(
+    String offerId, {
+    int quantity = 1,
+    required String requestKey,
+    required double reviewedTotal,
+    required String expectedUserId,
+  }) async {
+    final r = await _supabase.rpc(
+      'request_esim_purchase_v2',
+      params: {
+        'p_offer_id': offerId,
+        'p_quantity': quantity,
+        'p_device_id': await DeviceIdentityService(
+          supabase: _supabase,
+        ).deviceId(),
+        'p_request_key': requestKey,
+        'p_reviewed_total': reviewedTotal,
+        'p_expected_user': expectedUserId,
+      },
+    );
+    if (r is! Map || r['success'] != true || r['order_id'] is! String) {
+      throw Exception(
+        'Purchase was not accepted. Refresh the offer and wallet.',
+      );
+    }
+    return r['order_id'] as String;
+  }
+
+  @override
   Future<List<CompareOffer>> compareOffers(
     String countryIsoCode, {
     CompareFilters filters = const CompareFilters(),

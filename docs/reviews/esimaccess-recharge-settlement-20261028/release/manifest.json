@@ -1,0 +1,72 @@
+{
+  "step": "ESIM-08",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "source_bases": {
+    "customer": "b070f59c470ef8bbaa46e56cca570b53f6c934d7",
+    "backend": "e2e2c7c2abe90d5abc3c4157d7a2de0b6bc6257c",
+    "admin": "15d9d02951e2b49390637327e1eaf875bc16c2f0"
+  },
+  "edge": {
+    "slug": "esim-recharge-discovery",
+    "verify_jwt": true,
+    "authority": "validated customer JWT; owner-checked SQL RPCs"
+  },
+  "vm": {
+    "process": "worker-esim-fulfillment",
+    "changed_files": [
+      "esim_fulfillment_runtime.js",
+      "esim_recharge_settlement.js",
+      "esim_receipt_journal.js",
+      "providers/esimaccess_recharge.js"
+    ],
+    "previous_runtime_sha256": "7812c180aab52043525e862475c10828f17fd55fc04dc2cfe489fe010108e7d3",
+    "journal": {
+      "directory": ".esim-receipts",
+      "directory_mode": "0700",
+      "file_mode": "0600"
+    }
+  },
+  "flags": {
+    "recharge_enabled": false,
+    "recharge_contract_verified": false,
+    "wallet_boundary_verified": false,
+    "new_sales_enabled": false
+  },
+  "financial_scope": [
+    "existing eSIM orders/run authority",
+    "reserve/capture/release actual wallet helpers",
+    "wallet-before-hold locking and private capture provenance",
+    "protect active eSIM reservations from legacy direct writers",
+    "bounded proven original-payer legacy refund",
+    "eSIM reconciliation types"
+  ],
+  "provider_acceptance": "UNVERIFIED: no named paid test profile or ceiling; missing/lost topup receipts stay reserved",
+  "exclusions": [
+    "other VM processes",
+    "provider credentials",
+    "account-deletion/wallet overhaul",
+    "daily-duration/automatic/group recharge",
+    "app binary publication",
+    "paid supplier calls"
+  ],
+  "files": {
+    "backend/esim_fulfillment_runtime.js": "24eaed199daa7f3a0430c853b97c900640eeeb0ba51f4556d04ed81c31374db1",
+    "backend/esim_recharge_settlement.js": "e90ec341a49f358a8532a2203478206ed58547a031f0a50973fd313d134be654",
+    "backend/esim_receipt_journal.js": "339483afe87ec5f44d834d6e378ba4ae77cd984f01a46ce0cb6efc51a1343458",
+    "backend/providers/esimaccess_recharge.js": "b8ce40cba7ed1b072bd762aa6287ce2a8240be3655edd07c3f883c7b827b87a4",
+    "edge/esim-recharge-discovery/index.ts": "b10075d3c245aa7bbd122078b84e5d2f3c0b3d028b86587d0344c5cf78c7e70d",
+    "edge/esim-recharge-discovery/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/_shared/esim-recharge-discovery.js": "a812c25755c7293f3b92e99ba36b3e714b24337c5cbecea36f89cf2998f60934",
+    "migrations/20261028032323_esim_fixed_recharge_settlement.sql": "2564bff16fc028f6513bd3e92823dbe962ed0025b300a55dd2c86198e2b40dd5",
+    "customer/lib/features/esim/domain/entities/esim_recharge.dart": "d7ed877c58d13dfa5d39151d1b8c3d2c650423682df56fa17d51f6ecc5524228",
+    "customer/lib/features/esim/domain/repositories/esim_repository.dart": "64c502161c140f7a069eec67eef81159c0bae3c2c122323df09ad2b265db0e4d",
+    "customer/lib/features/esim/data/repositories/esim_go_repository_impl.dart": "541ba348f552cea28d73d0f62f58097a083e37b03b8aaf37add111dd6740930a",
+    "customer/lib/features/esim/presentation/controllers/esim_recharge_controller.dart": "f8e76ba407e4597e406120e009f12ab1fa7d03553d0fcad4b1f4dca2e2364f6b",
+    "customer/lib/features/esim/presentation/screens/esim_recharge_screen.dart": "c96dfec6c053e19784626f603ce37c07428c73b9f8fbf44dd0f4b9455da033f3",
+    "customer/lib/features/esim/presentation/widgets/esim_checkout_sheet.dart": "833634c41a3722eb7a9f259e2d9f1cf9730c7870c286ad717e14f11b6d45468a",
+    "admin/lib/core/admin/admin_api.dart": "e826ca82f64f01c7705c3072ed9d6c826a7e4c48a859f55e00865e32fb8aeccc",
+    "admin/lib/features/control/presentation/operations_screen.dart": "c98e24eebbdd3653ff38731a3ec7343b3fcc87239987a4ee3196321b1592b775",
+    "admin/lib/features/control/providers/esim_operation_provider.dart": "679d4bc395411ecf3442b19223f6861a51d82c918b6c8c726f40c628588e3f0a",
+    "admin/lib/features/control/presentation/widgets/esim_operation_inspector.dart": "53314a3ab768427e37a5bef231063bd8d2c6aec937154b284bf7cd11d97e74b6"
+  }
+}

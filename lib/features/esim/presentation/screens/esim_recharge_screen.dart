@@ -22,6 +22,8 @@ class EsimRechargeScreen extends ConsumerStatefulWidget {
 
 class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
   EsimRechargeSelection? _selection;
+  bool _submitting = false;
+  String? _notice, _acceptedOrder;
   Timer? _clock;
   @override
   void initState() {
@@ -38,8 +40,58 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
   }
 
   void _refresh() {
-    setState(() => _selection = null);
+    setState(() {
+      _selection = null;
+      _acceptedOrder = null;
+    });
     ref.invalidate(esimRechargeDiscoveryProvider(widget.profileId));
+  }
+
+  Future<void> _accept(EsimRechargeQuote quote, String profileName) async {
+    if (_submitting || _acceptedOrder != null) return;
+    setState(() => _submitting = true);
+    try {
+      final approved = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirm this recharge'),
+          content: Text(
+            'Recharge $profileName with ${quote.offer!.title} for USD ${quote.offer!.total.toStringAsFixed(2)}?\n\nThis reserves the reviewed amount in your wallet. Funds stay reserved while an uncertain provider result is reconciled. Your installed eSIM and activation code stay the same.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirm recharge'),
+            ),
+          ],
+        ),
+      );
+      if (approved != true || !mounted) return;
+      final result = await ref.read(esimMoneyActionsProvider).accept(quote);
+      if (!mounted) return;
+      setState(() {
+        if (result.accepted) {
+          _acceptedOrder = result.orderId;
+          _notice =
+              'Recharge request recorded. Review the receipt below for its verified outcome.';
+        } else if (result.status != 'CANCELLED') {
+          _notice = rechargeStatusMessage(result.status);
+        }
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _notice =
+              'Could not confirm the response. Check operation history before trying again.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -66,6 +118,8 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
       esimRechargeDiscoveryProvider(widget.profileId),
     );
     final selected = _selection;
+    ref.watch(esimMoneyActionsProvider);
+    final history = ref.watch(esimOperationHistoryProvider(widget.profileId));
     final quote = selected == null
         ? null
         : ref.watch(esimRechargeQuoteProvider(selected));
@@ -88,10 +142,12 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const Text(
-            'Explore compatible recharge offers for this installed profile.',
+            'Explore compatible recharge offers for this eSIM profile.',
           ),
-          const Text(
-            'Preview only. Recharge payments are not enabled yet. Browsing and quotes do not charge your wallet.',
+          Text(
+            quote?.value?.acceptanceEnabled == true
+                ? 'Review a quote, then explicitly confirm a recharge for this same eSIM. Browsing and quotes do not charge your wallet.'
+                : 'Preview only. Recharge payments are not enabled yet. Browsing and quotes do not charge your wallet.',
           ),
           const SizedBox(height: 16),
           discovery.when(
@@ -200,15 +256,68 @@ class _EsimRechargeScreenState extends ConsumerState<EsimRechargeScreen> {
                         const Text(
                           'No additional wallet funding fee. This quote reserves no funds.',
                         ),
-                        const Text(
-                          'Payment is unavailable until recharge is enabled.',
-                        ),
+                        if (!q.acceptanceEnabled)
+                          const Text(
+                            'Payment is unavailable until recharge is enabled.',
+                          )
+                        else if (q.balanceState == 'sufficient' &&
+                            _acceptedOrder == null)
+                          FilledButton(
+                            onPressed: _submitting
+                                ? null
+                                : () => _accept(q, profile.bundleName),
+                            child: Text(
+                              _submitting
+                                  ? 'Confirming…'
+                                  : 'Confirm recharge • USD ${q.offer!.total.toStringAsFixed(2)}',
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 );
               },
             ),
+          if (_notice != null)
+            Text(_notice!, key: const ValueKey('esim-recharge-notice')),
+          const SizedBox(height: 16),
+          Text(
+            'Operation history',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          history.when(
+            loading: () => const LinearProgressIndicator(),
+            error: (_, _) => const Text(
+              'Could not load operation history. Refresh before submitting another request.',
+            ),
+            data: (rows) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (rows.isEmpty)
+                  const Text('No operations recorded for this profile.'),
+                for (final row in rows)
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('${row.label} • ${row.amountLabel}'),
+                          Text(row.packageId),
+                          SelectableText('Receipt ID: ${row.id}'),
+                          Text(row.statusLabel),
+                          Text(row.financialLabel),
+                          if (row.confirmedExpiry != null)
+                            Text(
+                              'Confirmed expiry: ${MaterialLocalizations.of(context).formatMediumDate(row.confirmedExpiry!.toLocal())}',
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

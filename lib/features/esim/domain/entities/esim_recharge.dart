@@ -83,6 +83,8 @@ class EsimRechargeQuote {
     this.offer,
     this.balanceState = 'unknown',
     this.availableBalance,
+    this.acceptanceKey,
+    this.acceptanceEnabled = false,
   });
   factory EsimRechargeQuote.fromJson(Map<String, dynamic> j) =>
       EsimRechargeQuote(
@@ -99,12 +101,16 @@ class EsimRechargeQuote {
             : null,
         balanceState: j['balance_state'] as String? ?? 'unknown',
         availableBalance: (j['available_balance'] as num?)?.toDouble(),
+        acceptanceKey: j['acceptance_key'] as String?,
+        acceptanceEnabled: j['acceptance_enabled'] == true,
       );
   final String status, balanceState;
   final String? id, ownerId, payerId, profileId;
   final DateTime? expiresAt;
   final EsimRechargeOffer? offer;
   final double? availableBalance;
+  final String? acceptanceKey;
+  final bool acceptanceEnabled;
   bool get expired => expiresAt == null || !expiresAt!.isAfter(DateTime.now());
   // ESIM-07 deliberately has no acceptance method or spending control.
   String get balanceLabel => switch (balanceState) {
@@ -131,6 +137,10 @@ String rechargeStatusMessage(String status) => switch (status) {
   'TOPUP_UNSUPPORTED' ||
   'UNSUPPORTED_PROFILE' => 'This eSIM does not support recharge discovery.',
   'DISCOVERY_DISABLED' => 'Recharge discovery is not available yet.',
+  'RECHARGE_DISABLED' => 'Recharge payments are not enabled yet.',
+  'BALANCE_UNAVAILABLE' =>
+    'Available funds are insufficient or unknown. Refresh your wallet.',
+  'ACCOUNT_CHANGED' => 'The signed-in account changed. Reopen your eSIM.',
   'STALE_OFFERS' || 'PRICE_CHANGED' || 'STALE_QUOTE' =>
     'This offer or price changed. Refresh and request a new quote.',
   'DURATION_QUOTE_UNAVAILABLE' =>
@@ -140,3 +150,65 @@ String rechargeStatusMessage(String status) => switch (status) {
   'QUOTE_UNAVAILABLE' => 'This eSIM or quote is unavailable for this account.',
   _ => 'Recharge information is temporarily unavailable. Please try again.',
 };
+
+class EsimOperationAcceptance {
+  const EsimOperationAcceptance(this.status, [this.orderId]);
+  factory EsimOperationAcceptance.fromJson(Map<String, dynamic> j) =>
+      EsimOperationAcceptance(
+        j['status'] as String? ?? 'TEMPORARILY_UNAVAILABLE',
+        j['order_id'] as String?,
+      );
+  final String status;
+  final String? orderId;
+  bool get accepted =>
+      (status == 'ACCEPTED' || status == 'ADOPTED') && orderId != null;
+}
+
+class EsimOperation {
+  const EsimOperation({
+    required this.id,
+    required this.kind,
+    required this.status,
+    required this.financialState,
+    required this.total,
+    required this.packageId,
+    this.confirmedExpiry,
+    this.fundsReserved = false,
+  });
+  factory EsimOperation.fromJson(Map<String, dynamic> j) => EsimOperation(
+    id: j['id'] as String,
+    kind: j['kind'] as String,
+    status: j['status'] == 'failed'
+        ? 'failed'
+        : j['delivery_state'] as String? ?? j['status'] as String,
+    financialState: j['financial_state'] as String? ?? 'support_required',
+    total: (j['retail_total'] as num?)?.toDouble(),
+    packageId: j['package_id'] as String,
+    confirmedExpiry: DateTime.tryParse(j['confirmed_expiry']?.toString() ?? ''),
+    fundsReserved: j['funds_reserved'] == true,
+  );
+  final String id, kind, status, financialState, packageId;
+  final double? total;
+  final DateTime? confirmedExpiry;
+  final bool fundsReserved;
+  String get label =>
+      kind == 'fixed_recharge' ? 'Recharge' : 'New eSIM purchase';
+  String get amountLabel =>
+      total == null ? 'Total not recorded' : 'USD ${total!.toStringAsFixed(2)}';
+  String get financialLabel => switch (financialState) {
+    'captured' => 'Charge recorded once; service is confirmed.',
+    'released' => 'Reserved funds released. No charge was captured.',
+    'refunded' => 'Refunded to the original payer.',
+    'pending' =>
+      fundsReserved
+          ? 'Funds remain reserved while the outcome is verified.'
+          : 'Payment outcome is being reconciled. No refund is confirmed.',
+    _ => 'Financial outcome requires a support review.',
+  };
+  String get statusLabel => switch (status) {
+    'completed' => 'Completed',
+    'failed' => 'Failed',
+    'support_required' => 'Support review required',
+    _ => 'Processing or reconciling. Please do not submit another recharge.',
+  };
+}

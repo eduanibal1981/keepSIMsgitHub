@@ -1,0 +1,112 @@
+00:00 +0: loading /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart
+00:00 +0: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +1: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +2: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +3: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +4: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +5: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +6: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +7: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +8: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +9: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +10: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +11: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +12: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +13: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +14: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +15: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +16: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:01 +17: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: installed profiles show help instead of another QR or install button
+00:01 +18: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +19: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +20: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +21: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +22: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +23: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +24: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:01 +25: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferDetailsSheet displays professional details and filters countries
+00:02 +26: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +27: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +28: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +29: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +30: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +31: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_profiles_test.dart: profile card fits a narrow screen and shows honest freshness/validity
+00:02 +32: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +33: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +34: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +35: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +36: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +37: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +38: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +39: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +40: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +41: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_installation_screen_test.dart: owned profiles remain accessible when the display device cannot provision eSIMs
+00:02 +42: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:02 +43: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +44: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +45: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +46: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +47: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +48: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +49: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +50: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +51: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +52: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +53: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +54: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +55: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +56: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_recharge_test.dart: read-only screen displays effects, provisional expiry and reserved-balance refusal without a payment control
+00:03 +57: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +58: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +59: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +60: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +61: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +62: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +63: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +64: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +65: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +66: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +67: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +68: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +69: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +70: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +71: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +72: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +73: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +74: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +75: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +76: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +77: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +78: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +79: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +80: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +81: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +82: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +83: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +84: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +85: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:03 +86: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +87: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +88: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +89: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +90: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +91: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +92: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +93: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +94: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +95: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +96: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +97: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +98: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +99: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:04 +100: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +101: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +102: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +103: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +104: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +105: /private/tmp/keepsims-esim08-customer/test/features/esim/esim_settlement_test.dart: enabled quote still needs explicit confirmation and shows the reserved-operation receipt
+00:04 +106: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:05 +107: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:05 +108: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:05 +109: /private/tmp/keepsims-esim08-customer/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:05 +110: All tests passed!

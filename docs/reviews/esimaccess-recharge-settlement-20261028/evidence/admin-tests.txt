@@ -1,0 +1,4 @@
+00:00 +0: loading /private/tmp/keepsims-esim08-admin/test/esim_operation_inspector_test.dart
+00:00 +0: invalid order IDs never query a support operation
+00:00 +1: support timeline displays evidence and clears on sign-out
+00:00 +2: All tests passed!

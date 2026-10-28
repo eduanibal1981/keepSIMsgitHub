@@ -1,0 +1,164 @@
+[
+  {
+    "proname": "admin_list_refund_requests",
+    "signature": "admin_list_refund_requests(text,integer)",
+    "md5": "1cf15a50a16089c98b1bca41e9f8b6d3",
+    "definition": null
+  },
+  {
+    "proname": "capture_sim_setup_holds",
+    "signature": "capture_sim_setup_holds(uuid,text)",
+    "md5": "94e9aa0be146e0a10b89a1a0b9027d88",
+    "definition": null
+  },
+  {
+    "proname": "capture_wallet_hold",
+    "signature": "capture_wallet_hold(uuid,text,text,jsonb)",
+    "md5": "62967b62cf968e52105e9a116c9426d4",
+    "definition": "CREATE OR REPLACE FUNCTION public.capture_wallet_hold(p_hold_id uuid, p_txn_type text DEFAULT 'topup_debit'::text, p_description text DEFAULT NULL::text, p_metadata jsonb DEFAULT '{}'::jsonb)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_hold RECORD;\n  v_wallet RECORD;\n  v_balance_after NUMERIC;\n  v_txn_id UUID;\n  v_alloc RECORD;\nBEGIN\n  -- Lock hold\n  SELECT * INTO v_hold\n  FROM public.wallet_holds\n  WHERE id = p_hold_id\n  FOR UPDATE;\n\n  IF v_hold.id IS NULL THEN\n    RAISE EXCEPTION 'Hold not found: %', p_hold_id;\n  END IF;\n\n  IF v_hold.status = 'captured' THEN\n    -- Idempotent retry: return existing transaction if recorded in metadata\n    SELECT id INTO v_txn_id\n    FROM public.wallet_transactions\n    WHERE reference_id = 'hold_' || p_hold_id::text;\n    IF v_txn_id IS NOT NULL THEN\n      RETURN v_txn_id;\n    END IF;\n  END IF;\n\n  IF v_hold.status != 'active' THEN\n    RAISE EXCEPTION 'Cannot capture hold in status: %', v_hold.status;\n  END IF;\n\n  -- Lock wallet\n  SELECT * INTO v_wallet\n  FROM public.wallets\n  WHERE id = v_hold.wallet_id\n  FOR UPDATE;\n\n  IF v_wallet.balance < v_hold.amount THEN\n    RAISE EXCEPTION 'Invariant violation: wallet balance % is less than hold amount %', v_wallet.balance, v_hold.amount;\n  END IF;\n\n  v_balance_after := v_wallet.balance - v_hold.amount;\n\n  -- Update wallet balance\n  UPDATE public.wallets\n  SET balance = v_balance_after,\n      total_spent = total_spent + v_hold.amount,\n      updated_at = now()\n  WHERE id = v_wallet.id;\n\n  -- Update allocated lots (consume remaining_amount)\n  FOR v_alloc IN\n    SELECT * FROM public.wallet_hold_allocations\n    WHERE hold_id = p_hold_id\n  LOOP\n    UPDATE public.wallet_funding_lots\n    SET remaining_amount = remaining_amount - v_alloc.amount,\n        status = CASE WHEN remaining_amount - v_alloc.amount = 0 THEN 'fully_consumed' ELSE status END,\n        updated_at = now()\n    WHERE id = v_alloc.lot_id;\n  END LOOP;\n\n  -- Mark hold captured\n  UPDATE public.wallet_holds\n  SET status = 'captured',\n      captured_at = now(),\n      updated_at = now()\n  WHERE id = p_hold_id;\n\n  -- Record ledger transaction\n  INSERT INTO public.wallet_transactions (\n    wallet_id, user_id, type, amount, balance_before, balance_after,\n    description, reference_id, status, metadata, created_at\n  ) VALUES (\n    v_wallet.id, v_hold.user_id, p_txn_type, v_hold.amount, v_wallet.balance, v_balance_after,\n    COALESCE(p_description, 'Purchase completed'),\n    'hold_' || p_hold_id::text,\n    'completed',\n    jsonb_build_object('hold_id', p_hold_id, 'order_type', v_hold.order_type, 'order_reference_id', v_hold.order_reference_id) || COALESCE(p_metadata, '{}'::jsonb),\n    now()\n  ) RETURNING id INTO v_txn_id;\n\n  RETURN v_txn_id;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "claim_pending_household_invites",
+    "signature": "claim_pending_household_invites()",
+    "md5": "277bf01c0854df2a63155beb12889da8",
+    "definition": null
+  },
+  {
+    "proname": "credit_wallet_for_refund",
+    "signature": "credit_wallet_for_refund(uuid,numeric,text,text,uuid,text)",
+    "md5": "38e65f31503e293a0f71173f9b8f27ce",
+    "definition": null
+  },
+  {
+    "proname": "get_wallet_summary",
+    "signature": "get_wallet_summary(uuid)",
+    "md5": "003fc42f897def9e424e83651dd9e53a",
+    "definition": "CREATE OR REPLACE FUNCTION public.get_wallet_summary(p_user_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_wallet RECORD;\n  v_held_amount NUMERIC := 0.00;\n  v_available_amount NUMERIC := 0.00;\n  v_refundable_amount NUMERIC := 0.00;\n  v_promotional_amount NUMERIC := 0.00;\nBEGIN\n  IF p_user_id IS NULL THEN\n    RAISE EXCEPTION 'User ID cannot be null';\n  END IF;\n\n  -- Caller must be self or service role / admin\n  IF auth.uid() IS NOT NULL AND auth.uid() != p_user_id THEN\n    RAISE EXCEPTION 'Access denied: cannot view another user wallet summary' USING ERRCODE = '42501';\n  END IF;\n\n  SELECT * INTO v_wallet FROM public.wallets WHERE user_id = p_user_id;\n\n  IF v_wallet.id IS NULL THEN\n    -- Return default zero summary\n    RETURN jsonb_build_object(\n      'wallet_id', null,\n      'posted_balance', 0.00,\n      'held_amount', 0.00,\n      'available_balance', 0.00,\n      'refundable_balance', 0.00,\n      'promotional_balance', 0.00,\n      'currency', 'USD'\n    );\n  END IF;\n\n  -- Calculate active holds\n  SELECT COALESCE(SUM(amount), 0.00) INTO v_held_amount\n  FROM public.wallet_holds\n  WHERE user_id = p_user_id AND status = 'active';\n\n  v_available_amount := GREATEST(0.00, v_wallet.balance - v_held_amount);\n\n  -- Calculate refundable balance (active paid deposits within deadline)\n  SELECT COALESCE(SUM(remaining_amount), 0.00) INTO v_refundable_amount\n  FROM public.wallet_funding_lots\n  WHERE user_id = p_user_id \n    AND status = 'active'\n    AND is_refundable = true\n    AND (refund_deadline IS NULL OR refund_deadline > now());\n\n  -- Ensure refundable does not exceed available balance\n  v_refundable_amount := LEAST(v_refundable_amount, v_available_amount);\n\n  -- Calculate promotional / gift balance\n  SELECT COALESCE(SUM(remaining_amount), 0.00) INTO v_promotional_amount\n  FROM public.wallet_funding_lots\n  WHERE user_id = p_user_id\n    AND status = 'active'\n    AND origin_type IN ('promotional', 'unverified_legacy', 'gift_received');\n\n  RETURN jsonb_build_object(\n    'wallet_id', v_wallet.id,\n    'posted_balance', v_wallet.balance,\n    'held_amount', v_held_amount,\n    'available_balance', v_available_amount,\n    'refundable_balance', v_refundable_amount,\n    'promotional_balance', v_promotional_amount,\n    'currency', v_wallet.currency\n  );\nEND;\n$function$\n"
+  },
+  {
+    "proname": "handle_new_household_member",
+    "signature": "handle_new_household_member()",
+    "md5": "965569e9920b13f643eef78c31b6c401",
+    "definition": null
+  },
+  {
+    "proname": "household_spend_check",
+    "signature": "household_spend_check(uuid,uuid,numeric,uuid)",
+    "md5": "3d33ae4a2a4d0f33ea06696d9e70459a",
+    "definition": null
+  },
+  {
+    "proname": "household_spend_mtd",
+    "signature": "household_spend_mtd(uuid,uuid,uuid)",
+    "md5": "512e00dd4a4626a291cf0d3478786af2",
+    "definition": null
+  },
+  {
+    "proname": "household_spend_summary",
+    "signature": "household_spend_summary()",
+    "md5": "976e1ef04602c3de474e5555267f3b64",
+    "definition": null
+  },
+  {
+    "proname": "invite_household_member",
+    "signature": "invite_household_member(text,text)",
+    "md5": "c7d75c88e409aba986f52c962e08242f",
+    "definition": null
+  },
+  {
+    "proname": "leave_household",
+    "signature": "leave_household(uuid)",
+    "md5": "7574245476e93beadea3d91b361cc080",
+    "definition": null
+  },
+  {
+    "proname": "my_household_allowances",
+    "signature": "my_household_allowances()",
+    "md5": "e4e9ab1a322856cee145111f3e87a4ec",
+    "definition": null
+  },
+  {
+    "proname": "preserve_whatsapp_legacy_flags",
+    "signature": "preserve_whatsapp_legacy_flags()",
+    "md5": "984e3bb9065789825fd55146edc4cfdc",
+    "definition": null
+  },
+  {
+    "proname": "quote_wallet_refund",
+    "signature": "quote_wallet_refund(uuid)",
+    "md5": "ecf9e3fc97d688163d5e38b34070a092",
+    "definition": null
+  },
+  {
+    "proname": "release_sim_setup_holds",
+    "signature": "release_sim_setup_holds(uuid,text)",
+    "md5": "1d91cfb98703da6925644ca5f6d68950",
+    "definition": null
+  },
+  {
+    "proname": "release_wallet_hold",
+    "signature": "release_wallet_hold(uuid,text)",
+    "md5": "ad1590773eff9de011eeb255efac6f30",
+    "definition": "CREATE OR REPLACE FUNCTION public.release_wallet_hold(p_hold_id uuid, p_reason text DEFAULT 'Operation cancelled or failed'::text)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_hold RECORD;\nBEGIN\n  SELECT * INTO v_hold\n  FROM public.wallet_holds\n  WHERE id = p_hold_id\n  FOR UPDATE;\n\n  IF v_hold.id IS NULL THEN\n    RAISE EXCEPTION 'Hold not found: %', p_hold_id;\n  END IF;\n\n  IF v_hold.status = 'released' THEN\n    RETURN true; -- Idempotent\n  END IF;\n\n  IF v_hold.status != 'active' THEN\n    RAISE EXCEPTION 'Cannot release hold in status: %', v_hold.status;\n  END IF;\n\n  UPDATE public.wallet_holds\n  SET status = 'released',\n      released_at = now(),\n      reason = COALESCE(p_reason, reason),\n      updated_at = now()\n  WHERE id = p_hold_id;\n\n  RETURN true;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "request_wallet_refund",
+    "signature": "request_wallet_refund(uuid,numeric,text)",
+    "md5": "ad604283f24b9dcdbf2d307eb2a208bc",
+    "definition": null
+  },
+  {
+    "proname": "reserve_sim_setup_holds",
+    "signature": "reserve_sim_setup_holds(uuid)",
+    "md5": "30e38226c17e9f2cae3b485c59ae0e9c",
+    "definition": null
+  },
+  {
+    "proname": "reserve_wallet_funds",
+    "signature": "reserve_wallet_funds(uuid,numeric,text,text,text,integer)",
+    "md5": "75aaad1ad02b099728c55fb55619819d",
+    "definition": "CREATE OR REPLACE FUNCTION public.reserve_wallet_funds(p_user_id uuid, p_amount numeric, p_order_type text, p_order_reference_id text, p_reason text DEFAULT NULL::text, p_ttl_minutes integer DEFAULT 120)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE\n  v_wallet_id UUID;\n  v_balance NUMERIC;\n  v_held_amount NUMERIC := 0.00;\n  v_available NUMERIC := 0.00;\n  v_hold_id UUID;\n  v_existing_hold RECORD;\n  v_needed NUMERIC;\n  v_lot RECORD;\n  v_alloc_amount NUMERIC;\n  v_active_lot_alloc NUMERIC;\n  v_available_in_lot NUMERIC;\nBEGIN\n  IF p_amount IS NULL OR p_amount <= 0 THEN\n    RAISE EXCEPTION 'Hold amount must be positive, got %', p_amount;\n  END IF;\n\n  IF p_order_type IS NULL OR p_order_reference_id IS NULL THEN\n    RAISE EXCEPTION 'order_type and order_reference_id are required';\n  END IF;\n\n  -- Idempotency check: if active hold exists for this reference, adopt it\n  SELECT * INTO v_existing_hold\n  FROM public.wallet_holds\n  WHERE order_type = p_order_type AND order_reference_id = p_order_reference_id;\n\n  IF v_existing_hold.id IS NOT NULL THEN\n    IF v_existing_hold.status = 'active' THEN\n      -- F09: Verify user_id and amount match\n      IF v_existing_hold.user_id != p_user_id THEN\n        RAISE EXCEPTION 'Existing hold % belongs to user %, but requested for user %', v_existing_hold.id, v_existing_hold.user_id, p_user_id;\n      END IF;\n      IF v_existing_hold.amount != p_amount THEN\n        RAISE EXCEPTION 'Existing hold % has amount %, but requested amount is %', v_existing_hold.id, v_existing_hold.amount, p_amount;\n      END IF;\n      RETURN v_existing_hold.id;\n    ELSE\n      RAISE EXCEPTION 'Hold for % % is already in status %', p_order_type, p_order_reference_id, v_existing_hold.status;\n    END IF;\n  END IF;\n\n  -- Lock wallet\n  SELECT id, balance INTO v_wallet_id, v_balance\n  FROM public.wallets\n  WHERE user_id = p_user_id\n  FOR UPDATE;\n\n  IF v_wallet_id IS NULL THEN\n    RAISE EXCEPTION 'Wallet not found for user %', p_user_id;\n  END IF;\n\n  -- Calculate current active holds\n  SELECT COALESCE(SUM(amount), 0.00) INTO v_held_amount\n  FROM public.wallet_holds\n  WHERE user_id = p_user_id AND status = 'active';\n\n  v_available := v_balance - v_held_amount;\n\n  IF v_available < p_amount THEN\n    RAISE EXCEPTION 'Insufficient available balance. Available: %, Needed: %', v_available, p_amount;\n  END IF;\n\n  -- Create hold\n  INSERT INTO public.wallet_holds (\n    wallet_id, user_id, order_type, order_reference_id, amount, currency,\n    status, reason, expires_at, created_at\n  ) VALUES (\n    v_wallet_id, p_user_id, p_order_type, p_order_reference_id, p_amount, 'USD',\n    'active', p_reason, now() + (p_ttl_minutes || ' minutes')::interval, now()\n  ) RETURNING id INTO v_hold_id;\n\n  -- Allocate lots: Spend non-refundable/promotional first, then gifts, then paid deposits oldest first\n  v_needed := p_amount;\n\n  FOR v_lot IN\n    SELECT * FROM public.wallet_funding_lots\n    WHERE user_id = p_user_id AND status = 'active' AND remaining_amount > 0\n    ORDER BY\n      CASE\n        WHEN origin_type IN ('promotional', 'unverified_legacy') THEN 1\n        WHEN origin_type = 'gift_received' THEN 2\n        ELSE 3\n      END ASC,\n      created_at ASC\n    FOR UPDATE\n  LOOP\n    EXIT WHEN v_needed <= 0;\n\n    -- Subtract any already-allocated amounts from active holds on this lot\n    SELECT COALESCE(SUM(a.amount), 0.00) INTO v_active_lot_alloc\n    FROM public.wallet_hold_allocations a\n    JOIN public.wallet_holds h ON h.id = a.hold_id\n    WHERE a.lot_id = v_lot.id AND h.status = 'active' AND h.id != v_hold_id;\n\n    v_available_in_lot := v_lot.remaining_amount - v_active_lot_alloc;\n\n    IF v_available_in_lot > 0 THEN\n      v_alloc_amount := LEAST(v_available_in_lot, v_needed);\n\n      INSERT INTO public.wallet_hold_allocations (hold_id, lot_id, amount, created_at)\n      VALUES (v_hold_id, v_lot.id, v_alloc_amount, now());\n\n      v_needed := v_needed - v_alloc_amount;\n    END IF;\n  END LOOP;\n\n  -- Invariant check: Assert that the entire requested amount was successfully allocated\n  IF v_needed > 0 THEN\n    RAISE EXCEPTION 'Invariant violation: unable to allocate full amount from active lots. Short by %', v_needed;\n  END IF;\n\n  RETURN v_hold_id;\nEND;\n$function$\n"
+  },
+  {
+    "proname": "resolve_household_payer",
+    "signature": "resolve_household_payer(uuid,uuid)",
+    "md5": "4cc5d6a6ba4250dfda2f744b0e811243",
+    "definition": null
+  },
+  {
+    "proname": "resolve_pending_household_invites",
+    "signature": "resolve_pending_household_invites()",
+    "md5": "6cec1882fe798e0de2e94b7b4641fb26",
+    "definition": null
+  },
+  {
+    "proname": "respond_to_household_invite",
+    "signature": "respond_to_household_invite(uuid,boolean)",
+    "md5": "95d7980edb0eb54a9309c63d220557d8",
+    "definition": null
+  },
+  {
+    "proname": "set_household_member_cap",
+    "signature": "set_household_member_cap(uuid,numeric,numeric)",
+    "md5": "1b90e1d3818123a89d2047b7507c1eed",
+    "definition": null
+  },
+  {
+    "proname": "settle_call_wallet_hold",
+    "signature": "settle_call_wallet_hold(uuid,numeric,text,jsonb)",
+    "md5": "dc0fa7e3241cfaa7fe8d579eeee5ffef",
+    "definition": null
+  },
+  {
+    "proname": "trg_fn_household_cap_requires_manager",
+    "signature": "trg_fn_household_cap_requires_manager()",
+    "md5": "90e9932f049713ee2a55a9d0b1127e4e",
+    "definition": null
+  },
+  {
+    "proname": "trg_fn_household_member_id_matches_email",
+    "signature": "trg_fn_household_member_id_matches_email()",
+    "md5": "ccc2bb16cf355cf11280ca62e599614f",
+    "definition": null
+  }
+]

@@ -26,9 +26,13 @@ export function createRechargeHandler({authenticate,call}) {
         name='quote_esim_topup';params={p_profile_id:b.profile_id,p_package_id:b.package_id,p_offer_version:b.offer_version,p_expected_total:b.expected_total};
       }else if(b.action==='check'&&uuid(b.quote_id)&&Object.keys(b).every(k=>['action','quote_id'].includes(k))) {
         name='check_esim_topup_quote';params={p_quote_id:b.quote_id};
+      }else if(b.action==='accept'&&uuid(b.quote_id)&&uuid(b.acceptance_key)&&(b.device_id==null||uuid(b.device_id))&&Object.keys(b).every(k=>['action','quote_id','acceptance_key','device_id'].includes(k))) {
+        name='accept_esim_topup';params={p_quote_id:b.quote_id,p_acceptance_key:b.acceptance_key,p_device_id:b.device_id??null};
+      }else if(b.action==='history'&&(b.profile_id==null||uuid(b.profile_id))&&Object.keys(b).every(k=>['action','profile_id'].includes(k))) {
+        name='get_esim_operation_history';params={p_profile_id:b.profile_id??null};
       }else return reply(400,{status:'INVALID_REQUEST'});
       const result=await call(client,name,params);
-      if(!result||result.error||!result.data)return reply(503,{status:'TEMPORARILY_UNAVAILABLE'});
+      if(!result||result.error||result.data==null)return reply(503,{status:'TEMPORARILY_UNAVAILABLE'});
       return reply(200,result.data);
     }catch(_){return reply(503,{status:'TEMPORARILY_UNAVAILABLE'});}
   };

@@ -1,0 +1,16 @@
+✔ anonymous/invalid identity and unexpected methods cannot reach SQL (12.641542ms)
+✔ authenticated discovery uses the customer client, exact profile and fixed RPC allowlist (0.833375ms)
+✔ payer overrides, acceptance, raw RPC names, malformed IDs and oversized requests are refused (0.944292ms)
+✔ quote/check bind only reviewed offer fields and owner-checked IDs (0.598ms)
+✔ database errors and thrown auth errors never expose internal data (0.311667ms)
+✔ acceptance forwards only the quote capability and device ID using customer SQL authority (13.86125ms)
+✔ no client price, payer, supplier, receipt or settlement command can be injected into acceptance (0.954917ms)
+✔ history remains an owner-scoped RPC and a genuine empty result is preserved (0.324875ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.802042

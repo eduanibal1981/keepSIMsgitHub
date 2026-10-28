@@ -1,0 +1,456 @@
+{
+  "wallet_acl": [
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "function": "capture_wallet_hold(uuid,text,text,jsonb)"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "function": "release_wallet_hold(uuid,text)"
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "function": "reserve_wallet_funds(uuid,numeric,text,text,text,integer)"
+    }
+  ],
+  "reconciliation": " SELECT w.id AS wallet_id,\n    w.user_id,\n    w.balance,\n    COALESCE(sum(\n        CASE\n            WHEN t.type = ANY (ARRAY['deposit'::text, 'refund'::text, 'referral_credit'::text, 'auto_fund'::text, 'gift_received'::text, 'admin_credit'::text]) THEN t.amount\n            WHEN t.type = ANY (ARRAY['topup_debit'::text, 'welcome_home_debit'::text, 'plan_fee_debit'::text, 'esim_purchase_debit'::text, 'call_debit'::text, 'voucher_purchase_debit'::text, 'gift_sent'::text, 'refund_payout'::text, 'admin_debit'::text]) THEN - t.amount\n            ELSE 0.00\n        END), 0.00) AS ledger_sum,\n    w.balance - COALESCE(sum(\n        CASE\n            WHEN t.type = ANY (ARRAY['deposit'::text, 'refund'::text, 'referral_credit'::text, 'auto_fund'::text, 'gift_received'::text, 'admin_credit'::text]) THEN t.amount\n            WHEN t.type = ANY (ARRAY['topup_debit'::text, 'welcome_home_debit'::text, 'plan_fee_debit'::text, 'esim_purchase_debit'::text, 'call_debit'::text, 'voucher_purchase_debit'::text, 'gift_sent'::text, 'refund_payout'::text, 'admin_debit'::text]) THEN - t.amount\n            ELSE 0.00\n        END), 0.00) AS drift\n   FROM wallets w\n     LEFT JOIN wallet_transactions t ON t.wallet_id = w.id\n  GROUP BY w.id, w.user_id, w.balance;",
+  "wallet_columns": [
+    {
+      "type": "uuid",
+      "table": "wallet_funding_lots",
+      "column": "id",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_funding_lots",
+      "column": "wallet_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_funding_lots",
+      "column": "user_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_funding_lots",
+      "column": "origin_type",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_funding_lots",
+      "column": "original_reference_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_funding_lots",
+      "column": "original_order_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_funding_lots",
+      "column": "currency",
+      "default": "'USD'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_funding_lots",
+      "column": "funded_amount",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_funding_lots",
+      "column": "remaining_amount",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "boolean",
+      "table": "wallet_funding_lots",
+      "column": "is_refundable",
+      "default": "false",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_funding_lots",
+      "column": "refund_deadline",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_funding_lots",
+      "column": "status",
+      "default": "'active'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_funding_lots",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_funding_lots",
+      "column": "updated_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_hold_allocations",
+      "column": "id",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_hold_allocations",
+      "column": "hold_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_hold_allocations",
+      "column": "lot_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_hold_allocations",
+      "column": "amount",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_hold_allocations",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_holds",
+      "column": "id",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_holds",
+      "column": "wallet_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_holds",
+      "column": "user_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_holds",
+      "column": "order_type",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_holds",
+      "column": "order_reference_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_holds",
+      "column": "amount",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_holds",
+      "column": "currency",
+      "default": "'USD'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_holds",
+      "column": "status",
+      "default": "'active'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_holds",
+      "column": "reason",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_holds",
+      "column": "captured_at",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_holds",
+      "column": "released_at",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_holds",
+      "column": "expires_at",
+      "default": "(now() + '02:00:00'::interval)",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_holds",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_holds",
+      "column": "updated_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "boolean",
+      "table": "wallet_holds",
+      "column": "carrier_in_flight",
+      "default": "false",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_transactions",
+      "column": "id",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_transactions",
+      "column": "wallet_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_transactions",
+      "column": "user_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_transactions",
+      "column": "type",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_transactions",
+      "column": "amount",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_transactions",
+      "column": "balance_before",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "numeric",
+      "table": "wallet_transactions",
+      "column": "balance_after",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "wallet_transactions",
+      "column": "description",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_transactions",
+      "column": "reference_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "uuid",
+      "table": "wallet_transactions",
+      "column": "sim_line_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallet_transactions",
+      "column": "status",
+      "default": "'completed'::text",
+      "nullable": "YES"
+    },
+    {
+      "type": "jsonb",
+      "table": "wallet_transactions",
+      "column": "metadata",
+      "default": "'{}'::jsonb",
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallet_transactions",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "type": "uuid",
+      "table": "wallets",
+      "column": "id",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "type": "uuid",
+      "table": "wallets",
+      "column": "user_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "numeric",
+      "table": "wallets",
+      "column": "balance",
+      "default": "0.00",
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "wallets",
+      "column": "currency",
+      "default": "'USD'::text",
+      "nullable": "YES"
+    },
+    {
+      "type": "boolean",
+      "table": "wallets",
+      "column": "auto_fund_enabled",
+      "default": "false",
+      "nullable": "YES"
+    },
+    {
+      "type": "numeric",
+      "table": "wallets",
+      "column": "auto_fund_threshold",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "numeric",
+      "table": "wallets",
+      "column": "auto_fund_amount",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "numeric",
+      "table": "wallets",
+      "column": "total_deposited",
+      "default": "0.00",
+      "nullable": "YES"
+    },
+    {
+      "type": "numeric",
+      "table": "wallets",
+      "column": "total_spent",
+      "default": "0.00",
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallets",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "wallets",
+      "column": "updated_at",
+      "default": "now()",
+      "nullable": "YES"
+    }
+  ],
+  "wallet_triggers": [
+    {
+      "table": "wallets",
+      "function": "update_updated_at()",
+      "definition": "CREATE TRIGGER trg_wallets_updated_at BEFORE UPDATE ON public.wallets FOR EACH ROW EXECUTE FUNCTION update_updated_at()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_award_referral_points()",
+      "definition": "CREATE TRIGGER trg_award_referral_wallet AFTER INSERT ON public.wallet_transactions FOR EACH ROW WHEN (((new.type = 'plan_fee_debit'::text) AND (new.sim_line_id IS NOT NULL))) EXECUTE FUNCTION trg_fn_award_referral_points()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_notify_wallet_credit()",
+      "definition": "CREATE TRIGGER trg_notify_wallet_credit AFTER INSERT ON public.wallet_transactions FOR EACH ROW WHEN ((new.type = 'deposit'::text)) EXECUTE FUNCTION trg_fn_notify_wallet_credit()"
+    },
+    {
+      "table": "wallet_transactions",
+      "function": "trg_fn_resume_awaiting_funds()",
+      "definition": "CREATE TRIGGER trg_resume_awaiting_funds AFTER INSERT ON public.wallet_transactions FOR EACH ROW EXECUTE FUNCTION trg_fn_resume_awaiting_funds()"
+    }
+  ]
+}

@@ -1,0 +1,469 @@
+[
+  {
+    "financial_preflight": {
+      "counts": {
+        "esim_orders": 1,
+        "wallet_holds": 77,
+        "access_profiles": 0
+      },
+      "tables": [
+        {
+          "type": "uuid",
+          "table": "esim_orders",
+          "column": "id"
+        },
+        {
+          "type": "uuid",
+          "table": "esim_orders",
+          "column": "user_id"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "provider"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "bundle_name"
+        },
+        {
+          "type": "integer",
+          "table": "esim_orders",
+          "column": "quantity"
+        },
+        {
+          "type": "numeric",
+          "table": "esim_orders",
+          "column": "wholesale_price_usd"
+        },
+        {
+          "type": "numeric",
+          "table": "esim_orders",
+          "column": "retail_price_usd"
+        },
+        {
+          "type": "numeric",
+          "table": "esim_orders",
+          "column": "markup_percent"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "status"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "provider_order_ref"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "error_message"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "esim_orders",
+          "column": "created_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "esim_orders",
+          "column": "updated_at"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "offer_id"
+        },
+        {
+          "type": "numeric",
+          "table": "esim_orders",
+          "column": "total_amount_usd"
+        },
+        {
+          "type": "jsonb",
+          "table": "esim_orders",
+          "column": "catalogue_snapshot"
+        },
+        {
+          "type": "text",
+          "table": "esim_orders",
+          "column": "delivery_state"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_funding_lots",
+          "column": "id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_funding_lots",
+          "column": "wallet_id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_funding_lots",
+          "column": "user_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_funding_lots",
+          "column": "origin_type"
+        },
+        {
+          "type": "text",
+          "table": "wallet_funding_lots",
+          "column": "original_reference_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_funding_lots",
+          "column": "original_order_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_funding_lots",
+          "column": "currency"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_funding_lots",
+          "column": "funded_amount"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_funding_lots",
+          "column": "remaining_amount"
+        },
+        {
+          "type": "boolean",
+          "table": "wallet_funding_lots",
+          "column": "is_refundable"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_funding_lots",
+          "column": "refund_deadline"
+        },
+        {
+          "type": "text",
+          "table": "wallet_funding_lots",
+          "column": "status"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_funding_lots",
+          "column": "created_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_funding_lots",
+          "column": "updated_at"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_holds",
+          "column": "id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_holds",
+          "column": "wallet_id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_holds",
+          "column": "user_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_holds",
+          "column": "order_type"
+        },
+        {
+          "type": "text",
+          "table": "wallet_holds",
+          "column": "order_reference_id"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_holds",
+          "column": "amount"
+        },
+        {
+          "type": "text",
+          "table": "wallet_holds",
+          "column": "currency"
+        },
+        {
+          "type": "text",
+          "table": "wallet_holds",
+          "column": "status"
+        },
+        {
+          "type": "text",
+          "table": "wallet_holds",
+          "column": "reason"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_holds",
+          "column": "captured_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_holds",
+          "column": "released_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_holds",
+          "column": "expires_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_holds",
+          "column": "created_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_holds",
+          "column": "updated_at"
+        },
+        {
+          "type": "boolean",
+          "table": "wallet_holds",
+          "column": "carrier_in_flight"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_transactions",
+          "column": "id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_transactions",
+          "column": "wallet_id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_transactions",
+          "column": "user_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_transactions",
+          "column": "type"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_transactions",
+          "column": "amount"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_transactions",
+          "column": "balance_before"
+        },
+        {
+          "type": "numeric",
+          "table": "wallet_transactions",
+          "column": "balance_after"
+        },
+        {
+          "type": "text",
+          "table": "wallet_transactions",
+          "column": "description"
+        },
+        {
+          "type": "text",
+          "table": "wallet_transactions",
+          "column": "reference_id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallet_transactions",
+          "column": "sim_line_id"
+        },
+        {
+          "type": "text",
+          "table": "wallet_transactions",
+          "column": "status"
+        },
+        {
+          "type": "jsonb",
+          "table": "wallet_transactions",
+          "column": "metadata"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallet_transactions",
+          "column": "created_at"
+        },
+        {
+          "type": "uuid",
+          "table": "wallets",
+          "column": "id"
+        },
+        {
+          "type": "uuid",
+          "table": "wallets",
+          "column": "user_id"
+        },
+        {
+          "type": "numeric",
+          "table": "wallets",
+          "column": "balance"
+        },
+        {
+          "type": "text",
+          "table": "wallets",
+          "column": "currency"
+        },
+        {
+          "type": "boolean",
+          "table": "wallets",
+          "column": "auto_fund_enabled"
+        },
+        {
+          "type": "numeric",
+          "table": "wallets",
+          "column": "auto_fund_threshold"
+        },
+        {
+          "type": "numeric",
+          "table": "wallets",
+          "column": "auto_fund_amount"
+        },
+        {
+          "type": "numeric",
+          "table": "wallets",
+          "column": "total_deposited"
+        },
+        {
+          "type": "numeric",
+          "table": "wallets",
+          "column": "total_spent"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallets",
+          "column": "created_at"
+        },
+        {
+          "type": "timestamp with time zone",
+          "table": "wallets",
+          "column": "updated_at"
+        }
+      ],
+      "functions": [
+        {
+          "md5": "94e9aa0be146e0a10b89a1a0b9027d88",
+          "name": "capture_sim_setup_holds(uuid,text)"
+        },
+        {
+          "md5": "1d91cfb98703da6925644ca5f6d68950",
+          "name": "release_sim_setup_holds(uuid,text)"
+        },
+        {
+          "md5": "dc0fa7e3241cfaa7fe8d579eeee5ffef",
+          "name": "settle_call_wallet_hold(uuid,numeric,text,jsonb)"
+        },
+        {
+          "md5": "53cec2e441b8d55bf0a4ec1aa92feb2d",
+          "name": "debit_wallet_for_topup(uuid,uuid,numeric,text,text,text)"
+        },
+        {
+          "md5": "524b7d1f6f79eadaf422fb0ff3f1c315",
+          "name": "request_esim_purchase(text,integer,text)"
+        },
+        {
+          "md5": "62967b62cf968e52105e9a116c9426d4",
+          "name": "capture_wallet_hold(uuid,text,text,jsonb)"
+        },
+        {
+          "md5": "ad1590773eff9de011eeb255efac6f30",
+          "name": "release_wallet_hold(uuid,text)"
+        },
+        {
+          "md5": "7b68cbe7185e7c8b1f4275b23fdf6cf6",
+          "name": "service_esim_save_issuance(uuid,uuid,text,jsonb,text)"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "wallet_transactions_amount_positive",
+          "table": "wallet_transactions",
+          "definition": "CHECK ((amount > (0)::numeric)) NOT VALID"
+        },
+        {
+          "name": "wallet_transactions_pkey",
+          "table": "wallet_transactions",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "wallet_transactions_sim_line_id_fkey",
+          "table": "wallet_transactions",
+          "definition": "FOREIGN KEY (sim_line_id) REFERENCES sim_lines(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "wallet_transactions_status_check",
+          "table": "wallet_transactions",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'completed'::text, 'failed'::text, 'reversed'::text])))"
+        },
+        {
+          "name": "wallet_transactions_type_check",
+          "table": "wallet_transactions",
+          "definition": "CHECK ((type = ANY (ARRAY['deposit'::text, 'topup_debit'::text, 'refund'::text, 'referral_credit'::text, 'referral_withdrawal'::text, 'plan_fee_debit'::text, 'home_mode_debit'::text, 'auto_fund'::text, 'esim_purchase_debit'::text, 'esim_purchase_refund'::text, 'wallet_settlement'::text, 'wallet_forfeit'::text, 'gift_sent'::text, 'gift_received'::text, 'admin_adjustment'::text, 'offline_voucher_debit'::text, 'call_debit'::text, 'call_refund'::text, 'did_purchase_debit'::text])))"
+        },
+        {
+          "name": "wallet_transactions_user_id_fkey",
+          "table": "wallet_transactions",
+          "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "wallet_transactions_wallet_id_fkey",
+          "table": "wallet_transactions",
+          "definition": "FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "uq_wallet_holds_ref",
+          "table": "wallet_holds",
+          "definition": "UNIQUE (order_type, order_reference_id)"
+        },
+        {
+          "name": "wallet_holds_amount_check",
+          "table": "wallet_holds",
+          "definition": "CHECK ((amount > (0)::numeric))"
+        },
+        {
+          "name": "wallet_holds_order_type_check",
+          "table": "wallet_holds",
+          "definition": "CHECK ((order_type = ANY (ARRAY['refill_instant'::text, 'refill_scheduled'::text, 'setup_refill'::text, 'plan_fee'::text, 'esim_purchase'::text, 'call_budget'::text, 'offline_voucher'::text, 'refund_request'::text, 'line_verification'::text])))"
+        },
+        {
+          "name": "wallet_holds_pkey",
+          "table": "wallet_holds",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "wallet_holds_status_check",
+          "table": "wallet_holds",
+          "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'captured'::text, 'released'::text, 'expired'::text])))"
+        },
+        {
+          "name": "wallet_holds_user_id_fkey",
+          "table": "wallet_holds",
+          "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "wallet_holds_wallet_id_fkey",
+          "table": "wallet_holds",
+          "definition": "FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE"
+        }
+      ]
+    }
+  }
+]
