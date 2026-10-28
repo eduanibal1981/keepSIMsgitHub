@@ -46,5 +46,15 @@
     "baseline": 13
   },
   "provider_account_wiring": "Not configured; inspected URL-only account form; dedicated header or incoming signature contract unverified",
-  "application_distribution": "Local source and tests only; no binaries published"
+  "application_distribution": "Local source and tests only; no binaries published",
+  "source_branch": "codex/esim03-04-runtime-20261028",
+  "source_commits": {
+    "backend": "c0cee21e1c2f45e02baa5d4e5c3166931ba7035f",
+    "customer": "2220f10817005fd3afa193ee45b9a515ed44b2c0",
+    "admin": "dacae1cf222628c6c6f1a84cab491d021b7e5860"
+  },
+  "source_matches_runtime": true,
+  "final_worker_age_seconds": 5,
+  "final_cycle_errors": 0,
+  "synthetic_events_remaining": 0
 }

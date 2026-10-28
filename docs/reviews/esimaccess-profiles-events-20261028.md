@@ -131,3 +131,17 @@ issues rather than removing provenance or events. The prior catalogue source
 backup is available for a scoped catalogue rollback, provided the shared limiter
 is preserved while any recovery runtime is active. Never replay an uncertain
 submission as a rollback step.
+
+
+## Source synchronization
+
+The release branch `codex/esim03-04-runtime-20261028` exists in all three repositories:
+[backend source](https://github.com/eduanibal1981/keepsims-backend/commit/c0cee21e1c2f45e02baa5d4e5c3166931ba7035f),
+[customer source](https://github.com/eduanibal1981/keepSIMsgitHub/commit/2220f10817005fd3afa193ee45b9a515ed44b2c0),
+[Admin source](https://github.com/eduanibal1981/keepsims_admin/commit/dacae1cf222628c6c6f1a84cab491d021b7e5860).
+Deployed backend/Edge file blobs match the remote source. The customer branch
+also carries the tested ESIM-02 UI prerequisites and ESIM-03 app changes. The Admin
+branch contains only the catalogue/recovery diagnostic additions to its recorded
+base, excluding unrelated pending carrier/fleet work. Default branches were not
+updated. The final worker heartbeat was five seconds old with zero cycle errors;
+the synthetic inbox is empty.
