@@ -1,0 +1,12 @@
+✔ missing/invalid secrets cause no event persistence, including URL tokens (9.457375ms)
+✔ durable acknowledgment stores only minimized hints, not activation or usage fields (3.510167ms)
+✔ unknown event families, missing references, oversized and malformed bodies are rejected (0.673041ms)
+✔ missing authentication configuration and persistence failure fail closed (0.460083ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.484209

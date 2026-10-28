@@ -13,6 +13,8 @@
 ///                                 commission. This MUST be disclosed.
 library;
 
+import 'esim_catalogue_details.dart';
+
 enum OfferAction { buyInApp, openPartner }
 
 enum OfferSpeedTier { fixed, lite, essential, plus, longDuration }
@@ -33,6 +35,7 @@ class CompareOffer {
     required this.action,
     required this.priceIsStale,
     required this.disclosureRequired,
+    this.catalogueDetails,
     this.logoUrl,
     this.description,
     this.bundleGroup,
@@ -44,6 +47,11 @@ class CompareOffer {
     this.couponDescription,
     this.imageUrl,
   });
+
+  final Map<String, dynamic>? catalogueDetails;
+  EsimCatalogueDetails get facts =>
+      EsimCatalogueDetails(catalogueDetails ?? const {});
+  String get formattedDuration => facts.durationLabel(durationDays);
 
   final String offerKind; // 'resale' | 'affiliate'
   final String offerId;
@@ -87,13 +95,10 @@ class CompareOffer {
 
   /// Returns the user-facing product type tag (e.g. 'Fixed Bundle' or 'DayPass').
   String? get typeTag {
-    if (bundleGroup != null && (bundleGroup == 'DayPass' || bundleGroup == 'Fixed Bundle')) {
+    if (sourceCode == 'esimaccess') return facts.typeLabel;
+    if (bundleGroup != null &&
+        (bundleGroup == 'DayPass' || bundleGroup == 'Fixed Bundle')) {
       return bundleGroup;
-    }
-    if (sourceCode == 'esimaccess') {
-      final isDaily = RegExp(r'daily|/day|fup|daypass', caseSensitive: false)
-          .hasMatch('$title ${description ?? ''}');
-      return isDaily ? 'DayPass' : 'Fixed Bundle';
     }
     return null;
   }
@@ -121,6 +126,9 @@ class CompareOffer {
 
   factory CompareOffer.fromRpc(Map<String, dynamic> map) {
     return CompareOffer(
+      catalogueDetails: map['catalogue_details'] is Map
+          ? Map<String, dynamic>.from(map['catalogue_details'] as Map)
+          : null,
       offerKind: map['offer_kind'] as String? ?? 'resale',
       offerId: map['offer_id'] as String? ?? '',
       sourceCode: map['source_code'] as String? ?? '',
@@ -129,7 +137,8 @@ class CompareOffer {
       title: map['title'] as String? ?? '',
       description: map['description'] as String?,
       bundleGroup: map['bundle_group'] as String?,
-      countries: (map['countries'] as List<dynamic>?)
+      countries:
+          (map['countries'] as List<dynamic>?)
               ?.map((e) => e.toString().toUpperCase())
               .toList() ??
           const [],
@@ -153,19 +162,23 @@ class CompareOffer {
     );
   }
 
-
   String get formattedData {
-    if (typeTag == 'DayPass') {
-      if (dataAmountMb > 0) {
-        return '${formatDataMb(dataAmountMb)}/day';
-      }
-      return 'Unlimited';
+    if (sourceCode == 'esimaccess' || catalogueDetails != null) {
+      return facts.formattedData(
+        legacyMb: dataAmountMb,
+        unlimited: isUnlimited,
+      );
     }
-    return isUnlimited || dataAmountMb <= 0 ? 'Unlimited' : formatDataMb(dataAmountMb);
+    return isUnlimited
+        ? 'Unlimited'
+        : dataAmountMb > 0
+        ? formatDataMb(dataAmountMb)
+        : 'Not provided';
   }
 
   /// Returns a direct, human-readable explanation of the plan's exact speed & throttle policy.
   String? get exactSpeedDetail {
+    if (sourceCode == 'esimaccess') return facts.policyLabel;
     if (!isUnlimited && typeTag != 'DayPass') {
       return null;
     }
@@ -210,7 +223,7 @@ class CompareOffer {
           return 'Plus – 3 GB at Max speed then throttle to 1 Mb/s';
         }
         if (typeTag == 'DayPass' && dataAmountMb > 0) {
-          return '${formatDataMb(dataAmountMb)}/day at Max speed then throttle to 384 kb/s';
+          return 'FUP: Not provided';
         }
         return 'Unlimited data with fair-use speed policy';
     }
@@ -275,20 +288,56 @@ class CompareOffer {
 
   /// Predefined map of ISO-3166 alpha-2 country codes to English names.
   static const Map<String, String> defaultCountryNames = {
-    'FR': 'France', 'US': 'United States', 'GB': 'United Kingdom',
-    'DE': 'Germany', 'ES': 'Spain', 'IT': 'Italy', 'PT': 'Portugal',
-    'GR': 'Greece', 'NL': 'Netherlands', 'CH': 'Switzerland',
-    'AT': 'Austria', 'BE': 'Belgium', 'IE': 'Ireland', 'PL': 'Poland',
-    'AE': 'United Arab Emirates', 'SA': 'Saudi Arabia', 'QA': 'Qatar',
-    'KW': 'Kuwait', 'BH': 'Bahrain', 'OM': 'Oman', 'JO': 'Jordan',
-    'EG': 'Egypt', 'MA': 'Morocco', 'TR': 'Turkey', 'PS': 'Palestine',
-    'IN': 'India', 'PK': 'Pakistan', 'BD': 'Bangladesh', 'LK': 'Sri Lanka',
-    'NP': 'Nepal', 'PH': 'Philippines', 'ID': 'Indonesia', 'MY': 'Malaysia',
-    'SG': 'Singapore', 'TH': 'Thailand', 'VN': 'Vietnam', 'JP': 'Japan',
-    'KR': 'South Korea', 'CN': 'China', 'HK': 'Hong Kong',
-    'AU': 'Australia', 'NZ': 'New Zealand', 'CA': 'Canada', 'MX': 'Mexico',
-    'BR': 'Brazil', 'AR': 'Argentina', 'ZA': 'South Africa',
-    'KE': 'Kenya', 'NG': 'Nigeria', 'RU': 'Russia',
+    'FR': 'France',
+    'US': 'United States',
+    'GB': 'United Kingdom',
+    'DE': 'Germany',
+    'ES': 'Spain',
+    'IT': 'Italy',
+    'PT': 'Portugal',
+    'GR': 'Greece',
+    'NL': 'Netherlands',
+    'CH': 'Switzerland',
+    'AT': 'Austria',
+    'BE': 'Belgium',
+    'IE': 'Ireland',
+    'PL': 'Poland',
+    'AE': 'United Arab Emirates',
+    'SA': 'Saudi Arabia',
+    'QA': 'Qatar',
+    'KW': 'Kuwait',
+    'BH': 'Bahrain',
+    'OM': 'Oman',
+    'JO': 'Jordan',
+    'EG': 'Egypt',
+    'MA': 'Morocco',
+    'TR': 'Turkey',
+    'PS': 'Palestine',
+    'IN': 'India',
+    'PK': 'Pakistan',
+    'BD': 'Bangladesh',
+    'LK': 'Sri Lanka',
+    'NP': 'Nepal',
+    'PH': 'Philippines',
+    'ID': 'Indonesia',
+    'MY': 'Malaysia',
+    'SG': 'Singapore',
+    'TH': 'Thailand',
+    'VN': 'Vietnam',
+    'JP': 'Japan',
+    'KR': 'South Korea',
+    'CN': 'China',
+    'HK': 'Hong Kong',
+    'AU': 'Australia',
+    'NZ': 'New Zealand',
+    'CA': 'Canada',
+    'MX': 'Mexico',
+    'BR': 'Brazil',
+    'AR': 'Argentina',
+    'ZA': 'South Africa',
+    'KE': 'Kenya',
+    'NG': 'Nigeria',
+    'RU': 'Russia',
   };
 
   /// Resolves an ISO country code to its friendly English country name.
@@ -339,10 +388,9 @@ class CompareBounds {
   factory CompareBounds.fromRpc(dynamic raw) {
     if (raw is! Map) return const CompareBounds();
     final map = Map<String, dynamic>.from(raw);
-    List<int> ints(String key) =>
-        (map[key] as List<dynamic>? ?? const [])
-            .map((e) => (e as num).toInt())
-            .toList();
+    List<int> ints(String key) => (map[key] as List<dynamic>? ?? const [])
+        .map((e) => (e as num).toInt())
+        .toList();
     return CompareBounds(
       durations: ints('durations'),
       dataMb: ints('data_mb'),
@@ -394,9 +442,11 @@ class CompareFilters {
     this.minPriceUsd,
     this.maxPriceUsd,
     this.speedTiers,
+    this.planTypes,
     this.sort = CompareSort.price,
   });
 
+  final List<String>? planTypes;
   final String? coverage; // 'local' | 'regional' | 'global'
 
   final RangeFilterMode validityMode;
@@ -430,8 +480,8 @@ class CompareFilters {
       validityMode == RangeFilterMode.range ? maxDays : null;
   List<int>? get wireDaysExact =>
       validityMode == RangeFilterMode.exact && daysExact.isNotEmpty
-          ? daysExact
-          : null;
+      ? daysExact
+      : null;
 
   int? get wireMinDataMb => dataMode == DataFilterMode.range ? minDataMb : null;
   int? get wireMaxDataMb => dataMode == DataFilterMode.range ? maxDataMb : null;
@@ -446,6 +496,7 @@ class CompareFilters {
     final list = set.toList()..sort();
     return list.isEmpty ? null : list;
   }
+
   bool get wireUnlimitedOnly => dataMode == DataFilterMode.unlimited;
   List<String>? get wireSpeedTiers =>
       dataMode == DataFilterMode.unlimited ? speedTiers : null;
@@ -458,17 +509,17 @@ class CompareFilters {
   // not inflate the badge on the Filters pill. "Range" with both ends blank is
   // "All" with extra steps.
   bool get validityIsActive => switch (validityMode) {
-        RangeFilterMode.all => false,
-        RangeFilterMode.range => minDays != null || maxDays != null,
-        RangeFilterMode.exact => daysExact.isNotEmpty,
-      };
+    RangeFilterMode.all => false,
+    RangeFilterMode.range => minDays != null || maxDays != null,
+    RangeFilterMode.exact => daysExact.isNotEmpty,
+  };
 
   bool get dataIsActive => switch (dataMode) {
-        DataFilterMode.all => false,
-        DataFilterMode.unlimited => true,
-        DataFilterMode.range => minDataMb != null || maxDataMb != null,
-        DataFilterMode.exact => dataExactMb.isNotEmpty,
-      };
+    DataFilterMode.all => false,
+    DataFilterMode.unlimited => true,
+    DataFilterMode.range => minDataMb != null || maxDataMb != null,
+    DataFilterMode.exact => dataExactMb.isNotEmpty,
+  };
 
   bool get priceIsActive =>
       priceRangeOn && (minPriceUsd != null || maxPriceUsd != null);
@@ -479,14 +530,16 @@ class CompareFilters {
       speedTiers!.isNotEmpty;
 
   int get activeCount => [
-        coverage != null,
-        validityIsActive,
-        dataIsActive,
-        priceIsActive,
-        speedIsActive,
-      ].where((e) => e).length;
+    coverage != null,
+    planTypes?.isNotEmpty == true,
+    validityIsActive,
+    dataIsActive,
+    priceIsActive,
+    speedIsActive,
+  ].where((e) => e).length;
 
   CompareFilters copyWith({
+    Object? planTypes = _sentinel,
     Object? coverage = _sentinel,
     RangeFilterMode? validityMode,
     Object? minDays = _sentinel,
@@ -503,6 +556,9 @@ class CompareFilters {
     CompareSort? sort,
   }) {
     return CompareFilters(
+      planTypes: planTypes == _sentinel
+          ? this.planTypes
+          : planTypes as List<String>?,
       coverage: coverage == _sentinel ? this.coverage : coverage as String?,
       validityMode: validityMode ?? this.validityMode,
       minDays: minDays == _sentinel ? this.minDays : minDays as int?,
@@ -513,12 +569,15 @@ class CompareFilters {
       maxDataMb: maxDataMb == _sentinel ? this.maxDataMb : maxDataMb as int?,
       dataExactMb: dataExactMb ?? this.dataExactMb,
       priceRangeOn: priceRangeOn ?? this.priceRangeOn,
-      minPriceUsd:
-          minPriceUsd == _sentinel ? this.minPriceUsd : minPriceUsd as double?,
-      maxPriceUsd:
-          maxPriceUsd == _sentinel ? this.maxPriceUsd : maxPriceUsd as double?,
-      speedTiers:
-          speedTiers == _sentinel ? this.speedTiers : speedTiers as List<String>?,
+      minPriceUsd: minPriceUsd == _sentinel
+          ? this.minPriceUsd
+          : minPriceUsd as double?,
+      maxPriceUsd: maxPriceUsd == _sentinel
+          ? this.maxPriceUsd
+          : maxPriceUsd as double?,
+      speedTiers: speedTiers == _sentinel
+          ? this.speedTiers
+          : speedTiers as List<String>?,
       sort: sort ?? this.sort,
     );
   }
@@ -530,6 +589,7 @@ class CompareFilters {
   @override
   bool operator ==(Object other) =>
       other is CompareFilters &&
+      _listEq(other.planTypes, planTypes) &&
       other.coverage == coverage &&
       other.validityMode == validityMode &&
       other.minDays == minDays &&
@@ -547,21 +607,22 @@ class CompareFilters {
 
   @override
   int get hashCode => Object.hash(
-        coverage,
-        validityMode,
-        minDays,
-        maxDays,
-        daysExact.join(','),
-        dataMode,
-        minDataMb,
-        maxDataMb,
-        dataExactMb.join(','),
-        priceRangeOn,
-        minPriceUsd,
-        maxPriceUsd,
-        sort,
-        speedTiers?.join(','),
-      );
+    planTypes?.join(','),
+    coverage,
+    validityMode,
+    minDays,
+    maxDays,
+    daysExact.join(','),
+    dataMode,
+    minDataMb,
+    maxDataMb,
+    dataExactMb.join(','),
+    priceRangeOn,
+    minPriceUsd,
+    maxPriceUsd,
+    sort,
+    speedTiers?.join(','),
+  );
 
   static bool _listEq(List<Object>? a, List<Object>? b) {
     if (a == null || b == null) return a == b;

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EsimOrder {
 
- String get id; String get userId; String get provider; String get bundleName; int get quantity; double get retailPriceUsd; String get status; String? get errorMessage; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get userId; String get provider; String get bundleName; int get quantity; double get retailPriceUsd; String get status; String get deliveryState; String? get errorMessage; DateTime get createdAt; DateTime get updatedAt;
 /// Create a copy of EsimOrder
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EsimOrderCopyWith<EsimOrder> get copyWith => _$EsimOrderCopyWithImpl<EsimOrder>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EsimOrder&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.bundleName, bundleName) || other.bundleName == bundleName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.retailPriceUsd, retailPriceUsd) || other.retailPriceUsd == retailPriceUsd)&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EsimOrder&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.bundleName, bundleName) || other.bundleName == bundleName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.retailPriceUsd, retailPriceUsd) || other.retailPriceUsd == retailPriceUsd)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryState, deliveryState) || other.deliveryState == deliveryState)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,provider,bundleName,quantity,retailPriceUsd,status,errorMessage,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,provider,bundleName,quantity,retailPriceUsd,status,deliveryState,errorMessage,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'EsimOrder(id: $id, userId: $userId, provider: $provider, bundleName: $bundleName, quantity: $quantity, retailPriceUsd: $retailPriceUsd, status: $status, errorMessage: $errorMessage, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'EsimOrder(id: $id, userId: $userId, provider: $provider, bundleName: $bundleName, quantity: $quantity, retailPriceUsd: $retailPriceUsd, status: $status, deliveryState: $deliveryState, errorMessage: $errorMessage, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $EsimOrderCopyWith<$Res>  {
   factory $EsimOrderCopyWith(EsimOrder value, $Res Function(EsimOrder) _then) = _$EsimOrderCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String provider, String bundleName, int quantity, double retailPriceUsd, String status, String? errorMessage, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String provider, String bundleName, int quantity, double retailPriceUsd, String status, String deliveryState, String? errorMessage, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$EsimOrderCopyWithImpl<$Res>
 
 /// Create a copy of EsimOrder
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? provider = null,Object? bundleName = null,Object? quantity = null,Object? retailPriceUsd = null,Object? status = null,Object? errorMessage = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? provider = null,Object? bundleName = null,Object? quantity = null,Object? retailPriceUsd = null,Object? status = null,Object? deliveryState = null,Object? errorMessage = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -74,6 +74,7 @@ as String,bundleName: null == bundleName ? _self.bundleName : bundleName // igno
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,retailPriceUsd: null == retailPriceUsd ? _self.retailPriceUsd : retailPriceUsd // ignore: cast_nullable_to_non_nullable
 as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,deliveryState: null == deliveryState ? _self.deliveryState : deliveryState // ignore: cast_nullable_to_non_nullable
 as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -162,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String deliveryState,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EsimOrder() when $default != null:
-return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.deliveryState,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -183,10 +184,10 @@ return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quan
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String deliveryState,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _EsimOrder():
-return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.deliveryState,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +204,10 @@ return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quan
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String provider,  String bundleName,  int quantity,  double retailPriceUsd,  String status,  String deliveryState,  String? errorMessage,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _EsimOrder() when $default != null:
-return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quantity,_that.retailPriceUsd,_that.status,_that.deliveryState,_that.errorMessage,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -218,7 +219,7 @@ return $default(_that.id,_that.userId,_that.provider,_that.bundleName,_that.quan
 @JsonSerializable()
 
 class _EsimOrder implements EsimOrder {
-  const _EsimOrder({required this.id, required this.userId, required this.provider, required this.bundleName, required this.quantity, required this.retailPriceUsd, required this.status, this.errorMessage, required this.createdAt, required this.updatedAt});
+  const _EsimOrder({required this.id, required this.userId, required this.provider, required this.bundleName, required this.quantity, required this.retailPriceUsd, required this.status, this.deliveryState = 'unverified', this.errorMessage, required this.createdAt, required this.updatedAt});
   factory _EsimOrder.fromJson(Map<String, dynamic> json) => _$EsimOrderFromJson(json);
 
 @override final  String id;
@@ -228,6 +229,7 @@ class _EsimOrder implements EsimOrder {
 @override final  int quantity;
 @override final  double retailPriceUsd;
 @override final  String status;
+@override@JsonKey() final  String deliveryState;
 @override final  String? errorMessage;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
@@ -245,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EsimOrder&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.bundleName, bundleName) || other.bundleName == bundleName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.retailPriceUsd, retailPriceUsd) || other.retailPriceUsd == retailPriceUsd)&&(identical(other.status, status) || other.status == status)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EsimOrder&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.bundleName, bundleName) || other.bundleName == bundleName)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.retailPriceUsd, retailPriceUsd) || other.retailPriceUsd == retailPriceUsd)&&(identical(other.status, status) || other.status == status)&&(identical(other.deliveryState, deliveryState) || other.deliveryState == deliveryState)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,provider,bundleName,quantity,retailPriceUsd,status,errorMessage,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,provider,bundleName,quantity,retailPriceUsd,status,deliveryState,errorMessage,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'EsimOrder(id: $id, userId: $userId, provider: $provider, bundleName: $bundleName, quantity: $quantity, retailPriceUsd: $retailPriceUsd, status: $status, errorMessage: $errorMessage, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'EsimOrder(id: $id, userId: $userId, provider: $provider, bundleName: $bundleName, quantity: $quantity, retailPriceUsd: $retailPriceUsd, status: $status, deliveryState: $deliveryState, errorMessage: $errorMessage, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -265,7 +267,7 @@ abstract mixin class _$EsimOrderCopyWith<$Res> implements $EsimOrderCopyWith<$Re
   factory _$EsimOrderCopyWith(_EsimOrder value, $Res Function(_EsimOrder) _then) = __$EsimOrderCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String provider, String bundleName, int quantity, double retailPriceUsd, String status, String? errorMessage, DateTime createdAt, DateTime updatedAt
+ String id, String userId, String provider, String bundleName, int quantity, double retailPriceUsd, String status, String deliveryState, String? errorMessage, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -282,7 +284,7 @@ class __$EsimOrderCopyWithImpl<$Res>
 
 /// Create a copy of EsimOrder
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? provider = null,Object? bundleName = null,Object? quantity = null,Object? retailPriceUsd = null,Object? status = null,Object? errorMessage = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? provider = null,Object? bundleName = null,Object? quantity = null,Object? retailPriceUsd = null,Object? status = null,Object? deliveryState = null,Object? errorMessage = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_EsimOrder(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -291,6 +293,7 @@ as String,bundleName: null == bundleName ? _self.bundleName : bundleName // igno
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,retailPriceUsd: null == retailPriceUsd ? _self.retailPriceUsd : retailPriceUsd // ignore: cast_nullable_to_non_nullable
 as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,deliveryState: null == deliveryState ? _self.deliveryState : deliveryState // ignore: cast_nullable_to_non_nullable
 as String,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable

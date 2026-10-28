@@ -122,3 +122,7 @@ entrypoint = "./functions/health/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/sync-esim-catalogue/index.ts"
+
+# Authenticated refresh-hint ingress; the handler checks a dedicated Vault secret.
+[functions.esimaccess-events]
+verify_jwt = false

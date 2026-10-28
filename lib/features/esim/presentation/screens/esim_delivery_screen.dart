@@ -11,9 +11,7 @@ class EsimDeliveryScreen extends StatelessWidget {
   static Future<void> show(BuildContext context, UserEsim esim) {
     return Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EsimDeliveryScreen(esim: esim),
-      ),
+      MaterialPageRoute(builder: (context) => EsimDeliveryScreen(esim: esim)),
     );
   }
 
@@ -32,6 +30,19 @@ class EsimDeliveryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    if (!esim.hasActivationPayload) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('eSIM installation')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Installation details are awaiting provider verification. No activation code is available yet.',
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('eSIM Installation & QR'),
@@ -66,8 +77,13 @@ class EsimDeliveryScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Purchased ${esim.purchasedAt.toLocal().toString().split(" ")[0]}',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                    esim.purchasedAt == null
+                        ? 'Purchase date not provided'
+                        : 'Purchased ${esim.purchasedAt!.toLocal().toString().split(" ")[0]}',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -93,7 +109,9 @@ class EsimDeliveryScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Scan this code from another device or print it out.',
-                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -104,7 +122,10 @@ class EsimDeliveryScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.teal.shade200, width: 2),
+                        border: Border.all(
+                          color: Colors.teal.shade200,
+                          width: 2,
+                        ),
                       ),
                       child: QrImageView(
                         data: esim.lpaString,
@@ -115,10 +136,17 @@ class EsimDeliveryScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Chip(
-                      avatar: const Icon(Icons.wifi_off, size: 16, color: Colors.teal),
+                      avatar: const Icon(
+                        Icons.wifi_off,
+                        size: 16,
+                        color: Colors.teal,
+                      ),
                       label: const Text(
                         'Renders Offline',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       backgroundColor: Colors.teal.withValues(alpha: 0.1),
                     ),
@@ -225,7 +253,10 @@ class EsimDeliveryScreen extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: Colors.teal),
-      title: Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 12, color: Colors.grey),
+      ),
       subtitle: Text(
         value,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -250,7 +281,11 @@ class EsimDeliveryScreen extends StatelessWidget {
           backgroundColor: Colors.teal.withValues(alpha: 0.2),
           child: Text(
             stepNumber,
-            style: const TextStyle(fontSize: 12, color: Colors.teal, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.teal,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -259,7 +294,10 @@ class EsimDeliveryScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(description, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                description,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
           ),
         ),

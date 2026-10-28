@@ -1,3 +1,4 @@
+import 'esim_plan_facts.dart';
 import 'package:flutter/material.dart';
 import 'package:keep_sims/core/fx/money.dart';
 import 'package:keep_sims/core/theme/app_colors.dart';
@@ -279,15 +280,15 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                               offer.countries.first,
                             ) ??
                             offer.countries.first)
-                      : '1'),
+                      : 'Not provided'),
             sub: countryCount > 1 ? l10n.compareCountriesSuffix : '',
           ),
           _metricItem(
             context,
             icon: Icons.calendar_today_rounded,
             label: l10n.compareValidityLabel,
-            value: '${offer.durationDays}',
-            sub: l10n.compareDaysSuffix,
+            value: offer.formattedDuration,
+            sub: '',
           ),
           _metricItem(
             context,
@@ -352,6 +353,14 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
     int countryCount,
   ) {
     final offer = widget.offer;
+    if (offer.sourceCode == 'esimaccess') {
+      return ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          EsimPlanFacts(facts: offer.facts, countries: offer.countries),
+        ],
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -614,7 +623,10 @@ class _CompareOfferDetailsSheetState extends State<CompareOfferDetailsSheet>
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '4G / 5G',
+                                  widget.offer.sourceCode == 'esimaccess'
+                                      ? widget.offer.facts
+                                            .networkTypesForCountry(item.code)
+                                      : '4G / 5G',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,

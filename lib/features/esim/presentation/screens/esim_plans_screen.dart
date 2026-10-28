@@ -104,8 +104,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
           ),
         ),
         leading: IconButton(
-          icon:
-              Icon(Icons.arrow_back_ios_rounded, color: context.onSurfaceColor),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: context.onSurfaceColor,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -125,13 +127,13 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
           _resultsBar(context, l10n, offersState.value?.length, filters),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () =>
-                  ref.read(esimCompareProvider(_countryCode).notifier).refresh(),
+              onRefresh: () => ref
+                  .read(esimCompareProvider(_countryCode).notifier)
+                  .refresh(),
               child: offersState.when(
                 data: (offers) =>
                     _resultsList(context, l10n, offers, deviceSupportsEsim),
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, _) => _errorState(context, l10n, err),
               ),
             ),
@@ -142,8 +144,12 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   }
 
   // ── Results ─────────────────────────────────────────────────────────────
-  Widget _resultsList(BuildContext context, AppLocalizations l10n,
-      List<CompareOffer> offers, bool deviceSupportsEsim) {
+  Widget _resultsList(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<CompareOffer> offers,
+    bool deviceSupportsEsim,
+  ) {
     if (offers.isEmpty) return _emptyState(context, l10n);
 
     // "Best value" is the lowest real $/GB. Unlimited plans carry a NULL
@@ -180,7 +186,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   }
 
   Future<void> _onOfferTapped(
-      CompareOffer offer, bool deviceSupportsEsim) async {
+    CompareOffer offer,
+    bool deviceSupportsEsim,
+  ) async {
     final l10n = AppLocalizations.of(context)!;
     await HapticHelper.mediumImpact();
 
@@ -191,9 +199,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
 
     if (!deviceSupportsEsim) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.deviceIncompatibleNotice)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.deviceIncompatibleNotice)));
       return;
     }
 
@@ -204,9 +212,11 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     EsimCheckoutSheet.show(
       context,
       EsimPlan(
-        id: offer.offerId,
+        id: '${offer.sourceCode}_${offer.offerId}',
         name: offer.title,
-        dataAmountMB: offer.isUnlimited ? 0 : offer.dataAmountMb,
+        dataAmountMB: offer.dataAmountMb,
+        isUnlimited: offer.isUnlimited,
+        catalogueDetails: offer.catalogueDetails,
         durationDays: offer.durationDays,
         priceUsd: offer.priceUsd,
         providerName: offer.sourceName,
@@ -219,7 +229,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   }
 
   Future<void> _openPartnerDeal(
-      CompareOffer offer, AppLocalizations l10n) async {
+    CompareOffer offer,
+    AppLocalizations l10n,
+  ) async {
     final result = await ref.read(
       affiliateClickProvider(offer.offerId, _countryCode).future,
     );
@@ -229,9 +241,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     // No fallback to an untracked link. Sending someone to a partner without
     // attribution earns nothing, which is strictly worse than not opening.
     if (!result.success || result.url == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.compareOpenFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.compareOpenFailed)));
       return;
     }
 
@@ -239,9 +251,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.compareOpenFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.compareOpenFailed)));
     }
   }
 
@@ -252,14 +264,18 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.25)),
+        border: Border.all(
+          color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline_rounded,
-              size: 17, color: Color(0xFF8B5CF6)),
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 17,
+            color: Color(0xFF8B5CF6),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -275,8 +291,12 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     );
   }
 
-  Widget _resultsBar(BuildContext context, AppLocalizations l10n, int? count,
-      CompareFilters filters) {
+  Widget _resultsBar(
+    BuildContext context,
+    AppLocalizations l10n,
+    int? count,
+    CompareFilters filters,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Row(
@@ -299,13 +319,16 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   }
 
   Widget _sortButton(
-      BuildContext context, AppLocalizations l10n, CompareFilters filters) {
+    BuildContext context,
+    AppLocalizations l10n,
+    CompareFilters filters,
+  ) {
     String label(CompareSort s) => switch (s) {
-          CompareSort.price => l10n.sortPriceLowToHigh,
-          CompareSort.pricePerGb => l10n.sortPricePerGb,
-          CompareSort.data => l10n.sortDataHighToLow,
-          CompareSort.duration => l10n.compareSortDuration,
-        };
+      CompareSort.price => l10n.sortPriceLowToHigh,
+      CompareSort.pricePerGb => l10n.sortPricePerGb,
+      CompareSort.data => l10n.sortDataHighToLow,
+      CompareSort.duration => l10n.compareSortDuration,
+    };
 
     return PopupMenuButton<CompareSort>(
       initialValue: filters.sort,
@@ -324,7 +347,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
   }
 
   Widget _filterButton(
-      BuildContext context, AppLocalizations l10n, CompareFilters filters) {
+    BuildContext context,
+    AppLocalizations l10n,
+    CompareFilters filters,
+  ) {
     final active = filters.activeCount;
     return InkWell(
       borderRadius: BorderRadius.circular(14),
@@ -344,8 +370,12 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     );
   }
 
-  Widget _pill(BuildContext context,
-      {required IconData icon, required String label, bool highlighted = false}) {
+  Widget _pill(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    bool highlighted = false,
+  }) {
     final isDark = context.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -363,9 +393,11 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon,
-              size: 15,
-              color: highlighted ? AppColors.primary : context.onSurfaceColor),
+          Icon(
+            icon,
+            size: 15,
+            color: highlighted ? AppColors.primary : context.onSurfaceColor,
+          ),
           const SizedBox(width: 6),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 110),
@@ -374,8 +406,7 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.caption.copyWith(
                 fontWeight: FontWeight.w600,
-                color:
-                    highlighted ? AppColors.primary : context.onSurfaceColor,
+                color: highlighted ? AppColors.primary : context.onSurfaceColor,
               ),
             ),
           ),
@@ -408,8 +439,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
         ),
         child: Row(
           children: [
-            Text(CompareOfferCard.countryFlag(_countryCode),
-                style: const TextStyle(fontSize: 26)),
+            Text(
+              CompareOfferCard.countryFlag(_countryCode),
+              style: const TextStyle(fontSize: 26),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -431,8 +464,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded,
-                color: AppColors.primary),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AppColors.primary,
+            ),
           ],
         ),
       ),
@@ -459,8 +494,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
             ? null
             : () async {
                 await HapticHelper.lightTick();
-                final controller =
-                    ref.read(priceWatchControllerProvider.notifier);
+                final controller = ref.read(
+                  priceWatchControllerProvider.notifier,
+                );
                 if (watch == null) {
                   await controller.watchEsimCountry(_countryCode);
                 } else {
@@ -471,9 +507,11 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 4),
-                    content: Text(nowWatching
-                        ? l10n.comparePriceWatchOn(_countryName)
-                        : l10n.comparePriceWatchOff(_countryName)),
+                    content: Text(
+                      nowWatching
+                          ? l10n.comparePriceWatchOn(_countryName)
+                          : l10n.comparePriceWatchOff(_countryName),
+                    ),
                     action: SnackBarAction(
                       label: l10n.compareViewAll,
                       onPressed: () => context.push(AppRoutes.esimPriceWatch),
@@ -492,13 +530,18 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
           padding: const EdgeInsets.fromLTRB(32, 64, 32, 32),
           child: Column(
             children: [
-              const Icon(Icons.search_off_rounded, size: 54, color: Colors.grey),
+              const Icon(
+                Icons.search_off_rounded,
+                size: 54,
+                color: Colors.grey,
+              ),
               const SizedBox(height: 16),
               Text(
                 l10n.compareNoResults,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.headlineSmall
-                    .copyWith(color: context.onSurfaceColor),
+                style: AppTextStyles.headlineSmall.copyWith(
+                  color: context.onSurfaceColor,
+                ),
               ),
               const SizedBox(height: 16),
               TextButton.icon(
@@ -514,21 +557,25 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
     );
   }
 
-  Widget _errorState(
-      BuildContext context, AppLocalizations l10n, Object err) {
+  Widget _errorState(BuildContext context, AppLocalizations l10n, Object err) {
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(32, 64, 32, 32),
           child: Column(
             children: [
-              const Icon(Icons.cloud_off_rounded, size: 54, color: AppColors.error),
+              const Icon(
+                Icons.cloud_off_rounded,
+                size: 54,
+                color: AppColors.error,
+              ),
               const SizedBox(height: 16),
               Text(
                 l10n.compareLoadFailed,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bodyLarge
-                    .copyWith(color: context.onSurfaceColor),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: context.onSurfaceColor,
+                ),
               ),
               const SizedBox(height: 16),
               TextButton.icon(
@@ -558,9 +605,11 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
         builder: (context, setSheetState) {
           final q = query.trim().toLowerCase();
           final filtered = _destinations.entries
-              .where((e) =>
-                  e.key.toLowerCase().contains(q) ||
-                  e.value.toLowerCase().contains(q))
+              .where(
+                (e) =>
+                    e.key.toLowerCase().contains(q) ||
+                    e.value.toLowerCase().contains(q),
+              )
               .toList();
 
           return Container(
@@ -592,8 +641,9 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
                     hintText: l10n.searchDestinationHint,
                     prefixIcon: const Icon(Icons.search_rounded),
                     filled: true,
-                    fillColor:
-                        isDark ? AppColors.darkCard : AppColors.lightCard,
+                    fillColor: isDark
+                        ? AppColors.darkCard
+                        : AppColors.lightCard,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -609,8 +659,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
                     itemBuilder: (context, i) {
                       final e = filtered[i];
                       return ListTile(
-                        leading: Text(CompareOfferCard.countryFlag(e.key),
-                            style: const TextStyle(fontSize: 24)),
+                        leading: Text(
+                          CompareOfferCard.countryFlag(e.key),
+                          style: const TextStyle(fontSize: 24),
+                        ),
                         title: Text(
                           e.value,
                           style: TextStyle(
@@ -620,8 +672,10 @@ class _EsimPlansScreenState extends ConsumerState<EsimPlansScreen> {
                           ),
                         ),
                         trailing: e.key == _countryCode
-                            ? const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primary)
+                            ? const Icon(
+                                Icons.check_circle_rounded,
+                                color: AppColors.primary,
+                              )
                             : null,
                         onTap: () {
                           setState(() {

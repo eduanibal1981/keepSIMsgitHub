@@ -48,7 +48,7 @@ abstract class EsimRepository {
   Future<String> requestPurchase(String offerId, {int quantity = 1});
 
   /// Fetches all active & archived eSIMs owned by the user
-  Future<List<UserEsim>> getUserEsims();
+  Future<List<UserEsim>> getUserEsims({bool requestRefresh = false});
 
   /// Fetches user's eSIM order history
   Future<List<EsimOrder>> getOrderHistory();

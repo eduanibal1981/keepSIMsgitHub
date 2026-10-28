@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keep_sims/features/esim/domain/entities/user_esim.dart';
 import 'package:keep_sims/features/esim/presentation/controllers/user_esims_controller.dart';
 import 'package:keep_sims/features/esim/presentation/screens/esim_delivery_screen.dart';
 
@@ -22,10 +21,8 @@ class EsimOrderStatusModal extends ConsumerWidget {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => EsimOrderStatusModal(
-        orderId: orderId,
-        bundleName: bundleName,
-      ),
+      builder: (context) =>
+          EsimOrderStatusModal(orderId: orderId, bundleName: bundleName),
     );
   }
 
@@ -43,45 +40,73 @@ class EsimOrderStatusModal extends ConsumerWidget {
             final status = order?.status ?? 'pending';
 
             if (status == 'completed') {
-              // Fetch user esim and navigate to delivery screen
-              WidgetsBinding.instance.addPostFrameCallback((_) async {
-                Navigator.pop(context); // Close status dialog
-
-                // Refresh user esims list
-                await ref.read(userEsimsControllerProvider.notifier).refresh();
-                final userEsims = ref.read(userEsimsControllerProvider).value ?? [];
-                
-                final matchingEsim = userEsims.firstWhere(
-                  (e) => e.esimOrderId == orderId,
-                  orElse: () => UserEsim(
-                    id: orderId,
-                    userId: '',
-                    esimOrderId: orderId,
-                    iccid: '8988210000000000000',
-                    lpaActivationCode: 'LPA:1\$rsp.esim-go.com\$MATCH-ID',
-                    qrCodeUrl: '',
-                    bundleName: bundleName,
-                    provider: 'esim_go',
-                    status: 'active',
-                    purchasedAt: DateTime.now(),
-                    dataTotalMb: 1024,
-                    dataRemainingMb: 1024,
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now(),
-                  ),
-                );
-
-                if (context.mounted) {
-                  EsimDeliveryScreen.show(context, matchingEsim);
-                }
-              });
-
-              return const Column(
+              ref.watch(userEsimsControllerProvider);
+              return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.green, size: 60),
-                  SizedBox(height: 16),
-                  Text('eSIM Ready!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Delivery confirmed. Installation is a separate step.',
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await ref
+                          .read(userEsimsControllerProvider.notifier)
+                          .refresh();
+                      if (!context.mounted) return;
+                      final profiles =
+                          ref.read(userEsimsControllerProvider).value ?? [];
+                      final matches = profiles.where(
+                        (p) =>
+                            p.esimOrderId == orderId && p.hasActivationPayload,
+                      );
+                      if (matches.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Installation details are still being verified. Check My eSIMs shortly.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      final navigator = Navigator.of(context);
+                      final profile = matches.first;
+                      navigator.pop();
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => EsimDeliveryScreen(esim: profile),
+                        ),
+                      );
+                    },
+                    child: const Text('View installation'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  ),
+                ],
+              );
+            }
+            if (order?.deliveryState == 'support_required' ||
+                order?.deliveryState == 'reconciling') {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    order?.deliveryState == 'support_required'
+                        ? 'Delivery needs support review'
+                        : 'Verifying provider delivery',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Your order remains recorded. Please do not place it again while the provider outcome is being checked.',
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close and check My eSIMs later'),
+                  ),
                 ],
               );
             }
@@ -90,7 +115,11 @@ class EsimOrderStatusModal extends ConsumerWidget {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 60),
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.redAccent,
+                    size: 60,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Order Fulfillment Failed',
@@ -106,28 +135,8 @@ class EsimOrderStatusModal extends ConsumerWidget {
                     style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.verified, color: Colors.green, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'You were not charged. \$${order?.retailPriceUsd.toStringAsFixed(2) ?? "The amount"} has been refunded to your wallet.',
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  const Text(
+                    'Check your wallet receipt or contact support for the settlement status.',
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -152,9 +161,15 @@ class EsimOrderStatusModal extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Connecting to provider network and issuing LPA credentials for $bundleName.',
+                  'Checking delivery for $bundleName. Purchasing does not mean the eSIM is installed.',
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Check later'),
                 ),
               ],
             );

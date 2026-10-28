@@ -1,0 +1,65 @@
+00:00 +0: loading /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart
+00:00 +0: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: total preserves the exact allowance through comparison and checkout
+00:00 +1: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: daily_throttled preserves the exact allowance through comparison and checkout
+00:00 +2: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: daily_cutoff preserves the exact allowance through comparison and checkout
+00:00 +3: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: daily_unlimited preserves the exact allowance through comparison and checkout
+00:00 +4: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: unknown preserves the exact allowance through comparison and checkout
+00:00 +5: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: missing facts never infer unlimited or daily behavior from names
+00:00 +6: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: FUP and activation are supplied facts, not generic promises
+00:00 +7: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: plan type participates in filter equality, clearing and active count
+00:00 +8: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:00 +9: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:00 +10: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/esim_catalogue_details_test.dart: long exact network lists and unknown values fit a narrow detail viewport
+00:00 +11: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +12: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +13: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +14: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +15: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +16: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_offer_details_sheet_test.dart: CompareOfferCard renders More details label and country count
+00:00 +17: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +18: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +19: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +20: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +21: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +22: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +23: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +24: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +25: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +26: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +27: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +28: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +29: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +30: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +31: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +32: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +33: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +34: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +35: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +36: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +37: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +38: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +39: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +40: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +41: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +42: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +43: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +44: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +45: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +46: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +47: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +48: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +49: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +50: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +51: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +52: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +53: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +54: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +55: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: validity offers All, Range and Pick days
+00:01 +56: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: switching validity mode drops the other mode's answers
+00:01 +57: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data offers Unlimited as a mode, and no stray switch
+00:01 +58: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: data sizes are drawn from the catalogue in 1000-MB GB
+00:01 +59: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: an empty price box stays null and is not read as zero
+00:01 +60: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch
+00:02 +61: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: replaces Local coverage label with selected country only (e.g. Egypt only)
+00:02 +62: /Users/thehonest/Work/KeepSIMs/keep_sims/test/features/esim/compare_filter_sheet_test.dart: resolves country name from ISO code when countryName is omitted
+00:02 +63: All tests passed!

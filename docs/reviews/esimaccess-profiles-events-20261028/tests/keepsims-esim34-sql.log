@@ -1,0 +1,20 @@
+PASS both forward migrations compile over the deployed table shapes
+PASS sales gate refuses inserts before any financial work
+PASS submission marker is durable and never authorizes a second POST
+PASS null lease tokens cannot authorize submission, issuance or observations
+PASS missing/partial issuance cannot complete or manufacture a profile
+PASS stable supplier reference and ICCID collisions cannot cross ownership
+PASS unknown outcome stays protected without guessed binding or expiry release
+PASS unproven callback order cannot be adopted without exact transaction binding
+PASS both byte totals and usage update while purchase is never labelled installed
+PASS stale observations and expired leases cannot regress state
+PASS a matching profile ID cannot accept a response bound to another order
+PASS failed refresh retains last-known data with an error instead of zero depletion
+PASS issued/depleted/suspended profiles remain eligible; terminal checks are bounded
+PASS owner projection and batched refresh deny cross-owner reads and throttle requests
+PASS shared supplier limiter coordinates callers in one account
+PASS duplicate events persist once and callback hints do not settle a profile or order
+PASS event leases recover after restart and unmatched events reach a dead letter
+PASS Admin reconciliation is audited, read-only and available while new sales are gated
+PASS service-only ingress and persistence RPCs cannot be invoked by clients
+{"passed":19,"failed":0,"provider_calls":0,"wallet_mutations":0}

@@ -16,6 +16,9 @@ class EsimCompareFilters extends _$EsimCompareFilters {
   @override
   CompareFilters build() => const CompareFilters();
 
+  void setPlanType(String? type) =>
+      state = state.copyWith(planTypes: type == null ? null : [type]);
+
   void setSort(CompareSort sort) => state = state.copyWith(sort: sort);
 
   void setCoverage(String? coverage) =>
@@ -26,11 +29,11 @@ class EsimCompareFilters extends _$EsimCompareFilters {
   // make Reset look like it half-worked when the user switched back, and the
   // `wire*` getters would then be hiding state the sheet still displays.
   void setValidityMode(RangeFilterMode mode) => state = state.copyWith(
-        validityMode: mode,
-        minDays: null,
-        maxDays: null,
-        daysExact: const [],
-      );
+    validityMode: mode,
+    minDays: null,
+    maxDays: null,
+    daysExact: const [],
+  );
 
   void setDaysRange(int? min, int? max) =>
       state = state.copyWith(minDays: min, maxDays: max);
@@ -44,19 +47,17 @@ class EsimCompareFilters extends _$EsimCompareFilters {
 
   // ── Data ─────────────────────────────────────────────────────────────────
   void setDataMode(DataFilterMode mode) => state = state.copyWith(
-        dataMode: mode,
-        minDataMb: null,
-        maxDataMb: null,
-        dataExactMb: const [],
-        speedTiers: mode == DataFilterMode.unlimited ? state.speedTiers : null,
-      );
+    dataMode: mode,
+    minDataMb: null,
+    maxDataMb: null,
+    dataExactMb: const [],
+    speedTiers: mode == DataFilterMode.unlimited ? state.speedTiers : null,
+  );
 
   void setDataRange(int? minMb, int? maxMb) => state = state.copyWith(
-        minDataMb:
-            minMb != null ? CompareOffer.canonicalizeDataMb(minMb) : null,
-        maxDataMb:
-            maxMb != null ? CompareOffer.canonicalizeDataMb(maxMb) : null,
-      );
+    minDataMb: minMb != null ? CompareOffer.canonicalizeDataMb(minMb) : null,
+    maxDataMb: maxMb != null ? CompareOffer.canonicalizeDataMb(maxMb) : null,
+  );
 
   void toggleDataExact(int mb) {
     final canonical = CompareOffer.canonicalizeDataMb(mb);
@@ -68,10 +69,10 @@ class EsimCompareFilters extends _$EsimCompareFilters {
 
   // ── Price ────────────────────────────────────────────────────────────────
   void setPriceRangeOn(bool on) => state = state.copyWith(
-        priceRangeOn: on,
-        minPriceUsd: null,
-        maxPriceUsd: null,
-      );
+    priceRangeOn: on,
+    minPriceUsd: null,
+    maxPriceUsd: null,
+  );
 
   /// An empty box is `null`, never 0. On the maximum side those mean opposite
   /// things — no ceiling versus "free only" — so the caller must not coerce.
@@ -79,7 +80,8 @@ class EsimCompareFilters extends _$EsimCompareFilters {
       state = state.copyWith(minPriceUsd: min, maxPriceUsd: max);
 
   void setSpeedTiers(List<String>? tiers) => state = state.copyWith(
-      speedTiers: (tiers == null || tiers.isEmpty) ? null : tiers);
+    speedTiers: (tiers == null || tiers.isEmpty) ? null : tiers,
+  );
 
   /// Clears every filter but deliberately keeps the sort. Someone who chose
   /// "cheapest per GB" and then taps Reset wants their filters gone, not their

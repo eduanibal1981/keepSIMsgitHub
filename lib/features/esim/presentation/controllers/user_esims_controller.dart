@@ -18,8 +18,28 @@ class UserEsimsController extends _$UserEsimsController {
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchUserEsims());
+    final keepAlive = ref.keepAlive();
+    final previous = state.value;
+    try {
+      final repository = ref.read(esimRepositoryProvider);
+      final profiles = await repository.getUserEsims(requestRefresh: true);
+      if (ref.mounted) state = AsyncData(profiles);
+    } catch (error, stack) {
+      if (ref.mounted) {
+        state = previous == null
+            ? AsyncError(error, stack)
+            : AsyncData(
+                previous
+                    .map(
+                      (profile) =>
+                          profile.copyWith(usageErrorCode: 'REFRESH_FAILED'),
+                    )
+                    .toList(),
+              );
+      }
+    } finally {
+      keepAlive.close();
+    }
   }
 }
 

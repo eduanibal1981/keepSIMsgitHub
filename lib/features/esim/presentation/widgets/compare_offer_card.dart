@@ -97,22 +97,19 @@ class CompareOfferCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Flexible(
-                    child: Text(
-                      offer.sourceName,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: context.onSurfaceColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                  Text(
+                    offer.sourceName,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: context.onSurfaceColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (offer.typeTag != null) ...[
-                    const SizedBox(width: 8),
-                    _tagBadge(offer.typeTag!),
-                  ],
+                  if (offer.typeTag != null) _tagBadge(offer.typeTag!),
                 ],
               ),
               const SizedBox(height: 2),
@@ -227,7 +224,7 @@ class CompareOfferCard extends StatelessWidget {
   }
 
   Widget _tagBadge(String tag) {
-    final isDayPass = tag == 'DayPass';
+    final isDayPass = tag == 'DayPass' || tag.startsWith('Daily');
     final bg = isDayPass
         ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
         : const Color(0xFF0EA5E9).withValues(alpha: 0.12);
@@ -252,13 +249,15 @@ class CompareOfferCard extends StatelessWidget {
             color: fg,
           ),
           const SizedBox(width: 3.5),
-          Text(
-            tag,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: fg,
-              letterSpacing: 0.1,
+          Flexible(
+            child: Text(
+              tag,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: fg,
+                letterSpacing: 0.1,
+              ),
             ),
           ),
         ],
@@ -275,11 +274,7 @@ class CompareOfferCard extends StatelessWidget {
       runSpacing: 8,
       children: [
         _spec(context, l10n.compareDataLabel, offer.formattedData),
-        _spec(
-          context,
-          l10n.compareValidityLabel,
-          '${offer.durationDays} ${l10n.compareDaysSuffix}',
-        ),
+        _spec(context, l10n.compareValidityLabel, offer.formattedDuration),
         _price(context, l10n),
       ],
     );

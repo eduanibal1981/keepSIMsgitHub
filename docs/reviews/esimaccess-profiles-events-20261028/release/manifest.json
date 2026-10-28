@@ -1,0 +1,34 @@
+{
+  "steps": [
+    "ESIM-03",
+    "ESIM-04"
+  ],
+  "status": "PREPARED",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "new_sales_enabled": false,
+  "supplier_limit_rps": 2,
+  "callback_auth": "dedicated header capability; provider account wiring unverified",
+  "omitted_pending_work": [
+    "worker fleet telemetry",
+    "Edge Zendit credential-helper cutover"
+  ],
+  "files": {
+    "backend/worker_esim_catalog.js": "8fe8dbe4e844ebe631ae8005692bf9a0fa87381226e0ef0a2ba4af6754ae1572",
+    "backend/worker_esim_fulfillment.js": "d538d047e0cbdaced6c21ce28d5db516477d40b4036f18c27e99fc8c17a8d492",
+    "edge/sync-esim-catalogue/index.ts": "bc2c1a3d90de92c492bd7de3fdefbb155d5e14736f01cefee8afb8249d559e76",
+    "backend/esim_fulfillment_runtime.js": "0e9ec8df3f72bf7fbd0d1d7f1944c42beebfe22366bd563d37a80056619c2848",
+    "backend/esim_supplier_limiter.js": "c1ad76a94d2b4490dc14278149b53916c2e4d36f2b5e6389ebe6f77e11828ce0",
+    "backend/providers/esimaccess.js": "58dc856e8eb948917a4cb7291dcd53fef08c0b87351bd8d5e78d07a0a46277b2",
+    "backend/providers/esimaccess_catalog.js": "b824299aa5543b804c76cb27e283fdd816706ad1b5684eecebf13b21357a7940",
+    "backend/providers/esimaccess_profiles.js": "ed37329129ec704f90e244931fb467497d5f04cd301edd061571bb0666714517",
+    "backend/providers/esimaccess_credentials.js": "6163d9fcb2808980297247980788e67fc6bc7afab3fd6bf2b8983a4909a99b1c",
+    "edge/_shared/esimaccess-limiter.js": "f24ee2330210933a79aae4f7fde06e8f16dd0a6175e1c807b5e340c7f8b0e1b3",
+    "edge/_shared/esimaccess-catalog.js": "98baa72548084ac5d5d34075b53dbadbd6c354cf918a0e721e777a752cd63aba",
+    "edge/_shared/esimaccess-events.js": "5ef9533257079e3532b6dd06769949d957285c562e020aa07f80308e221c0096",
+    "edge/esimaccess-events/index.ts": "0c76e9723f2626bb3ffa4a8a3b485630b572f53dcd65bc83efbaf651e87ef057",
+    "edge/esimaccess-events/deno.lock": "6c4d442d3f1e07c28715e68757b8abc9650a83ab73a978f955b0bfdea795322b",
+    "edge/sync-esim-catalogue/deno.lock": "dbe41d12f5d110de11cb38b08142e6d805d17afd02bf2e4834a75ec556e2d8bd",
+    "migrations/20261027235408_esim_profile_identity_lifecycle.sql": "5502a4fdbc1536365e50c72d0b8bd1e60f8236fc276775fce04db892768ded20",
+    "migrations/20261027235409_esim_event_inbox_reconciliation.sql": "6d609e3c4153b85766fc7e0d48e65533f7565c1615dfb1ef490ff952e542d64c"
+  }
+}

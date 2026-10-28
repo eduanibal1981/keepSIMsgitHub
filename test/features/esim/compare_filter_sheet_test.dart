@@ -48,9 +48,10 @@ class _FakeEsimRepository implements EsimRepository {
   }
 
   @override
-  Future<AffiliateClickResult> recordAffiliateClick(String offerId,
-          {String? countryCode}) async =>
-      const AffiliateClickResult(success: false);
+  Future<AffiliateClickResult> recordAffiliateClick(
+    String offerId, {
+    String? countryCode,
+  }) async => const AffiliateClickResult(success: false);
 
   @override
   Future<List<EsimPlan>> getPlans(String countryIsoCode) async => const [];
@@ -60,10 +61,12 @@ class _FakeEsimRepository implements EsimRepository {
       false;
 
   @override
-  Future<String> requestPurchase(String offerId, {int quantity = 1}) async => '';
+  Future<String> requestPurchase(String offerId, {int quantity = 1}) async =>
+      '';
 
   @override
-  Future<List<UserEsim>> getUserEsims() async => const [];
+  Future<List<UserEsim>> getUserEsims({bool requestRefresh = false}) async =>
+      const [];
 
   @override
   Future<List<EsimOrder>> getOrderHistory() async => const [];
@@ -141,8 +144,9 @@ void main() {
     expect(filters().activeCount, 1);
   });
 
-  testWidgets('switching validity mode drops the other mode\'s answers',
-      (tester) async {
+  testWidgets('switching validity mode drops the other mode\'s answers', (
+    tester,
+  ) async {
     await pumpSheet(tester);
 
     await tap(tester, find.text('Pick days'));
@@ -158,8 +162,9 @@ void main() {
     expect(filters().activeCount, 0);
   });
 
-  testWidgets('data offers Unlimited as a mode, and no stray switch',
-      (tester) async {
+  testWidgets('data offers Unlimited as a mode, and no stray switch', (
+    tester,
+  ) async {
     await pumpSheet(tester);
 
     // The old ambiguous control was a SwitchListTile reading "Unlimited" while
@@ -173,8 +178,9 @@ void main() {
     expect(filters().wireMinDataMb, isNull);
   });
 
-  testWidgets('data sizes are drawn from the catalogue in 1000-MB GB',
-      (tester) async {
+  testWidgets('data sizes are drawn from the catalogue in 1000-MB GB', (
+    tester,
+  ) async {
     await pumpSheet(tester);
 
     await tap(tester, find.text('Pick sizes'));
@@ -190,8 +196,9 @@ void main() {
     expect(filters().wireDataExactMb, [3000, 3072]);
   });
 
-  testWidgets('an empty price box stays null and is not read as zero',
-      (tester) async {
+  testWidgets('an empty price box stays null and is not read as zero', (
+    tester,
+  ) async {
     await pumpSheet(tester);
 
     // Two "Range" chips on screen (validity and price); the price one is last.
@@ -216,60 +223,80 @@ void main() {
   });
 
   testWidgets(
-      'speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch',
-      (tester) async {
-    await pumpSheet(tester);
+    'speed choices are hidden until Unlimited is selected, explain exact speed, and clear on mode switch',
+    (tester) async {
+      await pumpSheet(tester);
 
-    // 1. By default (dataMode == All), the SPEED section is not rendered.
-    expect(find.text('SPEED'), findsNothing);
-    expect(find.textContaining('512 kb/s'), findsNothing);
-    expect(find.text('Fixed data'), findsNothing);
+      // 1. By default (dataMode == All), the SPEED section is not rendered.
+      expect(find.text('SPEED'), findsNothing);
+      expect(find.textContaining('512 kb/s'), findsNothing);
+      expect(find.text('Fixed data'), findsNothing);
 
-    // 2. Tapping "Unlimited" renders the SPEED section with direct explanations.
-    await tap(tester, find.text('Unlimited'));
-    expect(find.text('SPEED'), findsOneWidget);
-    expect(
-        find.widgetWithText(ChoiceChip, 'Lite – 1 GB at Max speed then throttle to 512 kb/s'),
-        findsOneWidget);
-    expect(
-        find.widgetWithText(ChoiceChip, 'Essential – 2 GB at Max speed then throttle to 1 Mb/s'),
-        findsOneWidget);
-    expect(
-        find.widgetWithText(ChoiceChip, 'Plus – 3 GB at Max speed then throttle to 1 Mb/s'),
-        findsOneWidget);
-    expect(find.text('Fixed data'), findsNothing);
+      // 2. Tapping "Unlimited" renders the SPEED section with direct explanations.
+      await tap(tester, find.text('Unlimited'));
+      expect(find.text('SPEED'), findsOneWidget);
+      expect(
+        find.widgetWithText(
+          ChoiceChip,
+          'Lite – 1 GB at Max speed then throttle to 512 kb/s',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.widgetWithText(
+          ChoiceChip,
+          'Essential – 2 GB at Max speed then throttle to 1 Mb/s',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.widgetWithText(
+          ChoiceChip,
+          'Plus – 3 GB at Max speed then throttle to 1 Mb/s',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Fixed data'), findsNothing);
 
-    // 3. Selecting a speed tier applies the filter.
-    await tap(tester,
-        find.widgetWithText(ChoiceChip, 'Lite – 1 GB at Max speed then throttle to 512 kb/s'));
-    expect(filters().speedTiers, ['lite']);
-    expect(filters().wireSpeedTiers, ['lite']);
+      // 3. Selecting a speed tier applies the filter.
+      await tap(
+        tester,
+        find.widgetWithText(
+          ChoiceChip,
+          'Lite – 1 GB at Max speed then throttle to 512 kb/s',
+        ),
+      );
+      expect(filters().speedTiers, ['lite']);
+      expect(filters().wireSpeedTiers, ['lite']);
 
-    // 4. Switching away from Unlimited hides the SPEED section and clears the filter.
-    await tap(tester, find.text('Pick sizes'));
-    expect(find.text('SPEED'), findsNothing);
-    expect(filters().speedTiers, isNull);
-    expect(filters().wireSpeedTiers, isNull);
-  });
+      // 4. Switching away from Unlimited hides the SPEED section and clears the filter.
+      await tap(tester, find.text('Pick sizes'));
+      expect(find.text('SPEED'), findsNothing);
+      expect(filters().speedTiers, isNull);
+      expect(filters().wireSpeedTiers, isNull);
+    },
+  );
 
   testWidgets(
-      'replaces Local coverage label with selected country only (e.g. Egypt only)',
-      (tester) async {
-    await pumpSheet(tester, countryIsoCode: 'EG', countryName: 'Egypt');
+    'replaces Local coverage label with selected country only (e.g. Egypt only)',
+    (tester) async {
+      await pumpSheet(tester, countryIsoCode: 'EG', countryName: 'Egypt');
 
-    expect(find.text('Egypt only'), findsOneWidget);
-    expect(find.text('Local'), findsNothing);
+      expect(find.text('Egypt only'), findsOneWidget);
+      expect(find.text('Local'), findsNothing);
 
-    await tap(tester, find.text('Egypt only'));
-    expect(filters().coverage, 'local');
-  });
+      await tap(tester, find.text('Egypt only'));
+      expect(filters().coverage, 'local');
+    },
+  );
 
   testWidgets(
-      'resolves country name from ISO code when countryName is omitted',
-      (tester) async {
-    await pumpSheet(tester, countryIsoCode: 'EG');
+    'resolves country name from ISO code when countryName is omitted',
+    (tester) async {
+      await pumpSheet(tester, countryIsoCode: 'EG');
 
-    expect(find.text('Egypt only'), findsOneWidget);
-    expect(find.text('Local'), findsNothing);
-  });
+      expect(find.text('Egypt only'), findsOneWidget);
+      expect(find.text('Local'), findsNothing);
+    },
+  );
 }

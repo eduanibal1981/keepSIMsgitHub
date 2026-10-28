@@ -26,10 +26,11 @@ class EsimGoRepositoryImpl implements EsimRepository {
       // the "an exact list only counts in exact mode" rule is applied once, in
       // CompareFilters, instead of being re-implemented here.
       final res = await _supabase.rpc(
-        'compare_esim_offers',
+        'compare_esim_offers_v2',
         params: {
           'p_country_code': countryIsoCode.trim().toUpperCase(),
           'p_coverage': filters.coverage,
+          'p_plan_types': filters.planTypes,
           'p_min_data_mb': filters.wireMinDataMb,
           'p_max_data_mb': filters.wireMaxDataMb,
           'p_data_exact_mb': filters.wireDataExactMb,
@@ -110,7 +111,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
       final response = await _supabase
           .from('esim_offers')
           .select(
-            'id,provider,bundle_name,description,countries,roaming_enabled,data_amount_mb,duration_days,retail_price_usd,image_url',
+            'id,provider,bundle_name,description,countries,roaming_enabled,data_amount_mb,duration_days,retail_price_usd,image_url,is_unlimited,catalogue_details',
           )
           .or('countries.cs.{$upperIso},roaming_enabled.cs.{$upperIso}')
           .order('retail_price_usd', ascending: true)
@@ -147,6 +148,10 @@ class EsimGoRepositoryImpl implements EsimRepository {
               supportedCountries: countries,
               roamingEnabled: roaming,
               imageUrl: map['image_url'] as String?,
+              isUnlimited: map['is_unlimited'] == true,
+              catalogueDetails: map['catalogue_details'] is Map
+                  ? Map<String, dynamic>.from(map['catalogue_details'] as Map)
+                  : null,
             );
           })
           .where((plan) {
@@ -201,52 +206,15 @@ class EsimGoRepositoryImpl implements EsimRepository {
   }
 
   @override
-  Future<List<UserEsim>> getUserEsims() async {
-    try {
-      final response = await _supabase
-          .from('user_esims')
-          .select()
-          .order('purchased_at', ascending: false);
-
-      final List<dynamic> data = response as List<dynamic>;
-
-      return data.map((json) {
-        final Map<String, dynamic> map = Map<String, dynamic>.from(json as Map);
-        return UserEsim(
-          id: map['id'] as String,
-          userId: map['user_id'] as String,
-          esimOrderId: map['esim_order_id'] as String? ?? '',
-          iccid: map['iccid'] as String? ?? '',
-          lpaActivationCode: map['lpa_activation_code'] as String? ?? '',
-          qrCodeUrl: map['qr_code_url'] as String? ?? '',
-          bundleName: map['bundle_name'] as String? ?? 'eSIM Plan',
-          provider: map['provider'] as String? ?? 'esim_go',
-          status: map['status'] as String? ?? 'active',
-          dataRemainingMb: (map['data_remaining_mb'] as num?)?.toInt() ?? 0,
-          dataTotalMb: (map['data_total_mb'] as num?)?.toInt() ?? 0,
-          purchasedAt: map['purchased_at'] != null
-              ? DateTime.parse(map['purchased_at'] as String)
-              : DateTime.now(),
-          firstActivatedAt: map['first_activated_at'] != null
-              ? DateTime.parse(map['first_activated_at'] as String)
-              : null,
-          expiresAt: map['expires_at'] != null
-              ? DateTime.parse(map['expires_at'] as String)
-              : null,
-          lastSyncedAt: map['last_synced_at'] != null
-              ? DateTime.parse(map['last_synced_at'] as String)
-              : null,
-          createdAt: map['created_at'] != null
-              ? DateTime.parse(map['created_at'] as String)
-              : DateTime.now(),
-          updatedAt: map['updated_at'] != null
-              ? DateTime.parse(map['updated_at'] as String)
-              : DateTime.now(),
-        );
-      }).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch user eSIMs: $e');
-    }
+  Future<List<UserEsim>> getUserEsims({bool requestRefresh = false}) async {
+    if (requestRefresh) await _supabase.rpc('request_esim_profile_refresh');
+    final response = await _supabase
+        .from('customer_esim_profiles')
+        .select()
+        .order('purchased_at', ascending: false);
+    return response
+        .map((row) => UserEsim.fromRecord(Map<String, dynamic>.from(row)))
+        .toList();
   }
 
   @override
@@ -255,7 +223,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
       final response = await _supabase
           .from('customer_esim_orders')
           .select(
-            'id,user_id,provider,bundle_name,quantity,retail_price_usd,status,created_at,updated_at,error_message',
+            'id,user_id,provider,bundle_name,quantity,retail_price_usd,status,created_at,updated_at,error_message,delivery_state',
           )
           .order('created_at', ascending: false);
 
@@ -272,6 +240,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
           retailPriceUsd: (map['retail_price_usd'] as num?)?.toDouble() ?? 0.0,
           status: map['status'] as String? ?? 'pending',
           errorMessage: map['error_message'] as String?,
+          deliveryState: map['delivery_state'] as String? ?? 'unverified',
           createdAt: DateTime.parse(map['created_at'] as String),
           updatedAt: DateTime.parse(map['updated_at'] as String),
         );
@@ -290,7 +259,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
           (_) => _supabase
               .from('customer_esim_orders')
               .select(
-                'id,user_id,provider,bundle_name,quantity,retail_price_usd,status,created_at,updated_at,error_message',
+                'id,user_id,provider,bundle_name,quantity,retail_price_usd,status,created_at,updated_at,error_message,delivery_state',
               )
               .eq('id', orderId)
               .limit(1),
@@ -308,6 +277,7 @@ class EsimGoRepositoryImpl implements EsimRepository {
                 (map['retail_price_usd'] as num?)?.toDouble() ?? 0.0,
             status: map['status'] as String? ?? 'pending',
             errorMessage: map['error_message'] as String?,
+            deliveryState: map['delivery_state'] as String? ?? 'unverified',
             createdAt: DateTime.parse(map['created_at'] as String),
             updatedAt: DateTime.parse(map['updated_at'] as String),
           );

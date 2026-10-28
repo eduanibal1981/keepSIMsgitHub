@@ -23,6 +23,8 @@ _EsimPlan _$EsimPlanFromJson(Map<String, dynamic> json) => _EsimPlan(
           ?.map((e) => e as String)
           .toList() ??
       const [],
+  isUnlimited: json['isUnlimited'] as bool? ?? false,
+  catalogueDetails: json['catalogueDetails'] as Map<String, dynamic>?,
   description: json['description'] as String?,
   imageUrl: json['imageUrl'] as String?,
 );
@@ -36,6 +38,8 @@ Map<String, dynamic> _$EsimPlanToJson(_EsimPlan instance) => <String, dynamic>{
   'providerName': instance.providerName,
   'supportedCountries': instance.supportedCountries,
   'roamingEnabled': instance.roamingEnabled,
+  'isUnlimited': instance.isUnlimited,
+  'catalogueDetails': instance.catalogueDetails,
   'description': instance.description,
   'imageUrl': instance.imageUrl,
 };

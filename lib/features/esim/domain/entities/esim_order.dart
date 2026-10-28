@@ -13,6 +13,7 @@ abstract class EsimOrder with _$EsimOrder {
     required int quantity,
     required double retailPriceUsd,
     required String status,
+    @Default('unverified') String deliveryState,
     String? errorMessage,
     required DateTime createdAt,
     required DateTime updatedAt,

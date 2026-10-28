@@ -1,3 +1,4 @@
+import { acquireEsimSlot } from "../_shared/esimaccess-limiter.js";
 import { normalizeEsimAccessOffer } from "../_shared/esimaccess-catalog.js";
 // sync-esim-catalogue — pulls eSIM Go and Zendit bundle catalogues into
 // `esim_offers_cache`.
@@ -444,6 +445,7 @@ serve(async (req) => {
           headers["secretKey"] = String(secretKey);
         }
 
+        await acquireEsimSlot(supabase);
         const res = await fetch(`${ESIM_ACCESS_BASE}/package/list`, {
           method: "POST",
           headers,

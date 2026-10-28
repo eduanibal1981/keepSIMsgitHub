@@ -104,7 +104,9 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
       // An empty box is null, never 0. On the maximum side those are opposite
       // instructions — "no ceiling" versus "free only" — so a blank field is
       // never substituted with a number.
-      ref.read(esimCompareFiltersProvider.notifier).setPriceRange(
+      ref
+          .read(esimCompareFiltersProvider.notifier)
+          .setPriceRange(
             min: double.tryParse(_minPrice.text.trim()),
             max: double.tryParse(_maxPrice.text.trim()),
           );
@@ -112,10 +114,11 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
   }
 
   String _localCoverageLabel(AppLocalizations l10n) {
-    final name = (widget.countryName != null && widget.countryName!.trim().isNotEmpty)
+    final name =
+        (widget.countryName != null && widget.countryName!.trim().isNotEmpty)
         ? widget.countryName!.trim()
         : (CompareOffer.countryNameForCode(widget.countryIsoCode) ??
-            widget.countryIsoCode.trim());
+              widget.countryIsoCode.trim());
     if (name.isNotEmpty) {
       return l10n.compareCoverageLocalCountry(name);
     }
@@ -128,9 +131,8 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
     final isDark = context.isDarkMode;
     final filters = ref.watch(esimCompareFiltersProvider);
     final notifier = ref.read(esimCompareFiltersProvider.notifier);
-    final bounds = ref
-            .watch(esimCompareBoundsProvider(widget.countryIsoCode))
-            .value ??
+    final bounds =
+        ref.watch(esimCompareBoundsProvider(widget.countryIsoCode)).value ??
         const CompareBounds();
 
     return Container(
@@ -204,6 +206,29 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
                   ),
                   const SizedBox(height: 20),
 
+                  _section(context, 'Plan type'),
+                  _chips<String?>(
+                    context,
+                    values: const [
+                      null,
+                      'total',
+                      'daily_throttled',
+                      'daily_cutoff',
+                      'daily_unlimited',
+                      'unknown',
+                    ],
+                    labels: const [
+                      'All',
+                      'Total allowance',
+                      'Daily with slowing',
+                      'Daily cut-off',
+                      'Daily unlimited',
+                      'Not provided',
+                    ],
+                    selected: filters.planTypes?.firstOrNull,
+                    onTap: notifier.setPlanType,
+                  ),
+                  const SizedBox(height: 20),
                   ..._validitySection(context, l10n, filters, notifier, bounds),
                   const SizedBox(height: 20),
 
@@ -241,7 +266,9 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
                   child: Text(
                     l10n.compareShowResults,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -335,7 +362,7 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
               DataFilterMode.range => l10n.compareModeRange,
               DataFilterMode.exact => l10n.compareModePickSizes,
               DataFilterMode.unlimited => l10n.compareModeUnlimited,
-            }
+            },
         ],
         selected: filters.dataMode,
         onTap: notifier.setDataMode,
@@ -350,7 +377,9 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
           max: filters.maxDataMb,
           valueLabel: CompareOffer.formatDataMb,
           caption: (lo, hi) => l10n.compareRangeData(
-              CompareOffer.formatDataMb(lo), CompareOffer.formatDataMb(hi)),
+            CompareOffer.formatDataMb(lo),
+            CompareOffer.formatDataMb(hi),
+          ),
           onChanged: notifier.setDataRange,
         ),
         _note(context, l10n.compareMeteredOnlyNote),
@@ -423,14 +452,15 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
   }
 
   Widget _priceField(
-      BuildContext context, TextEditingController controller, String hint) {
+    BuildContext context,
+    TextEditingController controller,
+    String hint,
+  ) {
     final isDark = context.isDarkMode;
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
       onChanged: (_) => _onPriceTyped(),
       style: AppTextStyles.bodyMedium.copyWith(color: context.onSurfaceColor),
       decoration: InputDecoration(
@@ -439,8 +469,10 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
         isDense: true,
         filled: true,
         fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
@@ -530,8 +562,11 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
     );
   }
 
-  Widget _speedChips(BuildContext context, CompareFilters filters,
-      EsimCompareFilters notifier) {
+  Widget _speedChips(
+    BuildContext context,
+    CompareFilters filters,
+    EsimCompareFilters notifier,
+  ) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -542,9 +577,7 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
           label: t.$2,
           selected: on,
           onTap: () {
-            final next = <String>[
-              ...(filters.speedTiers ?? const <String>[])
-            ];
+            final next = <String>[...(filters.speedTiers ?? const <String>[])];
             if (on) {
               next.remove(t.$1);
             } else {
@@ -558,27 +591,27 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
   }
 
   Widget _section(BuildContext context, String title) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Text(
-          title.toUpperCase(),
-          style: AppTextStyles.labelSmall.copyWith(
-            color: context.onSurfaceColor.withValues(alpha: 0.55),
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.8,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      title.toUpperCase(),
+      style: AppTextStyles.labelSmall.copyWith(
+        color: context.onSurfaceColor.withValues(alpha: 0.55),
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.8,
+      ),
+    ),
+  );
 
   Widget _note(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Text(
-          text,
-          style: AppTextStyles.caption.copyWith(
-            color: context.onSurfaceColor.withValues(alpha: 0.6),
-            height: 1.35,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 8),
+    child: Text(
+      text,
+      style: AppTextStyles.caption.copyWith(
+        color: context.onSurfaceColor.withValues(alpha: 0.6),
+        height: 1.35,
+      ),
+    ),
+  );
 
   Widget _chip(
     BuildContext context, {
@@ -646,14 +679,13 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
     required List<String> labels,
     required T selected,
     required void Function(T) onTap,
-  }) =>
-      _chips<T>(
-        context,
-        values: values,
-        labels: labels,
-        selected: selected,
-        onTap: onTap,
-      );
+  }) => _chips<T>(
+    context,
+    values: values,
+    labels: labels,
+    selected: selected,
+    onTap: onTap,
+  );
 
   Widget _multiChips<T>(
     BuildContext context, {
@@ -666,12 +698,14 @@ class _CompareFilterSheetState extends ConsumerState<CompareFilterSheet> {
       spacing: 8,
       runSpacing: 8,
       children: values
-          .map((v) => _chip(
-                context,
-                label: label(v),
-                selected: selected.contains(v),
-                onTap: () => onToggle(v),
-              ))
+          .map(
+            (v) => _chip(
+              context,
+              label: label(v),
+              selected: selected.contains(v),
+              onTap: () => onToggle(v),
+            ),
+          )
           .toList(),
     );
   }

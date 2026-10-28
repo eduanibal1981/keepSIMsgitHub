@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-28",
+  "project": "zwxswagokhgbuzrrbnhr",
+  "status": "RUNTIME_DEPLOYED_VERIFIED_CALLBACK_REGISTRATION_PENDING",
+  "new_sales_enabled": false,
+  "paid_calls": 0,
+  "wallet_mutations": 0,
+  "migration_versions": {
+    "esim_profile_identity_lifecycle": "20261028003236",
+    "esim_event_inbox_reconciliation": "20261028003243"
+  },
+  "edge_versions": {
+    "esimaccess-events": 1,
+    "sync-esim-catalogue": 8
+  },
+  "vm_pids": {
+    "worker-esim-fulfillment": 1058080,
+    "worker-esim-catalog": 1058079
+  },
+  "callback_checks": {
+    "missing_secret": 403,
+    "invalid_secret": 403,
+    "first": 202,
+    "duplicate": 202,
+    "persisted_rows": 1,
+    "activation_sentinel_retained": false,
+    "synthetic_rows_removed": 1
+  },
+  "legacy_hashes_preserved": {
+    "profiles": "60d367ae6f1931fc065021de1f743d77",
+    "orders": "d8a169c08b625c4346048e0df1b0eca5"
+  },
+  "purchase_rpc_md5": "524b7d1f6f79eadaf422fb0ff3f1c315",
+  "catalogue_edge_acceptance": {
+    "http": 200,
+    "fetched": 3187,
+    "upserted": 3187,
+    "retired": 0,
+    "complete": true
+  },
+  "tests": {
+    "node": 47,
+    "ingress": 4,
+    "isolated_sql_scenario_groups": 19,
+    "flutter": 63,
+    "baseline": 13
+  },
+  "provider_account_wiring": "Not configured; inspected URL-only account form; dedicated header or incoming signature contract unverified",
+  "application_distribution": "Local source and tests only; no binaries published"
+}

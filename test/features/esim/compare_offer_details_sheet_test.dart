@@ -20,32 +20,27 @@ void main() {
     durationDays: 30,
     priceUsd: 7.98,
     bundleGroup: 'Fixed Bundle',
+    catalogueDetails: {'plan_type': 'total', 'allowance_bytes': '1073741824'},
     action: OfferAction.buyInApp,
     priceIsStale: false,
     disclosureRequired: false,
   );
 
-  Widget createTestWidget({
-    required Widget child,
-  }) {
+  Widget createTestWidget({required Widget child}) {
     return ProviderScope(
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 380,
-              child: child,
-            ),
-          ),
+          body: Center(child: SizedBox(width: 380, child: child)),
         ),
       ),
     );
   }
 
-  testWidgets('CompareOfferCard renders More details label and country count',
-      (tester) async {
+  testWidgets('CompareOfferCard renders More details label and country count', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1000, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -86,151 +81,155 @@ void main() {
   });
 
   testWidgets(
-      'CompareOfferDetailsSheet displays professional details and filters countries',
-      (tester) async {
-    tester.view.physicalSize = const Size(1000, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
+    'CompareOfferDetailsSheet displays professional details and filters countries',
+    (tester) async {
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
 
-    bool buyPressed = false;
-    await tester.pumpWidget(
-      createTestWidget(
-        child: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => CompareOfferDetailsSheet.show(
-              context,
-              offer: sampleOffer,
-              onBuyPressed: () => buyPressed = true,
+      bool buyPressed = false;
+      await tester.pumpWidget(
+        createTestWidget(
+          child: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => CompareOfferDetailsSheet.show(
+                context,
+                offer: sampleOffer,
+                onBuyPressed: () => buyPressed = true,
+              ),
+              child: const Text('Open Sheet'),
             ),
-            child: const Text('Open Sheet'),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Open Sheet'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Open Sheet'));
+      await tester.pumpAndSettle();
 
-    // 1. Header & Summary metric card
-    expect(find.text('Global Explorer 1GB'), findsOneWidget);
-    expect(find.text('eSIM Access'), findsOneWidget);
-    expect(find.text('Fixed Bundle'), findsWidgets);
-    expect(find.text('30'), findsOneWidget);
-    expect(find.text('1 GB'), findsOneWidget);
-    expect(find.text('\$7.98'), findsOneWidget);
+      // 1. Header & Summary metric card
+      expect(find.text('Global Explorer 1GB'), findsOneWidget);
+      expect(find.text('eSIM Access'), findsOneWidget);
+      expect(find.text('Total data bundle'), findsWidgets);
+      expect(find.text('30 days'), findsOneWidget);
+      expect(find.text('1 GB'), findsOneWidget);
+      expect(find.text('\$7.98'), findsOneWidget);
 
-    // 2. Details tab content
-    expect(find.text('Network'), findsOneWidget);
-    expect(find.text('Plan type'), findsOneWidget);
-    expect(find.text('Speed'), findsOneWidget);
-    expect(find.text('Activation Policy'), findsOneWidget);
-    expect(find.text('eKYC (Identity verification)'), findsOneWidget);
-    expect(find.text('Not required'), findsOneWidget);
-    expect(find.text('Delivery & Setup'), findsOneWidget);
+      // 2. Details tab content
+      expect(find.text('Supported networks'), findsOneWidget);
+      expect(find.text('Plan type'), findsOneWidget);
+      expect(find.text('Allowance policy'), findsOneWidget);
+      expect(find.text('Activation'), findsOneWidget);
+      expect(find.text('Not provided'), findsWidgets);
 
-    // 3. Switch to Countries tab
-    await tester.tap(find.text('Countries (4)'));
-    await tester.pumpAndSettle();
+      // 3. Switch to Countries tab
+      await tester.tap(find.text('Countries (4)'));
+      await tester.pumpAndSettle();
 
-    // Verify countries are listed
-    expect(find.text('Egypt'), findsOneWidget);
-    expect(find.text('France'), findsOneWidget);
-    expect(find.text('United States'), findsOneWidget);
-    expect(find.text('Germany'), findsOneWidget);
-    expect(find.text('4G / 5G'), findsNWidgets(4));
+      // Verify countries are listed
+      expect(find.text('Egypt'), findsOneWidget);
+      expect(find.text('France'), findsOneWidget);
+      expect(find.text('United States'), findsOneWidget);
+      expect(find.text('Germany'), findsOneWidget);
+      expect(find.text('4G / 5G'), findsNothing);
+      expect(find.text('Not provided'), findsWidgets);
 
-    // 4. Test Search filter in Countries tab
-    final searchField = find.byType(TextField);
-    expect(searchField, findsOneWidget);
+      // 4. Test Search filter in Countries tab
+      final searchField = find.byType(TextField);
+      expect(searchField, findsOneWidget);
 
-    await tester.enterText(searchField, 'Egypt');
-    await tester.pumpAndSettle();
+      await tester.enterText(searchField, 'Egypt');
+      await tester.pumpAndSettle();
 
-    expect(find.text('EG'), findsOneWidget);
-    expect(find.text('FR'), findsNothing);
-    expect(find.text('DE'), findsNothing);
+      expect(find.text('EG'), findsOneWidget);
+      expect(find.text('FR'), findsNothing);
+      expect(find.text('DE'), findsNothing);
 
-    // Search by code
-    await tester.enterText(searchField, 'FR');
-    await tester.pumpAndSettle();
+      // Search by code
+      await tester.enterText(searchField, 'FR');
+      await tester.pumpAndSettle();
 
-    expect(find.text('France'), findsOneWidget);
-    expect(find.text('EG'), findsNothing);
-    expect(find.text('DE'), findsNothing);
+      expect(find.text('France'), findsOneWidget);
+      expect(find.text('EG'), findsNothing);
+      expect(find.text('DE'), findsNothing);
 
-    // Search with no results
-    await tester.enterText(searchField, 'NonExistentPlace');
-    await tester.pumpAndSettle();
+      // Search with no results
+      await tester.enterText(searchField, 'NonExistentPlace');
+      await tester.pumpAndSettle();
 
-    expect(find.text('No countries match your search.'), findsOneWidget);
+      expect(find.text('No countries match your search.'), findsOneWidget);
 
-    // 5. Test Buy Plan CTA inside sheet
-    final sheetCta = find.descendant(
-      of: find.byType(CompareOfferDetailsSheet),
-      matching: find.widgetWithText(ElevatedButton, 'Buy Plan • \$7.98'),
-    );
-    expect(sheetCta, findsOneWidget);
-    await tester.tap(sheetCta);
-    await tester.pumpAndSettle();
+      // 5. Test Buy Plan CTA inside sheet
+      final sheetCta = find.descendant(
+        of: find.byType(CompareOfferDetailsSheet),
+        matching: find.widgetWithText(ElevatedButton, 'Buy Plan • \$7.98'),
+      );
+      expect(sheetCta, findsOneWidget);
+      await tester.tap(sheetCta);
+      await tester.pumpAndSettle();
 
-    expect(buyPressed, isTrue);
-  });
+      expect(buyPressed, isTrue);
+    },
+  );
 
   testWidgets(
-      'CompareOfferCard omits speed line and speed badge, details sheet retains speed policy',
-      (tester) async {
-    tester.view.physicalSize = const Size(1000, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
+    'CompareOfferCard omits speed line and speed badge, details sheet retains speed policy',
+    (tester) async {
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
 
-    const dayPassOffer = CompareOffer(
-      offerKind: 'resale',
-      offerId: 'test-daypass-1',
-      sourceCode: 'esimaccess',
-      sourceName: 'eSIM Access',
-      title: 'Oman 1GB/day DayPass',
-      countries: ['OM'],
-      countryCount: 1,
-      dataAmountMb: 1024,
-      isUnlimited: true,
-      speedTierRaw: 'high-384 kbps',
-      durationDays: 1,
-      priceUsd: 5.07,
-      bundleGroup: 'DayPass',
-      action: OfferAction.buyInApp,
-      priceIsStale: false,
-      disclosureRequired: false,
-    );
+      const dayPassOffer = CompareOffer(
+        offerKind: 'resale',
+        offerId: 'test-daypass-1',
+        sourceCode: 'esimaccess',
+        sourceName: 'eSIM Access',
+        title: 'Oman 1GB/day DayPass',
+        countries: ['OM'],
+        countryCount: 1,
+        dataAmountMb: 1024,
+        isUnlimited: false,
+        catalogueDetails: {
+          'plan_type': 'daily_throttled',
+          'allowance_bytes': '1073741824',
+          'fup_text': '384 kbps',
+        },
+        speedTierRaw: 'high-384 kbps',
+        durationDays: 1,
+        priceUsd: 5.07,
+        bundleGroup: 'DayPass',
+        action: OfferAction.buyInApp,
+        priceIsStale: false,
+        disclosureRequired: false,
+      );
 
-    await tester.pumpWidget(
-      createTestWidget(
-        child: CompareOfferCard(
-          offer: dayPassOffer,
-          onPressed: () {},
+      await tester.pumpWidget(
+        createTestWidget(
+          child: CompareOfferCard(offer: dayPassOffer, onPressed: () {}),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    // Verify speed badge ('high-384 kbps') is NOT rendered on the card
-    expect(find.text('high-384 kbps'), findsNothing);
+      // Verify speed badge ('high-384 kbps') is NOT rendered on the card
+      expect(find.text('high-384 kbps'), findsNothing);
 
-    // Verify the speed line ('...then throttle to 384 kbps') is NOT rendered on the card
-    expect(find.textContaining('then throttle to 384 kbps'), findsNothing);
+      // Verify the speed line ('...then throttle to 384 kbps') is NOT rendered on the card
+      expect(find.textContaining('then throttle to 384 kbps'), findsNothing);
 
-    // Verify data amount and More details are rendered
-    expect(find.text('1 GB/day'), findsOneWidget);
-    expect(find.text('More details'), findsOneWidget);
+      // Verify data amount and More details are rendered
+      expect(find.text('1 GB/day'), findsOneWidget);
+      expect(find.text('More details'), findsOneWidget);
 
-    // Tapping More details opens the details sheet where speed policy is available
-    await tester.tap(find.text('More details'));
-    await tester.pumpAndSettle();
+      // Tapping More details opens the details sheet where speed policy is available
+      await tester.tap(find.text('More details'));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(CompareOfferDetailsSheet), findsOneWidget);
-    expect(find.text('Speed'), findsOneWidget);
-    expect(
-        find.text('1 GB/day at Max speed then throttle to 384 kbps'), findsOneWidget);
-  });
+      expect(find.byType(CompareOfferDetailsSheet), findsOneWidget);
+      expect(find.text('Allowance policy'), findsOneWidget);
+      expect(
+        find.text('Speed slows after the daily allowance. FUP: 384 kbps'),
+        findsOneWidget,
+      );
+    },
+  );
 }
-
