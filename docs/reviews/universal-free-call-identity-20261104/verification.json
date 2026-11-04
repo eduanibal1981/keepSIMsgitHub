@@ -1,0 +1,305 @@
+{
+  "date": "2026-11-04",
+  "timezone": "Asia/Muscat",
+  "project_id": "zwxswagokhgbuzrrbnhr",
+  "runtime_source_commit": "a73457af23eaaf3d0157762ecb999419d8257f07",
+  "sha256": {
+    "supabase/migrations/20261104053008_universal_free_call_identity.sql": "da3a6f4acd30802626f34e2cf1b2d2a162e3dc3aedecdc476228abd8843f7713",
+    "supabase/functions/initiate-voip-call/index.ts": "62fd4b50ed078b669e395a4cafc237471a3e26caa5ac3cd6933947aa9987bf19",
+    "supabase/functions/initiate-voip-call/deno.lock": "e7e0f6aa5556fe21490c8ec4987ac1a9643fcc6940cf7dcd1691a457b00c74b1",
+    "supabase/functions/_shared/provider-secrets.ts": "88824c6570ee7db39be70295ca8f1af29a2bccd7196f55bc3915146eef0c19c9",
+    "supabase/functions/_shared/turn-credentials.ts": "02dbeed64ab5ee2d9898206b795b00db714aef3f5f9ee4c25bb8187c18a9e63c",
+    "build/app/outputs/flutter-apk/app-debug.apk": "7531771eb4fc30c9b62327ff4bbd9cc9bf24d05630ae4f876c96e8651d322178"
+  },
+  "git": {
+    "repository": "https://github.com/eduanibal1981/keepSIMsgitHub",
+    "branch": "feat/universal-free-call-identity-20261104",
+    "base_main": "aa8d47d76ffa4c5ffad87d631f9abc76bde39700",
+    "main_merged": false,
+    "unrelated_working_changes_preserved": true
+  },
+  "migration": {
+    "local_version": "20261104053008",
+    "hosted_version": "20261104054624",
+    "name": "universal_free_call_identity",
+    "applied": true,
+    "existing_accounts": 9,
+    "backfilled_accounts": 9,
+    "neutral_prefix_accounts": 9,
+    "phone_opt_ins": 0,
+    "email_opt_ins": 0,
+    "function_body_comparisons": [
+      {
+        "name": "free_call_private.active_account",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.eligible_pair",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.guard_call",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.issue_identity",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.known_pair",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.phone_proofs",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.protect_identity",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.provision_identity",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.quota",
+        "matches": true
+      },
+      {
+        "name": "free_call_private.require_caller",
+        "matches": true
+      },
+      {
+        "name": "public.get_free_call_history",
+        "matches": true
+      },
+      {
+        "name": "public.get_free_call_identity",
+        "matches": true
+      },
+      {
+        "name": "public.get_voip_call_history",
+        "matches": true
+      },
+      {
+        "name": "public.resolve_free_call_identity",
+        "matches": true
+      },
+      {
+        "name": "public.resolve_free_call_recipient",
+        "matches": true
+      },
+      {
+        "name": "public.set_free_call_block",
+        "matches": true
+      },
+      {
+        "name": "public.set_free_call_discovery",
+        "matches": true
+      },
+      {
+        "name": "public.set_free_call_phone_discovery",
+        "matches": true
+      }
+    ]
+  },
+  "edge": {
+    "name": "initiate-voip-call",
+    "version": 11,
+    "status": "ACTIVE",
+    "verify_jwt": false,
+    "bearer_validation": "Auth /user inside existing handler",
+    "bundle_sha256": "975c4eadc0ef3a0c6d07e527d4857de093016ffbdd880afa08405da1741ca14e",
+    "source_comparison": [
+      {
+        "name": "initiate-voip-call/index.ts",
+        "present": true,
+        "matches": true
+      },
+      {
+        "name": "initiate-voip-call/deno.lock",
+        "present": false,
+        "matches": false
+      },
+      {
+        "name": "_shared/provider-secrets.ts",
+        "present": true,
+        "matches": true
+      },
+      {
+        "name": "_shared/turn-credentials.ts",
+        "present": true,
+        "matches": true
+      }
+    ],
+    "lock": "supplied and frozen-checked locally; omitted by deployed retrieval; hosted enforcement not attested",
+    "relay_secret": "existing coturn configuration transferred securely to Supabase secret; VM unchanged"
+  },
+  "verification": {
+    "integrated_static_analysis": "full flutter analyze passed",
+    "flutter_focused": {
+      "command": "flutter test test/features/voip_calling --reporter expanded",
+      "passed": 69,
+      "failed": 0,
+      "new_cases": 9
+    },
+    "database": {
+      "command": "node tools/financial-tests/free-call-identity.mjs",
+      "passed": 17,
+      "failed": 0,
+      "engine": "isolated native PostgreSQL with real pgcrypto and independent sessions",
+      "self_contained_fixture": true
+    },
+    "edge_integrated": {
+      "command": "node --test test/free_call_identity_edge.test.cjs test/turn_credentials_security.test.cjs",
+      "passed": 10,
+      "failed": 0
+    },
+    "isolated_committed_checkout": {
+      "flutter_cases": 69,
+      "database_scenarios": 17,
+      "edge_cases": 14,
+      "focused_analysis": "passed",
+      "notes": "retains four pre-existing tests absent from the dirty workspace; feature-only localization generated independently"
+    },
+    "full_integrated_flutter": {
+      "passed": 1479,
+      "failed": 2,
+      "failures": [
+        "sim_line_form_save_test.dart: add SIM: success with alarm",
+        "onboarding_notification_contacts_test.dart: alarm access is requested only after enabling alarms"
+      ],
+      "independent_retests": "both reproduce outside the full run",
+      "scope": "unrelated alarm-test paths unchanged"
+    },
+    "deno": "2.9.6 check --no-config --node-modules-dir=none --frozen passed",
+    "build": "flutter build apk --debug passed; installed on emulator; no client publication",
+    "hosted": [
+      "authenticated identity read succeeds",
+      "anonymous lookup denied",
+      "ID/email positive resolution with temporary consent rolled back",
+      "partial ID/phone/email rejected",
+      "conflicting verified phone owner opt-in rejected",
+      "search did not create call history",
+      "18 database function bodies match source",
+      "3 deployed runtime files match source",
+      "v11 unauthenticated 401, self 400, unknown target generic 403",
+      "private schema and client session TRUNCATE denied"
+    ]
+  },
+  "emulator": {
+    "avd": "Medium_Phone_API_37.0",
+    "device": "emulator-5554",
+    "android": "17 / API 37",
+    "real_authenticated_app": true,
+    "checks": [
+      "Free Call opens from Calls",
+      "public ID displayed",
+      "native clipboard preview contains the correct ID",
+      "native sharing opens",
+      "partial existing name filters real Recent groups",
+      "People preserves family/managed-number sections",
+      "full other-account ID returns confirmation and Free Call action",
+      "full unknown email returns generic no-match/share invitation",
+      "full international phone returns generic no-match/invitation flow",
+      "existing Recent call opens canonical account review"
+    ],
+    "no_call_placed": true,
+    "small_arabic_large_text_keyboard": "covered by widget test; device keyboard was floating"
+  },
+  "security": {
+    "before": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 88
+      },
+      {
+        "name": "security_definer_view",
+        "level": "ERROR",
+        "count": 6
+      },
+      {
+        "name": "function_search_path_mutable",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "extension_in_public",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 39
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 253
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ],
+    "after": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 92
+      },
+      {
+        "name": "security_definer_view",
+        "level": "ERROR",
+        "count": 6
+      },
+      {
+        "name": "function_search_path_mutable",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "extension_in_public",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 38
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 259
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ],
+    "new_feature_error_findings": 0,
+    "intentional_findings": [
+      "private RLS tables with no client grants/policies",
+      "authenticated guarded SECURITY DEFINER API"
+    ]
+  },
+  "remaining": [
+    "zero unambiguous verified phone fixtures: four existing records share one phone across accounts; unique verified test number needed for live positive phone test",
+    "no real two-account incoming push/audio/media delivery acceptance",
+    "two independently reproduced unrelated alarm-test failures",
+    "legacy relay credential reused, not rotated; historical fallback material warrants coordinated rotation",
+    "existing client publication/signing/performance release gates remain",
+    "new strings translated in English/Arabic; other supported locales use English fallback"
+  ],
+  "worker_repo": {
+    "origin": "https://github.com/eduanibal1981/keepsims-backend",
+    "head": "c18e2ac793f288165505990e9ecd26207fd99fe2",
+    "changed": false,
+    "deployed": false
+  }
+}

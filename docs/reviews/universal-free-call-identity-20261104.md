@@ -2,6 +2,8 @@
 
 4 November 2026, Asia/Muscat. Customer workspace: `keep_sims`.
 
+[Verification receipt and deployment hashes](universal-free-call-identity-20261104/verification.json).
+
 ## Scope and existing-versus-missing audit
 
 Inspection covered the project handoff, memory router, architecture/security
@@ -17,7 +19,7 @@ the verified project is `zwxswagokhgbuzrrbnhr` (`simSaveDB`).
 | Email discovery | Missing | Exact verified Auth email with explicit consent; case normalization only, no provider-specific rewriting; changing email invalidates the previous consent | Native tests and hosted positive check with temporary consent rolled back |
 | Recent filtering | Real grouped history, no text filtering | Local partial filtering of recorded names/phones/public IDs/permitted historical emails; Arabic digits supported; existing canonical peer IDs reused | Flutter tests; real emulator history preserved |
 | Privacy/blocking | No Free Call discovery settings or blocks found | ID visibility, email opt-in, individual verified-phone opt-in, block/unblock UI; private tables, guarded RPCs, account and signed-session quotas; lifecycle checks | Native ACL/ownership/session/quota/block tests; hosted anonymous denial and advisor review |
-| Backend | Existing Supabase RPCs and Edge/WebRTC signaling | Additive migration and existing `initiate-voip-call` hardened; UUID validation, call-insert eligibility guard, no profile phone disclosure | Hosted migration, 18/18 SQL body matches; Edge v10, 3/3 runtime file matches; HTTP negative probes |
+| Backend | Existing Supabase RPCs and Edge/WebRTC signaling | Additive migration and existing `initiate-voip-call` hardened; UUID validation, call-insert eligibility guard, no profile phone disclosure | Hosted migration, 18/18 SQL body matches; Edge v11, 3/3 runtime file matches; HTTP negative probes |
 | Calling | Canonical account IDs, review, microphone permission, existing push/Realtime/WebRTC | All identifier modes feed the same existing reviewed call path; no automatic call on search | Native session routing, Edge adapters, 69 Flutter cases; emulator confirmation; no real two-account media test |
 | People | Accepted family members, individually selected device contact, managed-number section | Preserved; no address-book upload or background matching | Existing Flutter tests and emulator checks |
 
@@ -97,13 +99,13 @@ Unrelated dirty files in both repositories were preserved.
 | `flutter analyze` | Clean full application analysis |
 | `flutter test test/features/voip_calling --reporter expanded` | 69 passed, including 9 new identifier/search/privacy/layout cases |
 | `node tools/financial-tests/free-call-identity.mjs` | 17 native PostgreSQL scenarios passed, using real pgcrypto and independent sessions |
-| `node --test test/free_call_identity_edge.test.cjs test/turn_credentials_security.test.cjs` | 10 passed; actual local Edge modules with isolated backend/relay adapters |
+| `node --test test/free_call_identity_edge.test.cjs test/turn_credentials_security.test.cjs` | 10 integrated-workspace passes; 14 committed-checkout passes, including four tests removed by pre-existing local edits |
 | `npx --yes deno check --no-config --node-modules-dir=none --frozen supabase/functions/initiate-voip-call/index.ts` | Passed (Deno 2.9.6; no claim of the older release toolchain pin) |
 | `flutter test --reporter expanded` | 1,479 passed, 2 failed; the alarm tests listed below also fail when rerun independently |
 | `flutter build apk --debug` | Passed; installed on the available Android emulator, no publication |
 | Supabase migration and source checks | Applied; all 9 IDs present, no malformed IDs; 18/18 function bodies match; no automatic phone/email opt-ins |
 | Hosted RPC smoke | Authenticated success, anonymous denial, complete ID/email positives with consent rolled back, partial negatives, unchanged call count |
-| Hosted Edge smoke | Unauthorized 401, self 400, nonexistent target generic 404; relay configuration resolves before the target lookup |
+| Hosted Edge smoke | Unauthorized 401, self 400, nonexistent/blocked target same generic 403; relay configuration resolves before the target lookup |
 
 The two full-suite failures are outside this change:
 
@@ -115,12 +117,19 @@ The two full-suite failures are outside this change:
 Both reproduce in their own files. Their runtime/test files were not changed by
 this task. The full suite is therefore **not** reported as passing.
 
+An isolated committed checkout independently passes the same 69 Flutter cases,
+17 native database scenarios, 14 Edge cases and focused analysis. Localizations
+were regenerated from HEAD plus only the feature messages. Unrelated existing
+localization/configuration/test edits were not bundled into the feature commits.
+The native fixture includes its captured rate-limit dependency, and does not
+require the workspace's untracked schema snapshot.
+
 ## Hosted deployment
 
 - Migration source version: `20261104053008`. The MCP-assigned installed history
   version is `20261104054624`, name `universal_free_call_identity`. The source and
   hosted SQL bodies match; remote history was not rewritten or bulk replayed.
-- `initiate-voip-call` v10 is ACTIVE. Existing `verify_jwt=false` is retained;
+- `initiate-voip-call` is ACTIVE (version recorded in the receipt). Existing `verify_jwt=false` is retained;
   the handler verifies the bearer with Auth, and database session creation checks
   current account/block/routing eligibility. Retrieved index/shared runtime files
   match local source exactly. Retrieval omits the supplied lock, so hosted lock
@@ -142,8 +151,14 @@ Actual emulator: `Medium_Phone_API_37.0`, `emulator-5554`, Android 17/API 37.
 The real updated app uses the existing authenticated account and hosted backend;
 no account creation, fabricated history, real supplier operation or phone call
 was needed. Free Call loads with its ID and real grouped history. Native Android
-sharing opens. A complete other-account ID produces an eligible confirmation
-and Free Call button. Further device checks are recorded in the deployment receipt.
+copy shows the correct ID in the clipboard preview; sharing opens the platform
+sheet. Partial contact-name input filters real history locally. People retains
+family/managed-number content. A complete other-account ID and an existing Recent
+call both produce eligible confirmation with the canonical public ID and Free
+Call button. Complete unknown email and phone identifiers produce the generic
+no-match flow. The email result offers invitation sharing; the phone retains
+the existing user-composed invitation options. No paid action was selected.
+Further checks are in the receipt.
 
 There is one live verified phone shared by four caller-ID records across
 accounts, and **zero unambiguous verified phones**. The live positive phone
@@ -174,6 +189,8 @@ blocking; Free Call privacy offers unblock controls.
 ## Source synchronization
 
 The feature source is committed separately from the pre-existing dirty work.
-The accompanying receipt records the feature commit/remote branch and deployed
-hashes. The customer app's existing `main` origin is
+The accompanying receipt records runtime source commit
+`a73457af23eaaf3d0157762ecb999419d8257f07`, remote branch
+`feat/universal-free-call-identity-20261104`, and deployed hashes.
+The customer app's existing `main` origin is
 `eduanibal1981/keepSIMsgitHub`; no backend-worker commit is needed.

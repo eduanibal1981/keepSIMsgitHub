@@ -1,5 +1,15 @@
 # System Architecture
 
+## Universal Free Call identity — 2026-11-04
+
+Auth UUIDs remain canonical. The private `free_call_private` ledger provisions
+immutable public calling aliases, with `XX` for missing trusted registration
+country. Exact ID/verified-phone/verified-email discovery uses authenticated RPCs
+and the existing reviewed WebRTC/Edge/push path. Typing filters Recent locally.
+No new calling transport, worker, paid-call or supplier path was introduced.
+See [implementation and verification](../docs/reviews/universal-free-call-identity-20261104.md).
+
+
 ## Context and boundaries
 
 ```text

@@ -1,5 +1,19 @@
 # Data, Backend, and Security
 
+## Free Call discovery contracts — 2026-11-04
+
+Hosted migration `20261104054624` (`universal_free_call_identity`, local source
+`20261104053008`) installs private alias/consent/block/routing tables and guarded
+exact RPCs. Phone and email discovery default off. SIM/test-pass verification
+never establishes calling ownership. Live conflicting phone owners fail closed.
+Call-session inserts enforce lifecycle, blocks and known/resolved-account
+eligibility; private profile phones are excluded from history/results/push.
+`initiate-voip-call` v11 is active with explicit in-handler Auth validation.
+Existing relay configuration was securely supplied through Supabase secrets;
+no relay/worker process changed. 18 SQL bodies and 3 Edge runtime files match.
+See [verification and remaining risks](../docs/reviews/universal-free-call-identity-20261104.md).
+
+
 ## Required worker fleet monitoring — Task 23, 2026-10-18 (local, undeployed)
 
 `20261018090000_worker_fleet_monitoring.sql` keeps fleet requirements/runtime/probes/cron/observation/incidents private. Telemetry uses explicit service execution plus an in-body service check, exact lane/field validation and instance/sequence fencing. Raw queue queries and snapshots remain private; the public Edge endpoint gets only consistent aggregate status/counts, while detailed component/age/backlog/source versions use service or assert-admin APIs. Worker liveness is read fresh; financial queue aggregates are measured by the existing ten-minute cron checker and cached, with absent/15-minute-old evidence failing closed. Unknown schema/probe/run-history states never become healthy zeroes. A transaction lock and persistent incident key enforce six-hour alert cooldown across concurrency/flapping, without suppressing retries after alert-storage failure. Monitoring never releases/retries financial/provider work or enables dormant services. All 50 isolated SQL/concurrency and 137 focused worker/Edge/admin tests pass; production release and controlled runtime acceptance remain pending. See [Task 23 evidence](../docs/reviews/worker-fleet-monitoring-20261018.md).

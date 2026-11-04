@@ -1,5 +1,20 @@
 # Current Status and Roadmap
 
+## Universal Free Call identities — 2026-11-04
+
+Implemented and deployed the scoped identity migration and calling Edge v11.
+All 9 existing users have immutable `KXX-…` IDs; phone/email discovery remain
+opt-in. Feature checkout: 69 Flutter, 17 native database, 14 Edge checks pass.
+Full integrated app analysis is clean; its full test run has 1,479 passes and
+two independently reproduced alarm-test timeouts outside this change.
+The real Android emulator verifies ID display/copy/share, ID confirmation,
+local history filtering, People, and generic email/phone no-match behavior.
+No actual two-account incoming/audio delivery was tested. Existing verified
+phone fixtures all conflict across accounts, so live positive phone acceptance
+requires a unique ownership-verified test number. Existing release gates remain.
+See [implementation and verification](../docs/reviews/universal-free-call-identity-20261104.md).
+
+
 ## Task 23 update — 2026-10-18 (local, undeployed)
 
 The required-fleet manifest in `../backend-sync-wt/worker-fleet.json` names eight freshly confirmed PM2 services plus the required, not-running supplier reconciler. Dormant voucher/alternative messaging scripts are excluded. Shared service-only telemetry separates 30-second liveness from successful work lanes, fences old reports/instances, and reports source fingerprints. Receipt-drop evidence persists across restarts. `20261018090000_worker_fleet_monitoring.sql` adds private status/requirements/cache/incidents, 24 aggregate queue/reconciliation probes and 23 cron requirements. The existing ten-minute checker measures queues and emits bounded/deduplicated alerts; public/API polls use current worker/cron status with cached queue measurements and fail closed when measurements are absent/older than 15 minutes. The public health Edge function exposes aggregate counts only; admin reads and the polling panel show component/backlog/age/version detail. All 50 isolated native SQL/concurrency, 125 focused backend, 10 health-handler and two admin tests pass; focused analysis and syntax checks pass. No deploy, provider actions or live stop/stall/restart exercise occurred. SQL/worker/Edge/admin coordinated release, production probe-cost checks, full API/scheduler parity and controlled runtime failure acceptance remain required. See [Task 23 review](../docs/reviews/worker-fleet-monitoring-20261018.md).
