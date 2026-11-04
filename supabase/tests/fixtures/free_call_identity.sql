@@ -22,3 +22,89 @@ CREATE TABLE public.rate_limit_buckets(bucket text,key text,tokens numeric,updat
 CREATE TABLE public.security_logs(user_id uuid,event_type text,description text,metadata jsonb);
 INSERT INTO auth.users(id,email) VALUES ('00000000-0000-4000-8000-000000000001','legacy@example.test');
 INSERT INTO profiles(id,full_name) SELECT id,'Legacy' FROM auth.users;
+
+-- Captured existing rate-limit function, reused unchanged by the new API.
+CREATE OR REPLACE FUNCTION "public"."consume_rate_limit"("p_bucket" "text", "p_key" "text", "p_capacity" integer, "p_refill_per_minute" numeric, "p_now" timestamp with time zone DEFAULT "clock_timestamp"()) RETURNS TABLE("allowed" boolean, "retry_after_seconds" integer)
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
+    AS $$
+DECLARE
+  v_raw_claims text;
+  v_jwt_role text;
+  v_ctx text;
+  v_tokens numeric;
+  v_updated_at timestamptz;
+  v_elapsed numeric;
+  v_refill numeric;
+  v_new_tokens numeric;
+  v_needed numeric;
+  v_retry_sec int;
+BEGIN
+  v_raw_claims := current_setting('request.jwt.claims', true);
+  IF v_raw_claims IS NOT NULL AND v_raw_claims <> '' THEN
+    v_jwt_role := (v_raw_claims::jsonb) ->> 'role';
+    IF v_jwt_role IS DISTINCT FROM 'service_role' THEN
+      GET DIAGNOSTICS v_ctx = PG_CONTEXT;
+      IF coalesce(array_length(string_to_array(v_ctx, E'\n'), 1), 1) < 2 THEN
+        RAISE EXCEPTION 'consume_rate_limit is not directly callable by role %', COALESCE(v_jwt_role, '<none>')
+          USING ERRCODE = 'KS403';
+      END IF;
+    END IF;
+  END IF;
+
+  IF p_key IS NULL OR p_key = '' THEN
+    RETURN QUERY SELECT true, 0;
+    RETURN;
+  END IF;
+
+  p_bucket := LOWER(p_bucket);
+
+  SELECT tokens, updated_at INTO v_tokens, v_updated_at
+  FROM public.rate_limit_buckets
+  WHERE bucket = p_bucket AND key = p_key
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    INSERT INTO public.rate_limit_buckets (bucket, key, tokens, updated_at)
+    VALUES (p_bucket, p_key, GREATEST(0, p_capacity - 1), p_now)
+    ON CONFLICT (bucket, key) DO UPDATE
+      SET tokens = EXCLUDED.tokens, updated_at = EXCLUDED.updated_at;
+
+    RETURN QUERY SELECT true, 0;
+    RETURN;
+  END IF;
+
+  v_elapsed := GREATEST(0, EXTRACT(EPOCH FROM (p_now - v_updated_at)));
+  v_refill := v_elapsed * (p_refill_per_minute / 60.0);
+  v_new_tokens := LEAST(p_capacity::numeric, v_tokens + v_refill);
+
+  IF v_new_tokens >= 1.0 THEN
+    UPDATE public.rate_limit_buckets
+    SET tokens = v_new_tokens - 1.0, updated_at = p_now
+    WHERE bucket = p_bucket AND key = p_key;
+
+    RETURN QUERY SELECT true, 0;
+  ELSE
+    v_needed := 1.0 - v_new_tokens;
+    IF p_refill_per_minute > 0 THEN
+      v_retry_sec := GREATEST(1, CEIL(v_needed / (p_refill_per_minute / 60.0))::int);
+    ELSE
+      v_retry_sec := 60;
+    END IF;
+
+    UPDATE public.rate_limit_buckets
+    SET tokens = v_new_tokens, updated_at = p_now
+    WHERE bucket = p_bucket AND key = p_key;
+
+    INSERT INTO public.security_logs (user_id, event_type, description, metadata)
+    VALUES (
+      CASE WHEN auth.uid() IS NOT NULL THEN auth.uid() ELSE NULL END,
+      'rate_limited',
+      'Rate limit exceeded for ' || p_bucket,
+      jsonb_build_object('bucket', p_bucket, 'key', p_key, 'retry_after', v_retry_sec)
+    );
+
+    RETURN QUERY SELECT false, v_retry_sec;
+  END IF;
+END;
+$$;

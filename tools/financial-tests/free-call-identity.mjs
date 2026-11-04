@@ -35,9 +35,6 @@ async function idFor(id){return scalar(owner,'SELECT public_id FROM free_call_pr
 try {
   await server.initialise(); await server.start(); owner=await connect();
   await owner.query(await read('supabase/tests/fixtures/free_call_identity.sql'));
-  const baseline=await read('supabase/tests/platform/current_public_schema.sql');
-  const quota=baseline.match(/CREATE OR REPLACE FUNCTION "public"\."consume_rate_limit"[\s\S]*?\$\$;/)[0];
-  await owner.query(quota);
   const files=await fs.readdir(new URL('supabase/migrations/',root));
   const migration=await read('supabase/migrations/'+files.find(f=>f.endsWith('_universal_free_call_identity.sql')));
   await owner.query(migration);
