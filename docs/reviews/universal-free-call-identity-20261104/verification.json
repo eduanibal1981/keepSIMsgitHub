@@ -13,9 +13,17 @@
   },
   "git": {
     "repository": "https://github.com/eduanibal1981/keepSIMsgitHub",
-    "branch": "feat/universal-free-call-identity-20261104",
+    "branch": "main",
+    "feature_branch": "feat/universal-free-call-identity-20261104",
     "base_main": "aa8d47d76ffa4c5ffad87d631f9abc76bde39700",
-    "main_merged": false,
+    "main_merged": true,
+    "integration_date": "2026-11-04",
+    "integration_authorization": "User explicitly approved integration in chat",
+    "integration_method": "fast-forward",
+    "main_integrated_source_commit": "d2a6425c5c1af3e0dcf502cc4672ecb5091f4151",
+    "source_tree_unchanged": true,
+    "pre_existing_tracked_changes_verified": 249,
+    "complete_working_status_unchanged": true,
     "unrelated_working_changes_preserved": true
   },
   "migration": {

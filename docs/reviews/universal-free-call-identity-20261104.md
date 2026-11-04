@@ -194,3 +194,12 @@ The accompanying receipt records runtime source commit
 `feat/universal-free-call-identity-20261104`, and deployed hashes.
 The customer app's existing `main` origin is
 `eduanibal1981/keepSIMsgitHub`; no backend-worker commit is needed.
+
+The user approved integration on 4 November 2026. Local and GitHub `main` were
+fast-forwarded from `aa8d47d76ffa4c5ffad87d631f9abc76bde39700` to the tested
+feature tip `d2a6425c5c1af3e0dcf502cc4672ecb5091f4151`. Source trees were
+identical before/after the branch integration. All 249 pre-existing tracked
+working changes retained their bytes, and complete untracked/deleted-file status
+was unchanged. This integration requires no repeat deployment or test execution:
+only the branch reference and this integration record changed. The acceptance
+limits above remain open; integration does not authorize client publication.
