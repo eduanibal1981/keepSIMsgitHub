@@ -74,7 +74,7 @@ serve(async (req: Request) => {
     );
     const calleeRows = await calleeRes.json();
     if (!calleeRows || calleeRows.length === 0) {
-      return jsonResponse({ error: "KeepSIMs contact unavailable" }, 404);
+      return jsonResponse({ error: "KeepSIMs contact unavailable" }, 403);
     }
     const calleeProfile = calleeRows[0];
 
