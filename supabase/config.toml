@@ -116,3 +116,9 @@ entrypoint = "./functions/send-admin-email/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/health/index.ts"
+
+# Existing Free Call gateway: identity is verified against Auth inside handler.
+[functions.initiate-voip-call]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/initiate-voip-call/index.ts"

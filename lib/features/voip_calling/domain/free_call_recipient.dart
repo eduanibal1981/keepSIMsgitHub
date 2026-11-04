@@ -1,3 +1,5 @@
+import 'package:keep_sims/features/voip_calling/domain/free_call_identity.dart';
+
 class ContactLookupResult {
   final String userId;
   final String fullName;
@@ -5,6 +7,7 @@ class ContactLookupResult {
   final String phone;
   final bool isOnline;
   final bool isSelf;
+  final String? publicId;
 
   const ContactLookupResult({
     required this.userId,
@@ -13,6 +16,7 @@ class ContactLookupResult {
     required this.phone,
     required this.isOnline,
     this.isSelf = false,
+    this.publicId,
   });
 
   factory ContactLookupResult.fromJson(Map<String, dynamic> json) =>
@@ -23,6 +27,7 @@ class ContactLookupResult {
         phone: json['phone'] as String? ?? '',
         isOnline: json['is_online'] as bool? ?? false,
         isSelf: json['is_self'] as bool? ?? false,
+        publicId: json['public_id'] as String?,
       );
 }
 
@@ -33,6 +38,7 @@ enum FreeRecipientStatus {
   ambiguous,
   unverified,
   unavailable,
+  rateLimited,
 }
 
 class FreeRecipientResolution {
@@ -55,6 +61,7 @@ class FreeRecipientResolution {
       'ambiguous' => FreeRecipientStatus.ambiguous,
       'unverified' => FreeRecipientStatus.unverified,
       'unavailable' => FreeRecipientStatus.unavailable,
+      'rate_limited' => FreeRecipientStatus.rateLimited,
       _ => throw const FormatException('Recipient lookup unavailable'),
     };
     if (status != FreeRecipientStatus.found) {
@@ -81,9 +88,11 @@ class FreeCallSelection {
   final String rawNumber;
   final String? countryIso;
   final String? knownUserId;
+  final FreeCallIdentifier? identifier;
   const FreeCallSelection({
     this.rawNumber = '',
     this.countryIso,
     this.knownUserId,
+    this.identifier,
   });
 }

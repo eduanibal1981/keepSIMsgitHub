@@ -6091,6 +6091,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Renewal settings need review before automatic billing can begin.'**
   String get snRenewalReview;
+
+  /// No description provided for @freeCallSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, phone number, email or KeepSIMs ID'**
+  String get freeCallSearchHint;
+
+  /// No description provided for @freeCallSearchShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or calling identity'**
+  String get freeCallSearchShort;
+
+  /// No description provided for @freeCallSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get freeCallSearch;
+
+  /// No description provided for @freeCallCompleteIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a complete KeepSIMs ID, international phone number or email. Names filter Recent only.'**
+  String get freeCallCompleteIdentifier;
+
+  /// No description provided for @freeCallMyId.
+  ///
+  /// In en, this message translates to:
+  /// **'My KeepSIMs ID'**
+  String get freeCallMyId;
+
+  /// No description provided for @freeCallCopyId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy KeepSIMs ID'**
+  String get freeCallCopyId;
+
+  /// No description provided for @freeCallShareId.
+  ///
+  /// In en, this message translates to:
+  /// **'Share KeepSIMs ID'**
+  String get freeCallShareId;
+
+  /// No description provided for @freeCallIdCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'KeepSIMs ID copied'**
+  String get freeCallIdCopied;
+
+  /// No description provided for @freeCallPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Call privacy'**
+  String get freeCallPrivacy;
+
+  /// No description provided for @freeCallIdDiscovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Find me by KeepSIMs ID'**
+  String get freeCallIdDiscovery;
+
+  /// No description provided for @freeCallEmailDiscovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Find me by verified email'**
+  String get freeCallEmailDiscovery;
+
+  /// No description provided for @freeCallEmailConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Only people who enter your complete verified sign-in email can find you.'**
+  String get freeCallEmailConsent;
+
+  /// No description provided for @freeCallPhoneConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the verified numbers people may use to find you. Managed SIMs are never enrolled automatically.'**
+  String get freeCallPhoneConsent;
+
+  /// No description provided for @freeCallNoVerifiedPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'No verified calling numbers. Verify a number in Caller ID settings to add one.'**
+  String get freeCallNoVerifiedPhones;
+
+  /// No description provided for @freeCallVerifyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify a calling number'**
+  String get freeCallVerifyPhone;
+
+  /// No description provided for @freeCallPrivacyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update privacy. Try again.'**
+  String get freeCallPrivacyError;
+
+  /// No description provided for @freeCallIdentityRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry KeepSIMs ID'**
+  String get freeCallIdentityRetry;
+
+  /// No description provided for @freeCallNoRecentMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching recent calls'**
+  String get freeCallNoRecentMatches;
+
+  /// No description provided for @freeCallUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get freeCallUnblock;
+
+  /// No description provided for @freeCallBlockedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked accounts'**
+  String get freeCallBlockedAccounts;
+
+  /// No description provided for @freeCallIdMeaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ID is a public calling alias. Its country prefix does not verify residence or identity.'**
+  String get freeCallIdMeaning;
 }
 
 class _AppLocalizationsDelegate

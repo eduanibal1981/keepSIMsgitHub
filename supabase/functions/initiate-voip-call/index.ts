@@ -38,6 +38,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
 
   try {
     const callerId = await resolveUserId(req);
@@ -46,7 +47,7 @@ serve(async (req: Request) => {
     }
 
     const { callee_id, offer_sdp, caller_device_id } = await req.json();
-    if (!callee_id) {
+    if (typeof callee_id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(callee_id)) {
       return jsonResponse({ error: "Missing callee_id" }, 400);
     }
 
@@ -60,7 +61,7 @@ serve(async (req: Request) => {
 
     // 1. Fetch Caller Profile
     const callerRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${callerId}&select=full_name,avatar_url,phone`,
+      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${callerId}&select=full_name,avatar_url`,
       { headers: serviceHeaders }
     );
     const callerRows = await callerRes.json();
@@ -68,12 +69,12 @@ serve(async (req: Request) => {
 
     // 2. Fetch Callee Profile
     const calleeRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${callee_id}&select=id,full_name,avatar_url,phone`,
+      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${callee_id}&select=id,full_name,avatar_url`,
       { headers: serviceHeaders }
     );
     const calleeRows = await calleeRes.json();
     if (!calleeRows || calleeRows.length === 0) {
-      return jsonResponse({ error: "Callee not found" }, 404);
+      return jsonResponse({ error: "KeepSIMs contact unavailable" }, 404);
     }
     const calleeProfile = calleeRows[0];
 
@@ -112,8 +113,10 @@ serve(async (req: Request) => {
     });
 
     if (!sessionRes.ok) {
-      const errText = await sessionRes.text();
-      return jsonResponse({ error: `Failed to create session: ${errText}` }, 500);
+      // The database checks current lifecycle, blocks, routing eligibility and
+      // call-attempt limits even for this service-role insert. Never expose SQL
+      // details or distinguish a blocked/deleted/nonexistent account.
+      return jsonResponse({ error: "KeepSIMs contact unavailable" }, 403);
     }
 
     const sessionData = await sessionRes.json();
@@ -150,7 +153,7 @@ serve(async (req: Request) => {
       caller_id: callerId,
       caller_name: callerProfile.full_name || "KeepSIMs User",
       caller_avatar: callerProfile.avatar_url || "",
-      caller_phone: callerProfile.phone || "",
+      caller_phone: "",
       created_at: new Date().toISOString(),
     };
 
@@ -190,7 +193,7 @@ serve(async (req: Request) => {
         id: calleeProfile.id,
         name: calleeProfile.full_name,
         avatar: calleeProfile.avatar_url,
-        phone: calleeProfile.phone,
+        phone: "",
       },
     }, 200);
   } catch (err: any) {

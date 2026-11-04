@@ -11,10 +11,12 @@ import 'package:keep_sims/features/sim_lines/presentation/controllers/sim_lines_
 import 'package:keep_sims/features/voip_calling/data/models/voip_call_session_model.dart';
 import 'package:keep_sims/features/voip_calling/data/services/free_call_invitation_service.dart';
 import 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
+import 'package:keep_sims/features/voip_calling/domain/free_call_identity.dart';
 import 'package:keep_sims/features/voip_calling/domain/free_call_history_group.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/free_call_review_controller.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart';
 import 'package:keep_sims/features/voip_calling/presentation/widgets/free_call_review_sheet.dart';
+import 'package:keep_sims/features/voip_calling/presentation/widgets/free_call_identity_card.dart';
 
 /// Browsing is separate from account resolution; every action opens a review.
 class InternetCallingScreen extends ConsumerStatefulWidget {
@@ -29,6 +31,7 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
   final _number = TextEditingController();
   bool _reviewing = false;
   bool _picking = false;
+  String? _searchError;
   bool get _ar => Localizations.localeOf(context).languageCode == 'ar';
   String _t(String en, String ar) => _ar ? ar : en;
   @override
@@ -37,7 +40,14 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
     _number.text = widget.initialNumber ?? '';
     if (_number.text.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _review(FreeCallSelection(rawNumber: _number.text));
+        if (mounted) {
+          final identifier = FreeCallIdentifier.parse(_number.text);
+          _review(
+            identifier == null
+                ? FreeCallSelection(rawNumber: _number.text)
+                : FreeCallSelection(identifier: identifier),
+          );
+        }
       });
     }
   }
@@ -65,6 +75,20 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
     } finally {
       _reviewing = false;
     }
+  }
+
+  void _search() {
+    if (_reviewing) return;
+    final identifier = FreeCallIdentifier.parse(_number.text);
+    if (identifier == null) {
+      setState(
+        () =>
+            _searchError = freeCallStrings(context).freeCallCompleteIdentifier,
+      );
+      return;
+    }
+    setState(() => _searchError = null);
+    _review(FreeCallSelection(identifier: identifier));
   }
 
   Future<void> _contacts() async {
@@ -139,68 +163,76 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
           ],
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverToBoxAdapter(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextField(
-                      controller: _number,
-                      keyboardType: TextInputType.phone,
-                      textDirection: TextDirection.ltr,
-                      decoration: InputDecoration(
-                        labelText: _t('Enter a number', 'أدخل رقماً'),
-                        prefixIcon: const Icon(Icons.search),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          tooltip: _t('Review number', 'مراجعة الرقم'),
-                          icon: const Icon(Icons.arrow_forward),
-                          onPressed: () {
-                            if (_number.text.trim().isNotEmpty) {
-                              _review(
-                                FreeCallSelection(rawNumber: _number.text),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      onSubmitted: (value) {
-                        if (value.trim().isNotEmpty) {
-                          _review(FreeCallSelection(rawNumber: value));
-                        }
-                      },
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _t(
-                              'Both of you need the KeepSIMs app for free calls.',
-                              'يجب أن يكون تطبيق KeepSIMs لدى كليكما لإجراء مكالمات مجانية.',
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const FreeCallIdentityCard(),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _number,
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.search,
+                            autocorrect: false,
+                            textDirection: TextDirection.ltr,
+                            decoration: InputDecoration(
+                              labelText: MediaQuery.sizeOf(context).width < 380
+                                  ? freeCallStrings(context).freeCallSearchShort
+                                  : freeCallStrings(context).freeCallSearchHint,
+                              errorText: _searchError,
+                              errorMaxLines: 3,
+                              prefixIcon: const Icon(Icons.search),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                tooltip: freeCallStrings(
+                                  context,
+                                ).freeCallSearch,
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: _search,
+                              ),
                             ),
-                            style: Theme.of(context).textTheme.bodySmall,
+                            onChanged: (_) =>
+                                setState(() => _searchError = null),
+                            onSubmitted: (_) => _search(),
                           ),
-                        ),
-                        TextButton.icon(
-                          onPressed: _contacts,
-                          icon: const Icon(Icons.contacts_outlined),
-                          label: Text(_t('Contacts', 'جهات الاتصال')),
-                        ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _t(
+                                    'Both of you need the KeepSIMs app for free calls.',
+                                    'يجب أن يكون تطبيق KeepSIMs لدى كليكما لإجراء مكالمات مجانية.',
+                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _contacts,
+                                icon: const Icon(Icons.contacts_outlined),
+                                tooltip: _t('Contacts', 'جهات الاتصال'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    TabBar(
+                      tabs: [
+                        Tab(text: _t('Recent', 'الأخيرة')),
+                        Tab(text: _t('People', 'الأشخاص')),
                       ],
                     ),
                   ],
                 ),
               ),
-              TabBar(
-                tabs: [
-                  Tab(text: _t('Recent', 'الأخيرة')),
-                  Tab(text: _t('People', 'الأشخاص')),
-                ],
-              ),
-              Expanded(child: TabBarView(children: [_recent(), _people()])),
             ],
+            body: TabBarView(children: [_recent(), _people()]),
           ),
         ),
       ),
@@ -252,29 +284,37 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
         data: (sessions) {
           if (sessions.isEmpty) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.history, size: 40),
-                    const SizedBox(height: 12),
-                    Text(
-                      _t(
-                        'No recent free calls',
-                        'لا توجد مكالمات مجانية حديثة',
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.history, size: 40),
+                      const SizedBox(height: 12),
+                      Text(
+                        _t(
+                          'No recent free calls',
+                          'لا توجد مكالمات مجانية حديثة',
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: _share,
-                      child: Text(_t('Invite a friend', 'دعوة صديق')),
-                    ),
-                  ],
+                      TextButton(
+                        onPressed: _share,
+                        child: Text(_t('Invite a friend', 'دعوة صديق')),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
           }
-          final groups = groupFreeCallHistory(sessions);
+          final filtered = filterFreeCallHistory(sessions, _number.text);
+          if (filtered.isEmpty) {
+            return Center(
+              child: Text(freeCallStrings(context).freeCallNoRecentMatches),
+            );
+          }
+          final groups = groupFreeCallHistory(filtered);
           return RefreshIndicator(
             onRefresh: () async {
               final _ = await ref.refresh(voipCallHistoryProvider.future);
@@ -287,7 +327,9 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
                 final latest = group.calls.first;
                 final title = latest.peerName?.isNotEmpty == true
                     ? latest.peerName!
-                    : _t('KeepSIMs user', 'مستخدم KeepSIMs');
+                    : latest.peerPublicId ??
+                          latest.peerPhone ??
+                          _t('KeepSIMs user', 'مستخدم KeepSIMs');
                 final summary = group.calls.length == 1
                     ? _status(latest)
                     : '${group.calls.length} ${group.allMissed ? _t('missed calls', 'مكالمات فائتة') : _t('calls', 'مكالمات')}';
@@ -301,8 +343,11 @@ class _InternetCallingScreenState extends ConsumerState<InternetCallingScreen> {
                   trailing: IconButton(
                     tooltip: _t('Review free call', 'مراجعة مكالمة مجانية'),
                     icon: const Icon(Icons.call_outlined),
-                    onPressed: () =>
-                        _review(FreeCallSelection(knownUserId: latest.peerId)),
+                    onPressed: latest.peerId.isEmpty
+                        ? null
+                        : () => _review(
+                            FreeCallSelection(knownUserId: latest.peerId),
+                          ),
                   ),
                 );
               },

@@ -37,7 +37,7 @@ test('missing TURN configuration returns controlled 503 and never creates a call
   const f = fixture();
   const response = await f.handler('initiate-voip-call')(new Request('https://edge.test', {
     method: 'POST', headers: { Authorization: 'Bearer test-only-token' },
-    body: JSON.stringify({ callee_id: 'callee' }),
+    body: JSON.stringify({ callee_id: '22222222-2222-4222-8222-222222222222' }),
   }));
   assert.equal(response.status, 503);
   assert.equal((await response.json()).code, 'PROVIDER_NOT_CONFIGURED');

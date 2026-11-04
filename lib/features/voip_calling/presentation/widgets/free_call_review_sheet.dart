@@ -13,6 +13,7 @@ import 'package:keep_sims/features/calling/presentation/widgets/destination_coun
 import 'package:keep_sims/features/voip_calling/data/repositories/voip_calling_repository.dart';
 import 'package:keep_sims/features/voip_calling/data/services/free_call_invitation_service.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/free_call_review_controller.dart';
+import 'package:keep_sims/features/voip_calling/presentation/controllers/free_call_identity_controller.dart';
 import 'package:keep_sims/features/voip_calling/presentation/controllers/voip_calling_controller.dart';
 
 final freeCallMicrophoneProvider =
@@ -114,7 +115,9 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
   @override
   void initState() {
     super.initState();
-    _number = TextEditingController(text: widget.selection.rawNumber);
+    _number = TextEditingController(
+      text: widget.selection.identifier?.value ?? widget.selection.rawNumber,
+    );
     _pendingCountry = widget.selection.countryIso ?? widget.suggestedCountryIso;
   }
 
@@ -246,7 +249,8 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
         ? const Color(0xFF48DEAA)
         : const Color(0xFF00745B);
     final busy = _submitting || _inviting;
-    final needsCountry = draft.knownUserId == null && destination.needsCountry;
+    final needsCountry =
+        !draft.isAlias && draft.knownUserId == null && destination.needsCountry;
     String? status;
     if (draft.checking) {
       status = _t(
@@ -261,8 +265,8 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
     } else {
       status = switch (draft.resolution?.status) {
         FreeRecipientStatus.notFound => _t(
-          'No KeepSIMs account found for this number. Invite them to install the app and sign in.',
-          'لم يتم العثور على حساب KeepSIMs لهذا الرقم. ادعُهم لتثبيت التطبيق وتسجيل الدخول.',
+          'No available KeepSIMs account found for this identifier.',
+          'لم يتم العثور على حساب KeepSIMs متاح لهذا المعرّف.',
         ),
         FreeRecipientStatus.self => _t(
           'This belongs to your account. Choose a different KeepSIMs user.',
@@ -273,8 +277,12 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
           'تعذر تأكيد حساب KeepSIMs واحد لهذا الرقم. اختر جهة اتصال معروفة أو عدّل الرقم.',
         ),
         FreeRecipientStatus.unavailable => _t(
-          'This KeepSIMs contact is unavailable. Choose another contact.',
-          'جهة الاتصال هذه غير متاحة على KeepSIMs. اختر جهة أخرى.',
+          'No available KeepSIMs account found for this identifier.',
+          'لم يتم العثور على حساب KeepSIMs متاح لهذا المعرّف.',
+        ),
+        FreeRecipientStatus.rateLimited => _t(
+          'Too many searches. Please try again shortly.',
+          'عمليات بحث كثيرة. حاول بعد قليل.',
         ),
         _ => null,
       };
@@ -397,7 +405,8 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
                     children: [
                       Expanded(
                         child: phone(
-                          destination.displayNumber ??
+                          recipient?.publicId ??
+                              destination.displayNumber ??
                               (draft.rawNumber.isNotEmpty
                                   ? draft.rawNumber
                                   : _t(
@@ -406,19 +415,20 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
                                     )),
                         ),
                       ),
-                      TextButton(
-                        onPressed: busy
-                            ? null
-                            : () {
-                                setState(() {
-                                  _editing = !_editing;
-                                  _message = null;
-                                  _channelUnavailable = false;
-                                  _number.text = draft.rawNumber;
-                                });
-                              },
-                        child: Text(_t('Edit', 'تعديل')),
-                      ),
+                      if (!draft.isAlias)
+                        TextButton(
+                          onPressed: busy
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _editing = !_editing;
+                                    _message = null;
+                                    _channelUnavailable = false;
+                                    _number.text = draft.rawNumber;
+                                  });
+                                },
+                          child: Text(_t('Edit', 'تعديل')),
+                        ),
                     ],
                   ),
                   Text(
@@ -499,7 +509,9 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
                         ),
                       ],
                     ],
-                    if (destination.error != null && draft.knownUserId == null)
+                    if (!draft.isAlias &&
+                        destination.error != null &&
+                        draft.knownUserId == null)
                       Text(
                         _t(
                           destination.error!,
@@ -555,7 +567,63 @@ class _FreeCallReviewSheetState extends ConsumerState<FreeCallReviewSheet> {
                         primary: true,
                         key: const Key('free-review-call'),
                       ),
+                      TextButton.icon(
+                        onPressed: busy
+                            ? null
+                            : () async {
+                                try {
+                                  await ref
+                                      .read(freeCallIdentityProvider.notifier)
+                                      .setBlocked(recipient!.userId, true);
+                                  if (context.mounted) Navigator.pop(context);
+                                } catch (_) {
+                                  if (mounted) {
+                                    setState(
+                                      () => _message = _t(
+                                        'Could not update privacy. Try again.',
+                                        'تعذر تحديث الخصوصية. حاول مجدداً.',
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                        icon: const Icon(Icons.block_outlined),
+                        label: Text(_t('Block this account', 'حظر هذا الحساب')),
+                      ),
                     ],
+                    if (draft.isAlias &&
+                        draft.resolution?.status ==
+                            FreeRecipientStatus.notFound)
+                      TextButton.icon(
+                        onPressed: busy
+                            ? null
+                            : () async {
+                                final box =
+                                    context.findRenderObject() as RenderBox?;
+                                try {
+                                  await Share.share(
+                                    ref
+                                        .read(freeCallInvitationServiceProvider)
+                                        .message(arabic: _ar),
+                                    sharePositionOrigin: box == null
+                                        ? null
+                                        : box.localToGlobal(Offset.zero) &
+                                              box.size,
+                                  );
+                                } catch (_) {
+                                  if (mounted) {
+                                    setState(
+                                      () => _message = _t(
+                                        'Sharing is unavailable on this device.',
+                                        'المشاركة غير متاحة على هذا الجهاز.',
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                        icon: const Icon(Icons.share_outlined),
+                        label: Text(_t('Share invitation', 'مشاركة الدعوة')),
+                      ),
                     if (draft.canInvite) ...[
                       button(
                         _t('Invite via WhatsApp', 'دعوة عبر واتساب'),

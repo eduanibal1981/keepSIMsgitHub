@@ -1108,5 +1108,26 @@
             }
         }
     },
-    "snRenewalReview": "يجب مراجعة إعدادات التجديد قبل بدء الفوترة التلقائية."
+    "snRenewalReview": "يجب مراجعة إعدادات التجديد قبل بدء الفوترة التلقائية.",
+    "freeCallSearchHint": "الاسم أو الهاتف أو البريد أو معرّف KeepSIMs",
+    "freeCallSearchShort": "الاسم أو معرّف الاتصال",
+    "freeCallSearch": "بحث",
+    "freeCallCompleteIdentifier": "أدخل معرّف KeepSIMs كاملاً أو رقماً دولياً أو بريداً إلكترونياً. الأسماء تصفّي سجل الأخيرة فقط.",
+    "freeCallMyId": "معرّف KeepSIMs الخاص بي",
+    "freeCallCopyId": "نسخ معرّف KeepSIMs",
+    "freeCallShareId": "مشاركة معرّف KeepSIMs",
+    "freeCallIdCopied": "تم نسخ معرّف KeepSIMs",
+    "freeCallPrivacy": "خصوصية الاتصال المجاني",
+    "freeCallIdDiscovery": "العثور عليّ بمعرّف KeepSIMs",
+    "freeCallEmailDiscovery": "العثور عليّ بالبريد المؤكّد",
+    "freeCallEmailConsent": "يمكن العثور عليك فقط بإدخال بريد تسجيل الدخول المؤكّد كاملاً.",
+    "freeCallPhoneConsent": "اختر الأرقام المؤكّدة التي تسمح بالعثور عليك بها. لا تُضاف الشرائح المُدارة تلقائياً.",
+    "freeCallNoVerifiedPhones": "لا توجد أرقام اتصال مؤكّدة. أكّد رقماً في إعدادات معرّف المتصل لإضافته.",
+    "freeCallVerifyPhone": "تأكيد رقم اتصال",
+    "freeCallPrivacyError": "تعذر تحديث الخصوصية. حاول مجدداً.",
+    "freeCallIdentityRetry": "إعادة تحميل معرّف KeepSIMs",
+    "freeCallNoRecentMatches": "لا توجد مكالمات حديثة مطابقة",
+    "freeCallUnblock": "إلغاء الحظر",
+    "freeCallBlockedAccounts": "الحسابات المحظورة",
+    "freeCallIdMeaning": "معرّفك اسم عام للاتصال. رمز البلد لا يثبت الإقامة أو الهوية."
 }

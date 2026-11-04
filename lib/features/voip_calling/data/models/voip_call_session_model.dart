@@ -20,6 +20,8 @@ class VoipCallSession {
   final String? peerName;
   final String? peerAvatarUrl;
   final String? peerPhone;
+  final String? peerPublicId;
+  final String? peerEmail;
   final bool isOutgoing;
 
   const VoipCallSession({
@@ -41,6 +43,8 @@ class VoipCallSession {
     this.peerName,
     this.peerAvatarUrl,
     this.peerPhone,
+    this.peerPublicId,
+    this.peerEmail,
     this.isOutgoing = false,
   });
 
@@ -100,6 +104,8 @@ class VoipCallSession {
       peerName: json['peer_name'] as String?,
       peerAvatarUrl: json['peer_avatar_url'] as String?,
       peerPhone: json['peer_phone'] as String?,
+      peerPublicId: json['peer_public_id'] as String?,
+      peerEmail: json['peer_email'] as String?,
       isOutgoing: isOut,
     );
   }

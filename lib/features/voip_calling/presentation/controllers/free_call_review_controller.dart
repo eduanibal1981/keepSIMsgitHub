@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keep_sims/features/auth/controller/auth_controller.dart';
 import 'package:keep_sims/features/calling/domain/call_destination.dart';
+import 'package:keep_sims/features/voip_calling/domain/free_call_identity.dart';
 import 'package:keep_sims/features/voip_calling/data/repositories/voip_calling_repository.dart';
 
 final freeCallAccountProvider = Provider<String?>(
@@ -17,6 +18,7 @@ class FreeCallReviewState {
   final String rawNumber;
   final String? countryIso;
   final String? knownUserId;
+  final FreeCallIdentifier? identifier;
   final FreeRecipientResolution? resolution;
   final bool checking;
   final bool failed;
@@ -25,6 +27,7 @@ class FreeCallReviewState {
     this.rawNumber = '',
     this.countryIso,
     this.knownUserId,
+    this.identifier,
     this.resolution,
     this.checking = false,
     this.failed = false,
@@ -34,6 +37,8 @@ class FreeCallReviewState {
       CallDestination.resolve(rawNumber, countryIso: countryIso);
   ContactLookupResult? get recipient => resolution?.recipient;
   bool get canCall => !checking && !failed && recipient != null;
+  bool get isAlias =>
+      identifier != null && identifier!.type != FreeCallIdentifierType.phone;
   bool get canInvite =>
       !checking &&
       !failed &&
@@ -64,7 +69,8 @@ class FreeCallReviewController extends Notifier<FreeCallReviewState> {
       }),
     );
     return FreeCallReviewState(
-      rawNumber: selection.rawNumber,
+      rawNumber: selection.identifier?.value ?? selection.rawNumber,
+      identifier: selection.identifier,
       countryIso: selection.countryIso,
       knownUserId: selection.knownUserId,
     );
@@ -96,25 +102,31 @@ class FreeCallReviewController extends Notifier<FreeCallReviewState> {
     final snapshot = state;
     final caller = _caller;
     final phone = snapshot.destination.e164;
-    if (caller == null || (phone == null && snapshot.knownUserId == null)) {
+    if (caller == null ||
+        (phone == null &&
+            snapshot.knownUserId == null &&
+            snapshot.identifier == null)) {
       return;
     }
     state = FreeCallReviewState(
       rawNumber: snapshot.rawNumber,
       countryIso: snapshot.countryIso,
       knownUserId: snapshot.knownUserId,
+      identifier: snapshot.identifier,
       checking: true,
       revision: snapshot.revision + 1,
     );
     final revision = state.revision;
     try {
-      final result = await ref
-          .read(voipCallingRepositoryProvider)
-          .resolveFreeCallRecipient(
-            phone: snapshot.knownUserId == null ? phone : null,
-            userId: snapshot.knownUserId,
-          )
-          .timeout(const Duration(seconds: 15));
+      final repository = ref.read(voipCallingRepositoryProvider);
+      final result =
+          await (snapshot.identifier != null
+                  ? repository.resolveIdentifier(snapshot.identifier!)
+                  : repository.resolveFreeCallRecipient(
+                      phone: snapshot.knownUserId == null ? phone : null,
+                      userId: snapshot.knownUserId,
+                    ))
+              .timeout(const Duration(seconds: 15));
       if (!_current(epoch, caller)) return;
       final safe = result.recipient?.userId == caller
           ? const FreeRecipientResolution(FreeRecipientStatus.self)
@@ -123,6 +135,7 @@ class FreeCallReviewController extends Notifier<FreeCallReviewState> {
         rawNumber: snapshot.rawNumber,
         countryIso: snapshot.countryIso,
         knownUserId: snapshot.knownUserId,
+        identifier: snapshot.identifier,
         resolution: safe,
         revision: revision,
       );
@@ -132,6 +145,7 @@ class FreeCallReviewController extends Notifier<FreeCallReviewState> {
         rawNumber: snapshot.rawNumber,
         countryIso: snapshot.countryIso,
         knownUserId: snapshot.knownUserId,
+        identifier: snapshot.identifier,
         failed: true,
         revision: revision,
       );

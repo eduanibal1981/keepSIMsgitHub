@@ -9,6 +9,7 @@ import 'package:keep_sims/core/supabase_client.dart';
 import 'package:keep_sims/features/voip_calling/data/models/ice_server_model.dart';
 import 'package:keep_sims/features/voip_calling/data/models/voip_call_session_model.dart';
 import 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
+import 'package:keep_sims/features/voip_calling/domain/free_call_identity.dart';
 export 'package:keep_sims/features/voip_calling/domain/free_call_recipient.dart';
 
 final voipCallingRepositoryProvider = Provider<VoipCallingRepository>((ref) {
@@ -79,6 +80,41 @@ class VoipCallingRepository {
   /// Returns null if not found, or throws if a network/service error occurs.
   Future<ContactLookupResult?> lookupContactByPhone(String phone) async {
     return (await resolveFreeCallRecipient(phone: phone)).recipient;
+  }
+
+  Future<FreeCallIdentity> getIdentity() async => FreeCallIdentity.fromJson(
+    Map<String, dynamic>.from(await _supabase.rpc('get_free_call_identity')),
+  );
+
+  Future<void> setDiscovery({required bool byId, required bool byEmail}) async {
+    await _supabase.rpc(
+      'set_free_call_discovery',
+      params: {'p_by_id': byId, 'p_by_email': byEmail},
+    );
+  }
+
+  Future<void> setPhoneDiscovery(String phone, bool enabled) async {
+    await _supabase.rpc(
+      'set_free_call_phone_discovery',
+      params: {'p_phone': phone, 'p_enabled': enabled},
+    );
+  }
+
+  Future<void> setBlocked(String userId, bool blocked) async {
+    await _supabase.rpc(
+      'set_free_call_block',
+      params: {'p_user_id': userId, 'p_blocked': blocked},
+    );
+  }
+
+  Future<FreeRecipientResolution> resolveIdentifier(
+    FreeCallIdentifier identifier,
+  ) async {
+    final res = await _supabase.rpc(
+      'resolve_free_call_identity',
+      params: {'p_type': identifier.type.name, 'p_value': identifier.value},
+    );
+    return FreeRecipientResolution.parse(res);
   }
 
   Future<FreeRecipientResolution> resolveFreeCallRecipient({
@@ -335,7 +371,7 @@ class VoipCallingRepository {
   Future<List<VoipCallSession>> getCallHistory({int limit = 50}) async {
     try {
       final res = await _supabase.rpc(
-        'get_voip_call_history',
+        'get_free_call_history',
         params: {'p_limit': limit},
       );
 

@@ -1926,5 +1926,26 @@
             }
         }
     },
-    "snRenewalReview": "Renewal settings need review before automatic billing can begin."
+    "snRenewalReview": "Renewal settings need review before automatic billing can begin.",
+    "freeCallSearchHint": "Name, phone number, email or KeepSIMs ID",
+    "freeCallSearchShort": "Name or calling identity",
+    "freeCallSearch": "Search",
+    "freeCallCompleteIdentifier": "Enter a complete KeepSIMs ID, international phone number or email. Names filter Recent only.",
+    "freeCallMyId": "My KeepSIMs ID",
+    "freeCallCopyId": "Copy KeepSIMs ID",
+    "freeCallShareId": "Share KeepSIMs ID",
+    "freeCallIdCopied": "KeepSIMs ID copied",
+    "freeCallPrivacy": "Free Call privacy",
+    "freeCallIdDiscovery": "Find me by KeepSIMs ID",
+    "freeCallEmailDiscovery": "Find me by verified email",
+    "freeCallEmailConsent": "Only people who enter your complete verified sign-in email can find you.",
+    "freeCallPhoneConsent": "Choose the verified numbers people may use to find you. Managed SIMs are never enrolled automatically.",
+    "freeCallNoVerifiedPhones": "No verified calling numbers. Verify a number in Caller ID settings to add one.",
+    "freeCallVerifyPhone": "Verify a calling number",
+    "freeCallPrivacyError": "Could not update privacy. Try again.",
+    "freeCallIdentityRetry": "Retry KeepSIMs ID",
+    "freeCallNoRecentMatches": "No matching recent calls",
+    "freeCallUnblock": "Unblock",
+    "freeCallBlockedAccounts": "Blocked accounts",
+    "freeCallIdMeaning": "Your ID is a public calling alias. Its country prefix does not verify residence or identity."
 }

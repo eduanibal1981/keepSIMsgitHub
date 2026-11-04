@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -3413,4 +3414,73 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get snRenewalReview =>
       'يجب مراجعة إعدادات التجديد قبل بدء الفوترة التلقائية.';
+
+  @override
+  String get freeCallSearchHint =>
+      'الاسم أو الهاتف أو البريد أو معرّف KeepSIMs';
+
+  @override
+  String get freeCallSearchShort => 'الاسم أو معرّف الاتصال';
+
+  @override
+  String get freeCallSearch => 'بحث';
+
+  @override
+  String get freeCallCompleteIdentifier =>
+      'أدخل معرّف KeepSIMs كاملاً أو رقماً دولياً أو بريداً إلكترونياً. الأسماء تصفّي سجل الأخيرة فقط.';
+
+  @override
+  String get freeCallMyId => 'معرّف KeepSIMs الخاص بي';
+
+  @override
+  String get freeCallCopyId => 'نسخ معرّف KeepSIMs';
+
+  @override
+  String get freeCallShareId => 'مشاركة معرّف KeepSIMs';
+
+  @override
+  String get freeCallIdCopied => 'تم نسخ معرّف KeepSIMs';
+
+  @override
+  String get freeCallPrivacy => 'خصوصية الاتصال المجاني';
+
+  @override
+  String get freeCallIdDiscovery => 'العثور عليّ بمعرّف KeepSIMs';
+
+  @override
+  String get freeCallEmailDiscovery => 'العثور عليّ بالبريد المؤكّد';
+
+  @override
+  String get freeCallEmailConsent =>
+      'يمكن العثور عليك فقط بإدخال بريد تسجيل الدخول المؤكّد كاملاً.';
+
+  @override
+  String get freeCallPhoneConsent =>
+      'اختر الأرقام المؤكّدة التي تسمح بالعثور عليك بها. لا تُضاف الشرائح المُدارة تلقائياً.';
+
+  @override
+  String get freeCallNoVerifiedPhones =>
+      'لا توجد أرقام اتصال مؤكّدة. أكّد رقماً في إعدادات معرّف المتصل لإضافته.';
+
+  @override
+  String get freeCallVerifyPhone => 'تأكيد رقم اتصال';
+
+  @override
+  String get freeCallPrivacyError => 'تعذر تحديث الخصوصية. حاول مجدداً.';
+
+  @override
+  String get freeCallIdentityRetry => 'إعادة تحميل معرّف KeepSIMs';
+
+  @override
+  String get freeCallNoRecentMatches => 'لا توجد مكالمات حديثة مطابقة';
+
+  @override
+  String get freeCallUnblock => 'إلغاء الحظر';
+
+  @override
+  String get freeCallBlockedAccounts => 'الحسابات المحظورة';
+
+  @override
+  String get freeCallIdMeaning =>
+      'معرّفك اسم عام للاتصال. رمز البلد لا يثبت الإقامة أو الهوية.';
 }

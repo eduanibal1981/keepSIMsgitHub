@@ -72,7 +72,7 @@ void main() {
       );
 
       // Verify search bar
-      expect(find.text('Enter a number'), findsOneWidget);
+      expect(find.text('Name, phone number, email or KeepSIMs ID'), findsOneWidget);
 
       // Verify invite link banner
       expect(find.text('Share Free Call Link'), findsNothing);

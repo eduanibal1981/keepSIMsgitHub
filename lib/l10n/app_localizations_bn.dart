@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -3443,4 +3444,72 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get snRenewalReview =>
       'Renewal settings need review before automatic billing can begin.';
+
+  @override
+  String get freeCallSearchHint => 'Name, phone number, email or KeepSIMs ID';
+
+  @override
+  String get freeCallSearchShort => 'Name or calling identity';
+
+  @override
+  String get freeCallSearch => 'Search';
+
+  @override
+  String get freeCallCompleteIdentifier =>
+      'Enter a complete KeepSIMs ID, international phone number or email. Names filter Recent only.';
+
+  @override
+  String get freeCallMyId => 'My KeepSIMs ID';
+
+  @override
+  String get freeCallCopyId => 'Copy KeepSIMs ID';
+
+  @override
+  String get freeCallShareId => 'Share KeepSIMs ID';
+
+  @override
+  String get freeCallIdCopied => 'KeepSIMs ID copied';
+
+  @override
+  String get freeCallPrivacy => 'Free Call privacy';
+
+  @override
+  String get freeCallIdDiscovery => 'Find me by KeepSIMs ID';
+
+  @override
+  String get freeCallEmailDiscovery => 'Find me by verified email';
+
+  @override
+  String get freeCallEmailConsent =>
+      'Only people who enter your complete verified sign-in email can find you.';
+
+  @override
+  String get freeCallPhoneConsent =>
+      'Choose the verified numbers people may use to find you. Managed SIMs are never enrolled automatically.';
+
+  @override
+  String get freeCallNoVerifiedPhones =>
+      'No verified calling numbers. Verify a number in Caller ID settings to add one.';
+
+  @override
+  String get freeCallVerifyPhone => 'Verify a calling number';
+
+  @override
+  String get freeCallPrivacyError => 'Could not update privacy. Try again.';
+
+  @override
+  String get freeCallIdentityRetry => 'Retry KeepSIMs ID';
+
+  @override
+  String get freeCallNoRecentMatches => 'No matching recent calls';
+
+  @override
+  String get freeCallUnblock => 'Unblock';
+
+  @override
+  String get freeCallBlockedAccounts => 'Blocked accounts';
+
+  @override
+  String get freeCallIdMeaning =>
+      'Your ID is a public calling alias. Its country prefix does not verify residence or identity.';
 }
