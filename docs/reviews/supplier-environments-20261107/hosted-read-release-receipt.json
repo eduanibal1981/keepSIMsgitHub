@@ -1,0 +1,350 @@
+{
+  "approved_scope": "Three additive read/catalogue migrations only",
+  "captured_at": "2026-11-07",
+  "financial_contracts_unchanged": true,
+  "before": {
+    "history": null,
+    "read_functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "8491efb4e157051d4d3076322659f55f",
+        "args": "",
+        "name": "admin_list_carrier_offer_counts",
+        "owner": "postgres",
+        "result": "TABLE(carrier_id uuid, available_offer_count bigint, available_provider_count bigint, premium_available boolean, premium_unavailable_reason text, evaluated_at timestamp with time zone, valid_until timestamp with time zone, provider_breakdown jsonb, catalogue_offer_count bigint, test_offer_count bigint, catalogue_provider_count bigint)"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "b13c2d7639f03fcc0440cb6680b537b5",
+        "args": "p_country_id uuid, p_carrier_id uuid",
+        "name": "get_carrier_offer_counts",
+        "owner": "postgres",
+        "result": "TABLE(carrier_id uuid, available_offer_count bigint, available_provider_count bigint, premium_available boolean, premium_unavailable_reason text, evaluated_at timestamp with time zone, valid_until timestamp with time zone, catalogue_offer_count bigint, test_offer_count bigint, catalogue_provider_count bigint)"
+      }
+    ],
+    "unexpected_objects": {
+      "fee_helper": null,
+      "catalogue_shelves": null,
+      "environment_helper": null
+    },
+    "financial_functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "bd345e3df40bb2a4a1e32e7c36ac22ee",
+        "args": "p_quote_id uuid, p_expected_amount numeric",
+        "name": "approve_refill_execution_quote",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "94e9aa0be146e0a10b89a1a0b9027d88",
+        "args": "p_order_id uuid, p_provider_tx_id text",
+        "name": "capture_sim_setup_holds",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "91f7f88c75b0f25d55bb7a3e792a5f72",
+        "args": "p_hold_id uuid, p_txn_type text, p_description text, p_metadata jsonb",
+        "name": "capture_wallet_hold",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "ad1590773eff9de011eeb255efac6f30",
+        "args": "p_hold_id uuid, p_reason text",
+        "name": "release_wallet_hold",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "2f662e738819a15f4ddb263644aec245",
+        "args": "p_sim_line_id uuid, p_offer_id text, p_payment_gateway_code text, p_amount_usd numeric, p_device_id text",
+        "name": "request_instant_refill",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "3e1ff70f5773e20043e5b91a2ebd4845",
+        "args": "p_sim_line_id uuid, p_offer_id text, p_max_authorized_usd numeric, p_offer_value numeric, p_device_id text",
+        "name": "request_retail_instant_refill",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "75aaad1ad02b099728c55fb55619819d",
+        "args": "p_user_id uuid, p_amount numeric, p_order_type text, p_order_reference_id text, p_reason text, p_ttl_minutes integer",
+        "name": "reserve_wallet_funds",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "a943dc2e506c52e245b759143a6d4186",
+        "args": "p_execution_id uuid",
+        "name": "service_begin_dtone_submission",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "b3593075dd585ca01b8a092a81129fc0",
+        "args": "p_execution_id uuid, p_provider_tx_id text, p_status_id integer, p_pin_code text, p_pin_serial text, p_instructions text",
+        "name": "service_resolve_dtone_operation",
+        "owner": "postgres"
+      }
+    ]
+  },
+  "after": {
+    "history": [
+      {
+        "name": "carrier_offer_counts_batched",
+        "version": "20261107025020"
+      },
+      {
+        "name": "airtime_supplier_environment_catalogues",
+        "version": "20261107025031"
+      },
+      {
+        "name": "carrier_country_counts_batched",
+        "version": "20261107025043"
+      }
+    ],
+    "private_tables": [
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres"
+        ],
+        "rls": true,
+        "name": "airtime_catalogue_jobs"
+      },
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres"
+        ],
+        "rls": true,
+        "name": "airtime_catalogue_snapshots"
+      }
+    ],
+    "read_functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "cd61083dc502f006663cebe506c66638",
+        "args": "p_carrier_id uuid",
+        "name": "admin_airtime_catalogues",
+        "owner": "postgres",
+        "body_md5": "85029346e0cb13e5958d6b669365be7e"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "c2aaf724bf2445fe46e69a47d98dcbb6",
+        "args": "",
+        "name": "admin_list_carrier_offer_counts",
+        "owner": "postgres",
+        "body_md5": "33ae2df4d7899837a34819eb75708358"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "c1d2e0f7fadb5f36e03b99a3d1aea40e",
+        "args": "p_carrier_id uuid, p_provider text, p_environment text",
+        "name": "admin_request_airtime_catalogue",
+        "owner": "postgres",
+        "body_md5": "7c9fb64649413cb22ee6126560304bf6"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "f1a1c39be95a03c7e17187468a52e4aa",
+        "args": "p_country_id uuid, p_carrier_id uuid",
+        "name": "get_carrier_offer_counts",
+        "owner": "postgres",
+        "body_md5": "303c57a1c2f72e260d8dc4ac8ac2593d"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "d0509c1bb707d08b34d26610bb00a1d5",
+        "args": "p_enqueue_due boolean",
+        "name": "service_claim_airtime_catalogue_job",
+        "owner": "postgres",
+        "body_md5": "a7369ff685a103b2e3f384d2dc15b892"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "e2a780045a2ad02ece4e14aa3b7b3b25",
+        "args": "p_id uuid, p_lease uuid, p_offers jsonb",
+        "name": "service_finish_airtime_catalogue_job",
+        "owner": "postgres",
+        "body_md5": "88fece389518d1be2c1711fa128b182e"
+      }
+    ],
+    "financial_functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "bd345e3df40bb2a4a1e32e7c36ac22ee",
+        "args": "p_quote_id uuid, p_expected_amount numeric",
+        "name": "approve_refill_execution_quote",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "94e9aa0be146e0a10b89a1a0b9027d88",
+        "args": "p_order_id uuid, p_provider_tx_id text",
+        "name": "capture_sim_setup_holds",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "91f7f88c75b0f25d55bb7a3e792a5f72",
+        "args": "p_hold_id uuid, p_txn_type text, p_description text, p_metadata jsonb",
+        "name": "capture_wallet_hold",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "ad1590773eff9de011eeb255efac6f30",
+        "args": "p_hold_id uuid, p_reason text",
+        "name": "release_wallet_hold",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "2f662e738819a15f4ddb263644aec245",
+        "args": "p_sim_line_id uuid, p_offer_id text, p_payment_gateway_code text, p_amount_usd numeric, p_device_id text",
+        "name": "request_instant_refill",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "md5": "3e1ff70f5773e20043e5b91a2ebd4845",
+        "args": "p_sim_line_id uuid, p_offer_id text, p_max_authorized_usd numeric, p_offer_value numeric, p_device_id text",
+        "name": "request_retail_instant_refill",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "75aaad1ad02b099728c55fb55619819d",
+        "args": "p_user_id uuid, p_amount numeric, p_order_type text, p_order_reference_id text, p_reason text, p_ttl_minutes integer",
+        "name": "reserve_wallet_funds",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "a943dc2e506c52e245b759143a6d4186",
+        "args": "p_execution_id uuid",
+        "name": "service_begin_dtone_submission",
+        "owner": "postgres"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "md5": "b3593075dd585ca01b8a092a81129fc0",
+        "args": "p_execution_id uuid, p_provider_tx_id text, p_status_id integer, p_pin_code text, p_pin_serial text, p_instructions text",
+        "name": "service_resolve_dtone_operation",
+        "owner": "postgres"
+      }
+    ],
+    "execution_gate_deployed": false
+  },
+  "local_body_matches": {
+    "admin_airtime_catalogues": true,
+    "admin_list_carrier_offer_counts": true,
+    "admin_request_airtime_catalogue": true,
+    "get_carrier_offer_counts": true,
+    "service_claim_airtime_catalogue_job": true,
+    "service_finish_airtime_catalogue_job": true
+  },
+  "http_after_summary": {
+    "admin_inventory": {
+      "sample_size": 10,
+      "success_count": 10,
+      "timeout_count": 0,
+      "p95_success_seconds": 1.0359
+    },
+    "customer_uae": {
+      "sample_size": 20,
+      "success_count": 20,
+      "timeout_count": 0,
+      "p95_success_seconds": 1.4109
+    }
+  }
+}

@@ -1,0 +1,190 @@
+[
+  {
+    "country": "AE",
+    "carrier": "Etisalat (e&)",
+    "admin_customer_parity": true,
+    "counts": {
+      "available_offer_count": 5,
+      "available_provider_count": 1,
+      "premium_available": true,
+      "premium_unavailable_reason": null,
+      "catalogue_offer_count": 40,
+      "test_offer_count": 35,
+      "catalogue_provider_count": 3
+    },
+    "provider_breakdown": {
+      "ding": {
+        "test_offer_count": 0,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 0,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 0
+      },
+      "dtone": {
+        "test_offer_count": 16,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 16,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 16,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 16
+      },
+      "zendit": {
+        "test_offer_count": 0,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 5,
+        "catalogue_offer_count": 5,
+        "production_offer_count": 5,
+        "preproduction_offer_count": 0
+      },
+      "reloadly": {
+        "test_offer_count": 19,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 19,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 19,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 0
+      }
+    },
+    "shelves": [
+      {
+        "provider": "dtone",
+        "environment": "preproduction",
+        "state": "ready",
+        "credential_version": 1,
+        "offer_count": 16,
+        "refreshed_at": "2026-11-07T02:47:42.431055+00:00"
+      },
+      {
+        "provider": "dtone",
+        "environment": "production",
+        "state": "missing_credentials",
+        "credential_version": null,
+        "offer_count": null,
+        "refreshed_at": null
+      },
+      {
+        "provider": "reloadly",
+        "environment": "live",
+        "state": "missing_credentials",
+        "credential_version": null,
+        "offer_count": null,
+        "refreshed_at": null
+      },
+      {
+        "provider": "reloadly",
+        "environment": "sandbox",
+        "state": "not_fetched",
+        "credential_version": 2,
+        "offer_count": null,
+        "refreshed_at": null
+      }
+    ]
+  },
+  {
+    "country": "EG",
+    "carrier": "Vodafone Egypt",
+    "admin_customer_parity": true,
+    "counts": {
+      "available_offer_count": 10,
+      "available_provider_count": 1,
+      "premium_available": true,
+      "premium_unavailable_reason": null,
+      "catalogue_offer_count": 34,
+      "test_offer_count": 24,
+      "catalogue_provider_count": 3
+    },
+    "provider_breakdown": {
+      "ding": {
+        "test_offer_count": 0,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 0,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 0
+      },
+      "dtone": {
+        "test_offer_count": 23,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 23,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 23,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 23
+      },
+      "zendit": {
+        "test_offer_count": 0,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 0,
+        "available_offer_count": 10,
+        "catalogue_offer_count": 10,
+        "production_offer_count": 10,
+        "preproduction_offer_count": 0
+      },
+      "reloadly": {
+        "test_offer_count": 1,
+        "stale_offer_count": 0,
+        "pending_offer_count": 0,
+        "preview_offer_count": 0,
+        "sandbox_offer_count": 1,
+        "available_offer_count": 0,
+        "catalogue_offer_count": 1,
+        "production_offer_count": 0,
+        "preproduction_offer_count": 0
+      }
+    },
+    "shelves": [
+      {
+        "provider": "dtone",
+        "environment": "preproduction",
+        "state": "ready",
+        "credential_version": 1,
+        "offer_count": 23,
+        "refreshed_at": "2026-11-07T02:49:39.225878+00:00"
+      },
+      {
+        "provider": "dtone",
+        "environment": "production",
+        "state": "missing_credentials",
+        "credential_version": null,
+        "offer_count": null,
+        "refreshed_at": null
+      },
+      {
+        "provider": "reloadly",
+        "environment": "live",
+        "state": "missing_credentials",
+        "credential_version": null,
+        "offer_count": null,
+        "refreshed_at": null
+      },
+      {
+        "provider": "reloadly",
+        "environment": "sandbox",
+        "state": "not_fetched",
+        "credential_version": 2,
+        "offer_count": null,
+        "refreshed_at": null
+      }
+    ]
+  }
+]
