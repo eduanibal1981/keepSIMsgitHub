@@ -1,0 +1,80 @@
+{
+  "processes": [
+    {
+      "name": "server_baileys",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/server_baileys.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker_instant_refill",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_instant_refill.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker_auto_mini_refill",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_auto_mini_refill.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker_auto_custom_refill",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_auto_custom_refill.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker_offers_cache",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_offers_cache.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker-esim-catalog",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_esim_catalog.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker-esim-fulfillment",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_esim_fulfillment.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "server_tg",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/server_tg.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    },
+    {
+      "name": "worker_dtone_control",
+      "status": "online",
+      "script": "/home/abdal/keepsims_backend/servers/worker_dtone_control.js",
+      "catalogue_gate": null,
+      "execution_gate": null
+    }
+  ],
+  "sha256": {
+    "worker_instant_refill.js": "da95ce7279117c4f9f719c17cb74d25e5b1fb3099a037f4c8d941444618b540d",
+    "worker_auto_mini_refill.js": "e68423de0dd7e23ada74a4e2b65e8bf65ef90e9c31ee42405c1f4c0ce9082b5c",
+    "worker_auto_custom_refill.js": "02b91a064abcd3c79809c69c03d0f69f707f9f26f2bc862f586c3c4f14a3c29a",
+    "worker_offers_cache.js": "767678d1b3c945a21f673a79a8e6ae9b85895d25e184bd6377caa8441a20e2a8",
+    "worker_dtone_control.js": "a0f11d1bab0911ad9f28b54134fd5be3b21dd5f71a6b1ba1e3fbd23b739749ad",
+    "providers/dtone.js": "6b26e8a7bbe9f1c186f3724bc0f309f6e35646c05e80764adb29aa9d9604d2b7",
+    "providers/dtone_credentials.js": "478550aaf35f5a6f10d7594ad7348a73edb352d8d07c991ee38ce060b8209282",
+    "providers/reloadly.js": "8ac7ca8f776cc31b1cc0415f0a55a73f9d4799693b73e952e8a4bd5ad67ccb5b",
+    "providers/reloadly_credentials.js": "5462e75b70b31a5bacbb77ee3e209cd9d4e7698ecc7215ce23174c5fef17402c",
+    "offer_validation.js": "9812f3c15d27168eba24db1427c3fb79bb9fc319bce08869d13eed142adf8bea"
+  },
+  "reconciliation_present": false
+}

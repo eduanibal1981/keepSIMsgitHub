@@ -1,0 +1,17 @@
+[
+  {
+    "migration": "20261107011332_carrier_offer_counts_batched.sql",
+    "sha256": "b96a0987c37028d0d6412da93b4ac336f5b4b8641b570f35583f6fc307c3e6a8",
+    "bytes": 9168
+  },
+  {
+    "migration": "20261107011530_airtime_supplier_environment_catalogues.sql",
+    "sha256": "47d8b29c6b39f6319e565f2e27d9500f66c42546ecafb443c59e10af270e8291",
+    "bytes": 13761
+  },
+  {
+    "migration": "20261107024421_carrier_country_counts_batched.sql",
+    "sha256": "5e08d8f64973ed475b332ab82f2591d74bcc3dd513c13f1dc74e5ebc12fee58b",
+    "bytes": 22754
+  }
+]

@@ -1,0 +1,1563 @@
+{
+  "captured_at": "2026-11-07",
+  "project_ref": "zwxswagokhgbuzrrbnhr",
+  "functions": [
+    {
+      "schema": "public",
+      "name": "update_execution_failed",
+      "arguments": "p_id uuid, p_reason text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "8c2035bbc81a00c52c4473fc8ac0f0988d8ec82b47d1af3592f8c77b5861be52"
+    },
+    {
+      "schema": "public",
+      "name": "trg_fn_household_cap_requires_manager",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2e984ed984da59ce276ac9868976dc0324130a85cc242fafdae0c588b6a7b281"
+    },
+    {
+      "schema": "public",
+      "name": "service_record_dtone_callback",
+      "arguments": "p_execution_id uuid, p_status_code integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "f7479811f85670ae735598e1855f291a910c5e87766fb17445af941c559eac7a"
+    },
+    {
+      "schema": "public",
+      "name": "create_sim_setup_order",
+      "arguments": "p_phone_number text, p_plan text, p_carrier_rule_id uuid, p_country_code text, p_carrier_code text, p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "cd25b02836ebabeed3779f2fe2e8a2b980beea9768c91178262a456204a1f792"
+    },
+    {
+      "schema": "public",
+      "name": "get_authoritative_refill_quote",
+      "arguments": "p_sim_line_id uuid, p_target_value numeric, p_target_currency text, p_offer_id text, p_preferred_provider text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "6be1681acb373632a13db461c8f4e9f64e49bd621e710875188ac71afdd31dfb"
+    },
+    {
+      "schema": "public",
+      "name": "finalize_sim_setup_order",
+      "arguments": "p_order_id uuid, p_provider_tx_id text",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "18d0e3a359f4b409d6d0ea3ca8193d0dce9a8512b3e7eeba9501b7b2e0b2cb48"
+    },
+    {
+      "schema": "public",
+      "name": "retry_topup_execution",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "26c5ac820413d431749268df8aa62630064d4cd4eb8cc7bb2bb05f68ad719fc2"
+    },
+    {
+      "schema": "public",
+      "name": "trg_fn_cancel_executions_on_schedule_delete",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a146daf96e7c552614b18d3de880f83a92ab37d1ef1e5623be174e98f906e0fe"
+    },
+    {
+      "schema": "public",
+      "name": "cancel_topup_execution",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "30b0801d671825459a66e05fc003999298616a39c6c217d71a174b6d7da5dbce"
+    },
+    {
+      "schema": "public",
+      "name": "refills_per_year",
+      "arguments": "p_inactivity_limit_days integer, p_override integer",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "4d5dc61dd7e4853da24f22cf74e4dc8670daa35a8bdb1ecdc06625d5c844d8ae"
+    },
+    {
+      "schema": "public",
+      "name": "refill_interval_days",
+      "arguments": "p_inactivity_limit_days integer, p_override integer",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "346293c861cb1ece5b91d8e9efcd9778f1f4d8aedb02b421e5d60716dd629d53"
+    },
+    {
+      "schema": "public",
+      "name": "ingest_offline_refill",
+      "arguments": "p_provider text, p_provider_msg_id text, p_sender_phone text, p_channel text, p_amount_usd numeric, p_raw jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "448d567b78616862b3767068728830e1d3ec4a118493906a495093f322882865"
+    },
+    {
+      "schema": "public",
+      "name": "capture_sim_setup_holds",
+      "arguments": "p_order_id uuid, p_provider_tx_id text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "c2adfd9f667793d82a84e13d17b3384d1e6b25fa209d036aea88b00f42c3b8a4"
+    },
+    {
+      "schema": "public",
+      "name": "trg_fn_supplier_failover",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "ebafcc2816d281e4434af0389f78b6724f8f494723e08ea54b85c7d0694f3e36"
+    },
+    {
+      "schema": "public",
+      "name": "update_execution_status",
+      "arguments": "p_id uuid, p_status text, p_reloadly_transaction_id text, p_pin_code text, p_pin_serial text, p_redeem_instructions text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "fb313566e3f53dfa2ad56ace81b98e205833e31218ae546ac7a17aac1ddf65b9"
+    },
+    {
+      "schema": "public",
+      "name": "approve_refill_execution",
+      "arguments": "p_execution_id uuid, p_new_max_authorized_usd numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "6c6e72d1e55ed203795467b0d5f507169c1205439b7e80c1011cd7d114632fdd"
+    },
+    {
+      "schema": "public",
+      "name": "service_enqueue_dtone_lookup",
+      "arguments": "p_phone text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "7af2db9d529bc15cf321c50a2fa66c12f4beee010fc00069699b3aa087eaba76"
+    },
+    {
+      "schema": "public",
+      "name": "service_complete_dtone_reconciliation",
+      "arguments": "p_execution_id uuid, p_lease uuid, p_provider_tx_id text, p_status_id integer, p_pin_code text, p_pin_serial text, p_instructions text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "ca7f5f928cd5ae70fffad0462580ed64a8b93c10a87c2d7428dab2a9ff51044f"
+    },
+    {
+      "schema": "public",
+      "name": "resume_awaiting_funds_executions",
+      "arguments": "p_user_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "bede42ed629f59a585b484be171474a9c95b7c4a2670376bf7e2b6a28a57788e"
+    },
+    {
+      "schema": "public",
+      "name": "claim_due_executions",
+      "arguments": "p_execution_type character varying, p_limit integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "58757b813efb9da71c993d3af27d6333eb265b48ea46416b560c6e78bb3d9832"
+    },
+    {
+      "schema": "public",
+      "name": "update_execution_status",
+      "arguments": "p_id uuid, p_status text, p_reloadly_transaction_id text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "643d7fc594022588ddbe9942ba1270e6e7251934e2c9a7f43e88d6aa1c2905b5"
+    },
+    {
+      "schema": "public",
+      "name": "reap_stuck_executions",
+      "arguments": "p_stuck_after_minutes integer, p_max_retries integer",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "fd062cba6e7e462ca97e3e73ee9491484cd1f29adcb234f666db231157dde500"
+    },
+    {
+      "schema": "public",
+      "name": "handle_new_household_member",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d8123d259a5135489027becc18c3a90e4781dabecbec8819822b1b0adcd55b2d"
+    },
+    {
+      "schema": "public",
+      "name": "resolve_pending_household_invites",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d99deac2b9d79a0f9c8fe89ff1c5a7aa3914accd7e331caa74340cd6a17bbec7"
+    },
+    {
+      "schema": "public",
+      "name": "claim_instant_executions",
+      "arguments": "p_execution_type text, p_limit integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "43bf1bcabe8448d51572c83bb40538f85dfcc58e107c4037d9074276ec01a8de"
+    },
+    {
+      "schema": "public",
+      "name": "trg_fn_household_member_id_matches_email",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a953d025e32b2b3ae362a91759703c6c4b771706c07e2d18bcb893645e539f86"
+    },
+    {
+      "schema": "public",
+      "name": "check_refill_pipeline_health",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "f99a6ef208b29a17109f0f0620458bb736466c7b4cc76de4144790aba467c6d9"
+    },
+    {
+      "schema": "public",
+      "name": "selected_refill_quote_internal",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_offer_value numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2baa29e1e0a7fb97aed7650118af32fffa8e1642abaeb84f8e8ab929c0f028d1"
+    },
+    {
+      "schema": "public",
+      "name": "reschedule_mini_refill",
+      "arguments": "p_sim_line_id uuid, p_new_date timestamp with time zone",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "863623d27e910f104e6330e72b8a0f97a8724bf1e8e12a5b9561b34f6e375418"
+    },
+    {
+      "schema": "public",
+      "name": "reset_mini_refill_to_default",
+      "arguments": "p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "45dee55ac1276850d5a7ecf3f4f04fe4520865ff44102450574bc03dd937fe04"
+    },
+    {
+      "schema": "public",
+      "name": "settle_line_verification_attempt",
+      "arguments": "p_attempt_id uuid, p_outcome text, p_carrier_name text, p_error_message text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "82dd013610ea608175ad4d82321599073228674dab408a7e6eebcc3dbffcf641"
+    },
+    {
+      "schema": "public",
+      "name": "get_customer_refill_quote",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_offer_value numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "61cb6dc59090d5e8b9d20e85f7a30205868ef7fee49faa06083a40c0fb6ca5cf"
+    },
+    {
+      "schema": "public",
+      "name": "update_mini_refill_dates",
+      "arguments": "p_sim_line_id uuid, p_updates jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "9d0da7776074aa43aec68b92974940ca64fba77bc48ace59734e6dde30981a93"
+    },
+    {
+      "schema": "public",
+      "name": "queue_premium_refill_executions",
+      "arguments": "p_sim_line_id uuid, p_scheduled_topup_id uuid, p_plan_expires_at timestamp with time zone, p_start_at timestamp with time zone",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "e76080e46def1a6a3e1452241a3619e77db215a5dbff3ae82ef739c51758058d"
+    },
+    {
+      "schema": "public",
+      "name": "release_sim_setup_holds",
+      "arguments": "p_order_id uuid, p_reason text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "1261812a8ba9fc1fd584d94d9a263ac9126342594f72393210a65287b4ac0433"
+    },
+    {
+      "schema": "public",
+      "name": "finalize_sim_setup_order",
+      "arguments": "p_order_id uuid, p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "4986e2a8265f9e92b121ab9a22a6a537f601f58379e36bd15263c9708fbd3ac9"
+    },
+    {
+      "schema": "public",
+      "name": "settle_offline_voucher",
+      "arguments": "p_grant_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "49dc98a9d22fe6739de986e4df4d9b7ac7b089d31af1bb679813154380c57ccc"
+    },
+    {
+      "schema": "public",
+      "name": "settle_call_wallet_hold",
+      "arguments": "p_hold_id uuid, p_actual_cost numeric, p_description text, p_metadata jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "567bb6c0f0d477564414e9588f1ef02fe2bce17bed4b094810e14eeb06b47704"
+    },
+    {
+      "schema": "public",
+      "name": "household_spend_mtd",
+      "arguments": "p_owner_id uuid, p_member_id uuid, p_exclude_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "45d43a3c1cfa2c85142626c335cd3ac4d48a1e3b1665db826facc634e592339c"
+    },
+    {
+      "schema": "public",
+      "name": "resolve_app_fee",
+      "arguments": "p_item text, p_tier text, p_base_amount numeric",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "675dbebc33bbb53d88c3f13cc2543368ef070b9933a49f5bf9421c1851d4bc5e"
+    },
+    {
+      "schema": "public",
+      "name": "resolve_line_entitlement",
+      "arguments": "p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "=X/postgres",
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "9dad7998c84758eace9d544a38ebcd2d9166894f09358ac22b5a6e684dd5d36a"
+    },
+    {
+      "schema": "public",
+      "name": "request_instant_refill",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_payment_gateway_code text, p_amount_usd numeric, p_device_id text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "282153ac878e1b235a9ab4a14a02ac15e1048134c403efc054932f5c53e962aa"
+    },
+    {
+      "schema": "public",
+      "name": "fallback_sim_setup_to_reminders",
+      "arguments": "p_order_id uuid, p_sim_line_id uuid, p_fallback_plan text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "57d5c9677e14ce284d090b862b40d267cc5028e9d412809122477c5ae58c37e5"
+    },
+    {
+      "schema": "public",
+      "name": "get_carrier_offer_availability",
+      "arguments": "p_country_id uuid, p_carrier_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "6ca0c9019250dbc9b0a7db050322b0c3da55ab6122dc0769fa7a9a5e3c6dd460"
+    },
+    {
+      "schema": "public",
+      "name": "admin_list_carrier_offer_availability",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "348d3dcfee8967d937c131e39c939272c2506f75b93f296e2280c801131d311b"
+    },
+    {
+      "schema": "public",
+      "name": "carrier_refill_offer",
+      "arguments": "p_carrier_id uuid, p_min_usd numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "59d44244d19db34f103ac786150c1b978e841fffab6f830bb4df54b86d18c916"
+    },
+    {
+      "schema": "public",
+      "name": "list_refill_offers",
+      "arguments": "p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "fa1a57e781af4605721e43273eb88bca617e8d003d5c16ae6495155d88e9806e"
+    },
+    {
+      "schema": "public",
+      "name": "household_spend_check",
+      "arguments": "p_owner_id uuid, p_member_id uuid, p_amount numeric, p_exclude_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "53e107f564a10963b31e73c56489c89405d44e9811a398cb4f9b8f34749d6dce"
+    },
+    {
+      "schema": "public",
+      "name": "resolve_household_payer",
+      "arguments": "p_actor_id uuid, p_line_owner_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "61c2fa342ec557b0eee598f999c0805c6be51caa719af90fdd8419d040fb1ab1"
+    },
+    {
+      "schema": "public",
+      "name": "reserve_sim_setup_holds",
+      "arguments": "p_order_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a6499e805eb956c01f34891890739cf8a104411b655470b50856f080a84fee79"
+    },
+    {
+      "schema": "public",
+      "name": "set_household_member_cap",
+      "arguments": "p_member_row_id uuid, p_monthly_cap_usd numeric, p_per_txn_cap_usd numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "1004cc64240ce234ff63c70f01e090340ba0b60d6be973e47a52dc6ee6c42352"
+    },
+    {
+      "schema": "public",
+      "name": "pay_available_plan_fee_from_wallet",
+      "arguments": "p_reference_id text, p_sim_line_id uuid, p_device_id text, p_plan text, p_carrier_rule_id uuid, p_expected_amount numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "59cdfaba4393ca03d8ab78814ca5de6341732e721b0b5f7d72b3193e2f3ff349"
+    },
+    {
+      "schema": "public",
+      "name": "household_spend_summary",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d14908f697bdb9ea3a9f3061a4cabc90354f139e283e7604b946b256cd20181c"
+    },
+    {
+      "schema": "public",
+      "name": "my_household_allowances",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "5b9af20bd0dfe4502d18c07e98093016194d058d4f45bfcaee023d3b99623cb4"
+    },
+    {
+      "schema": "public",
+      "name": "cancel_sim_setup_order",
+      "arguments": "p_order_id uuid, p_reason text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2fec6b9afa10f0d9707ed692266d0863596c14ad4f105cce1fb2c3d4da8ec6db"
+    },
+    {
+      "schema": "public",
+      "name": "get_carrier_offer_counts",
+      "arguments": "p_country_id uuid, p_carrier_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "0401b2b3553ced6da0d0981f827f0e3e1c03464d000c654f0f32f183186cd597"
+    },
+    {
+      "schema": "public",
+      "name": "assert_admin",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "807169a56a1e548ce2bc8665de40f4c6018cc376c3784964edd9c40da5f78861"
+    },
+    {
+      "schema": "public",
+      "name": "admin_complete_manual_refill",
+      "arguments": "p_execution_id uuid, p_note text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a3a07fb853b15013da8806b931665417e57e428090786ea98c56a804004b9a88"
+    },
+    {
+      "schema": "public",
+      "name": "admin_list_carrier_offer_counts",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "b1de333746e9b4ed7e1c755a43e8db3c668f69c4366920cea6fdfb4c9eedd7a2"
+    },
+    {
+      "schema": "public",
+      "name": "admin_fail_refill",
+      "arguments": "p_execution_id uuid, p_reason text, p_refund boolean",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d574073c33dfa13c22e8dce296ea26473cb32d0e3cfe05297f11f628774e857a"
+    },
+    {
+      "schema": "public",
+      "name": "quote_sim_setup",
+      "arguments": "p_phone_number text, p_plan text, p_carrier_rule_id uuid, p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "9d8dd3b05c5422f53aeb732397f5d18b67a47e83d9caa5a17ca7251c89558793"
+    },
+    {
+      "schema": "public",
+      "name": "admin_list_esim_suppliers",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "eac65434a835eb6d7e1f72cde11f8d3dd9930b86e789ab53e9565f65e94712d6"
+    },
+    {
+      "schema": "public",
+      "name": "admin_upsert_esim_supplier",
+      "arguments": "p_code text, p_patch jsonb, p_note text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "ed925519a2ec7f9c2f206c51d796b5e0d3de4814ff1ec0b56acad9ab38f18856"
+    },
+    {
+      "schema": "public",
+      "name": "release_wallet_hold",
+      "arguments": "p_hold_id uuid, p_reason text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "9fe4700367a19a6f70c9a2031b83a088afb66e09ba68a38b40b933489db713e3"
+    },
+    {
+      "schema": "public",
+      "name": "leave_household",
+      "arguments": "p_membership_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "923b4f9c80ff2d426a2e941040ed0b5e7af03b167667481ee2ce5619553bddb6"
+    },
+    {
+      "schema": "public",
+      "name": "claim_pending_household_invites",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "15c6cfa66e1442959be02da4522bcf690c36ad79cba32f080dfbf299205a39f4"
+    },
+    {
+      "schema": "public",
+      "name": "invite_household_member",
+      "arguments": "p_email text, p_role text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "5e19cc5d04802c9c8eb8b6f684a2f81b2659ae1bb172b371234a3f3d7149ba21"
+    },
+    {
+      "schema": "public",
+      "name": "respond_to_household_invite",
+      "arguments": "p_invite_id uuid, p_accept boolean",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2c560f9632d968f3da2c2eda70606eba4fff87c0366c856edcc946e53a448bd8"
+    },
+    {
+      "schema": "public",
+      "name": "pick_best_refill_offer",
+      "arguments": "p_sim_line_id uuid, p_target_usd numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0fab1e096749ef28c06d61899aaddb09abde87ad0526266aa91e596c7bad142b"
+    },
+    {
+      "schema": "public",
+      "name": "script_claim_next_execution",
+      "arguments": "p_runner_id text, p_max integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d23d0649cbe9266e98378476d38af8993f6acae9ac68ba1c9a84869f30a247ba"
+    },
+    {
+      "schema": "public",
+      "name": "request_refill_approval_quote",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "47da311f44117f715d26ae30fc89bc668180959507e18be3719b8f7a0e91583e"
+    },
+    {
+      "schema": "public",
+      "name": "claim_refill_approval_quotes",
+      "arguments": "p_execution_type text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "6767340678d973fd5600376433e497d1fc89461fdb1f12dfa7d51004a8b6800e"
+    },
+    {
+      "schema": "public",
+      "name": "admin_upsert_refill_script",
+      "arguments": "p_id uuid, p_patch jsonb, p_note text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "bf118b4df791c90e49b80de3c3e1b580ec8d87d23a62d3e74021d6d33ac174f0"
+    },
+    {
+      "schema": "public",
+      "name": "script_complete_execution",
+      "arguments": "p_execution_id uuid, p_success boolean, p_provider_ref text, p_note text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "1e768c4d93905957727a35730a666b9dd3e35dbb810f9490f7f23894954d13e2"
+    },
+    {
+      "schema": "public",
+      "name": "supplier_effective_cost",
+      "arguments": "p_provider text, p_base numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0fcafc75d692d2ad52ec4dae4cbf6f49a6f9a36ba224c4a09c7dce858a085858"
+    },
+    {
+      "schema": "public",
+      "name": "approve_refill_execution_quote",
+      "arguments": "p_quote_id uuid, p_expected_amount numeric",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2ba51cb83eb7382541542eaa21d2c11f277536a6697785e9591189b3a7c299bb"
+    },
+    {
+      "schema": "public",
+      "name": "admin_list_refill_scripts",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "7f518d6066f34dce350adc21b45995ba9388e85b637b7da0e2567f52ece30230"
+    },
+    {
+      "schema": "public",
+      "name": "choose_supplier_for_offer",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_exclude text[]",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "fce6644bdd661780db0d79647cdcee2df847efb90c605609f71a302d0e6ed3f0"
+    },
+    {
+      "schema": "public",
+      "name": "retry_execution_at_next_supplier",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0209982173fc5fa5f3ddd9d3a31f97a1bb4e3a1f0c63a116dce54788f3ea0b57"
+    },
+    {
+      "schema": "public",
+      "name": "admin_list_supplier_policy",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "3ef99fef010cfddcb2020ca205bda39eea6d800c321e90c566bd60add6d9603e"
+    },
+    {
+      "schema": "public",
+      "name": "whatsapp_refill_healthy",
+      "arguments": "p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "e5fd86528132cec20c265ae25684e5089ac15f51975e12a609b007234c9cb6e9"
+    },
+    {
+      "schema": "public",
+      "name": "admin_update_supplier_policy",
+      "arguments": "p_provider text, p_patch jsonb, p_note text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "f810650ab42e931f526352056c420e7c5c3637718f79bdc2b83027085f1acb34"
+    },
+    {
+      "schema": "public",
+      "name": "emit_upcoming_refill_low_balance_reminders",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "122777a5d00df23f43c30bdb25f69a6e899ee5fc7a2e3adc06e80b4cc948bd1d"
+    },
+    {
+      "schema": "public",
+      "name": "plan_price_net",
+      "arguments": "p_plan text, p_sim_line_id uuid, p_carrier_rule_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2f74d566ca580f0784d3353df2fb86ce996512fc2d532e6689b9760d228602e7"
+    },
+    {
+      "schema": "public",
+      "name": "trg_fn_sync_custom_refill_queue",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "53584ab3e686bc7f33f4f28ae5a81cb99ad394594c904eb4d20f2a7b3c62f2c6"
+    },
+    {
+      "schema": "public",
+      "name": "quote_plan_price",
+      "arguments": "p_sim_line_id uuid, p_plan text, p_gateway text, p_carrier_rule_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "25fbe6f0df01c029290818902f6d3b6dc72f61a6fc0299290d45960696b94187"
+    },
+    {
+      "schema": "public",
+      "name": "dispatch_sim_setup_verification",
+      "arguments": "p_order_id uuid, p_sim_line_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a3fb5d9dacf10c29c9ece41144e6cc64ef99b437f3716733299480975efd4ea5"
+    },
+    {
+      "schema": "public",
+      "name": "pay_plan_fee_from_wallet",
+      "arguments": "p_reference_id text, p_sim_line_id uuid, p_device_id text, p_plan text, p_carrier_rule_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "5f3968b6cd72c4f5360bf85d3c774b28c7329fff4099b924953620ae67abade7"
+    },
+    {
+      "schema": "public",
+      "name": "get_premium_test_dtone_credentials",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "a2916d935d928ccd566664879c9a38aaec2757b950cab50156ae08cfc86dcd90"
+    },
+    {
+      "schema": "public",
+      "name": "expire_unsubmitted_sim_setup_orders",
+      "arguments": "p_limit integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "42a4cba8cd75ac5624e397094d236c7742e594f8bb40e953da35b1fac3705890"
+    },
+    {
+      "schema": "public",
+      "name": "route_topup_execution",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "033e00000063d8d1f2a14f0d14efd6f25637b45d26540fb7c576bd23aed11a63"
+    },
+    {
+      "schema": "reloadly_private",
+      "name": "reloadly_assert_actor",
+      "arguments": "p_actor uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "definition_sha256": "40ab0bfb58f20d4cfb9900a860e579d5e42445cf3f33087b9d8a78bd7712a767"
+    },
+    {
+      "schema": "public",
+      "name": "list_carrier_offers",
+      "arguments": "p_carrier_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0ab264bd7373aede50cc3d2000ae0e436a5a4582064795ada8615dc6307a292b"
+    },
+    {
+      "schema": "public",
+      "name": "get_dtone_runtime_credentials",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "64abb858c28c661f1b8d6ff8aba05e70424eb0f4e68528df28b8286d3b614497"
+    },
+    {
+      "schema": "public",
+      "name": "settle_successful_execution",
+      "arguments": "p_execution_id uuid, p_provider_tx_id text, p_hold_id uuid, p_pin_code text, p_pin_serial text, p_redeem_instructions text, p_metadata jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "ab1d731eb83f9687ea72e469b3f6b77a4675887c0ff2d8bec94df2d9607b93b7"
+    },
+    {
+      "schema": "public",
+      "name": "service_begin_dtone_submission",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "fdd2c6161d6dce081082ecdfc4d979294de56fa460cfd0efb083075a8c6d369b"
+    },
+    {
+      "schema": "carrier_availability_private",
+      "name": "is_test_execution",
+      "arguments": "p_execution_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "definition_sha256": "dc4959bf6cce7a81dc425f69dbece05a9514f735032f6420170132ace7dca49b"
+    },
+    {
+      "schema": "carrier_availability_private",
+      "name": "register_test_execution",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "definition_sha256": "94aefb0507b65a31179d614b5aa48de23f848bc66094c6e0bda1fff0f570f8c1"
+    },
+    {
+      "schema": "public",
+      "name": "service_sync_dtone_preview_catalog",
+      "arguments": "p_environment text, p_version integer, p_activation_revision integer, p_country_code text, p_carrier_code text, p_rows jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "80193f0d65e7879bb0320e597a354c3d321b995641f7d8297580996fbb817cea"
+    },
+    {
+      "schema": "public",
+      "name": "admin_dtone_catalogue_offers",
+      "arguments": "p_carrier_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "2a7e2b9355d381453afb7c0fb83ad603e4ec678225e8bfaccc3ad8e9ced4b7d8"
+    },
+    {
+      "schema": "public",
+      "name": "admin_reloadly_credentials_status",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "dce70c6a76da10ec5826fd46f2a772fa09988ecd264b53bb3e5fde210fa0d846"
+    },
+    {
+      "schema": "public",
+      "name": "request_retail_instant_refill",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_max_authorized_usd numeric, p_offer_value numeric, p_device_id text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "b6229d9bb0a5906cda44ce7056413229f1d9dd279e9aa6aa53dc09a9901434ad"
+    },
+    {
+      "schema": "public",
+      "name": "service_store_reloadly_credentials",
+      "arguments": "p_actor uuid, p_environment text, p_client_id text, p_client_secret text, p_expected_version integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "8ef3a2aea2563208ac7a4ae4b044120147ed64c84633f1dbce48d5832649de7c"
+    },
+    {
+      "schema": "public",
+      "name": "get_reloadly_runtime_credentials",
+      "arguments": "p_environment text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "08393d2dc1c6523999ceaf8e29d64aee8ab9aec8d7488d6806e7215b66bf2f5b"
+    },
+    {
+      "schema": "public",
+      "name": "service_sync_reloadly_catalog",
+      "arguments": "p_environment text, p_version integer, p_activation_revision integer, p_country_code text, p_carrier_code text, p_rows jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0b2ee3de40b7683ef68a8f060387cb6eca287e11407c027bd25be45be13df1cc"
+    },
+    {
+      "schema": "public",
+      "name": "admin_dtone_request_status",
+      "arguments": "p_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "0fca7998c862c9db4546cd18eca16c7c4053dd735dbd45e9e8581f87f09a22df"
+    },
+    {
+      "schema": "public",
+      "name": "service_claim_dtone_request",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "b3ff3756cf52ae251e1ee38b3eea57f5256078258e6992e251e67133897ac9d5"
+    },
+    {
+      "schema": "public",
+      "name": "admin_dtone_preview_status",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "de8feeec018cdf90856926a30b2fc0583821a966fad536c2318a974493be4fed"
+    },
+    {
+      "schema": "public",
+      "name": "service_activate_reloadly_environment",
+      "arguments": "p_actor uuid, p_environment text, p_expected_version integer, p_expected_activation_revision integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "110e0a974cc1a66093db4183d5a4fd329f1b9e942a8d912930ed8cfbfe46cfcd"
+    },
+    {
+      "schema": "dtone_private",
+      "name": "execution_guard",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "definition_sha256": "6fe5665b4275bd61f744f59dc205114cdb8080895cd957917843c43ba8f3d6b6"
+    },
+    {
+      "schema": "public",
+      "name": "service_claim_dtone_lookup",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "829430f810a220519219ea58c6e11271e2948aa299bfaf007ee293139202904b"
+    },
+    {
+      "schema": "public",
+      "name": "service_complete_dtone_lookup",
+      "arguments": "p_id uuid, p_lease uuid, p_result jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2e78091d4b057c373f468ad7a06bcf747d9d00c4715a9b5a669cc61ee6c49c7a"
+    },
+    {
+      "schema": "public",
+      "name": "service_dtone_lookup_result",
+      "arguments": "p_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "8feb253107cb6b1eca442ca1ba36e87e98658d9d7e18f5e49a72cfb1562fe55c"
+    },
+    {
+      "schema": "public",
+      "name": "service_fail_dtone_before_submission",
+      "arguments": "p_execution_id uuid, p_code text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "cb4dadbc48f78933a425a835ebff993fd3b2c5743dade95d230596d0cb032903"
+    },
+    {
+      "schema": "public",
+      "name": "service_resolve_dtone_operation",
+      "arguments": "p_execution_id uuid, p_provider_tx_id text, p_status_id integer, p_pin_code text, p_pin_serial text, p_instructions text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "b4b135749d6c0284f31087182d6e04261b4adb40d513748d0ffcb66dd7aa6242"
+    },
+    {
+      "schema": "public",
+      "name": "service_claim_dtone_reconciliation",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0e6ec905af8df3dc985f276fb90f435b415e597e277de767136f38a60bf961e1"
+    },
+    {
+      "schema": "public",
+      "name": "service_complete_dtone_request",
+      "arguments": "p_id uuid, p_lease uuid, p_code text, p_account jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "2ce73cbd59f85afe7496ecf6a80beef008d7205cbf23f058741c50590f85f916"
+    },
+    {
+      "schema": "public",
+      "name": "admin_dtone_status",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "eea24aebad8a6ac27be5a6537664ea52c372bce7cf73806923b6d1e5c6c84a25"
+    },
+    {
+      "schema": "public",
+      "name": "admin_dtone_request",
+      "arguments": "p_id uuid, p_action text, p_environment text, p_expected_version integer, p_expected_revision integer, p_pair jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "definition_sha256": "f6d4019b9d299e98b72a43839fd1e76b66eb9e9ac56c2169ea13031c072a4424"
+    },
+    {
+      "schema": "public",
+      "name": "service_dtone_adoption",
+      "arguments": "p_consumer text, p_environment text, p_version integer, p_revision integer, p_source text, p_build text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "833bcbf4f95a2b1e4a34fd259fd0dc457632732cb1c59e919f2ee3b6f9b96995"
+    },
+    {
+      "schema": "public",
+      "name": "service_verify_dtone_release",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "3e4063f27ea28e1f06429bccaa1e4d0b6db402b48dee5c195c18e4f4c8547c94"
+    },
+    {
+      "schema": "public",
+      "name": "service_pin_dtone_operation",
+      "arguments": "p_execution_id uuid, p_environment text, p_version integer, p_revision integer",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "c1087918f951f99b463d7ee524fc857fdc476794220d4461e5632bafd8471b52"
+    },
+    {
+      "schema": "public",
+      "name": "service_sync_dtone_catalog",
+      "arguments": "p_environment text, p_version integer, p_activation_revision integer, p_country_code text, p_carrier_code text, p_rows jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "c2a4c6aac0dd8b880c60ee719e37350332912dacc6d8123c7e71bfaee52783f3"
+    },
+    {
+      "schema": "public",
+      "name": "service_dtone_callback_context",
+      "arguments": "p_environment text, p_external_id text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0904d82f1411fd014a8dc66769531eefb0995f9035640caaa21e4e916e37fbed"
+    },
+    {
+      "schema": "public",
+      "name": "get_dtone_catalog_credentials",
+      "arguments": "",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "68361ec4a6f6a89b0d5cdf33a75c68c7916fd35cd6a8adbebf9b7376fe501253"
+    },
+    {
+      "schema": "public",
+      "name": "supplier_candidates",
+      "arguments": "p_sim_line_id uuid, p_offer_id text, p_exclude text[]",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "1e6858142a3aad111168ddf57dbea89f3f991fd5ebbefcbcf86c582754f85246"
+    },
+    {
+      "schema": "public",
+      "name": "capture_wallet_hold",
+      "arguments": "p_hold_id uuid, p_txn_type text, p_description text, p_metadata jsonb",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "d05d75b7318d9f869c0211559382e1608b7acc37ccd76b221d6d9213637cea1f"
+    },
+    {
+      "schema": "public",
+      "name": "service_esim_settle_topup",
+      "arguments": "p_order_id uuid",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "0f642a09fc64b720d5e46e8a0a1827728e8a0deff7c3bc6b39a62c501352bd45"
+    },
+    {
+      "schema": "public",
+      "name": "service_esim_settle_cancellation",
+      "arguments": "p_operation_id uuid, p_credit_items jsonb, p_source_reference text",
+      "owner": "postgres",
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "definition_sha256": "29a753d6220560bb030e5501d625b588332b23cf13e96b44943686267c43256d"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "guard_esim_operation_hold",
+      "table": "wallet_holds",
+      "definition": "CREATE TRIGGER guard_esim_operation_hold BEFORE INSERT OR UPDATE ON public.wallet_holds FOR EACH ROW EXECUTE FUNCTION esim_private.guard_operation_hold()"
+    },
+    {
+      "name": "guard_esim_reserved_wallet",
+      "table": "wallets",
+      "definition": "CREATE TRIGGER guard_esim_reserved_wallet BEFORE UPDATE OF balance ON public.wallets FOR EACH ROW EXECUTE FUNCTION esim_private.guard_reserved_wallet()"
+    },
+    {
+      "name": "trg_wallets_updated_at",
+      "table": "wallets",
+      "definition": "CREATE TRIGGER trg_wallets_updated_at BEFORE UPDATE ON public.wallets FOR EACH ROW EXECUTE FUNCTION update_updated_at()"
+    },
+    {
+      "name": "dtone_execution_guard",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER dtone_execution_guard BEFORE INSERT OR UPDATE ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION dtone_private.execution_guard()"
+    },
+    {
+      "name": "on_topup_insert_rate_limit",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER on_topup_insert_rate_limit BEFORE INSERT ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION check_topup_rate_limit()"
+    },
+    {
+      "name": "register_premium_test_execution",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER register_premium_test_execution AFTER INSERT ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION carrier_availability_private.register_test_execution()"
+    },
+    {
+      "name": "tr_calculate_topup_fees",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER tr_calculate_topup_fees BEFORE INSERT ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION calculate_topup_fees()"
+    },
+    {
+      "name": "trg_notify_topup_result",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER trg_notify_topup_result AFTER INSERT OR UPDATE OF status ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION trg_fn_notify_topup_result()"
+    },
+    {
+      "name": "trg_supplier_failover",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER trg_supplier_failover AFTER UPDATE OF status ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION trg_fn_supplier_failover()"
+    },
+    {
+      "name": "trg_topup_executions_activity",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER trg_topup_executions_activity AFTER INSERT OR UPDATE OF status ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION trg_fn_log_topup_activity()"
+    },
+    {
+      "name": "trigger_route_topup_execution",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER trigger_route_topup_execution BEFORE INSERT ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION route_topup_execution()"
+    },
+    {
+      "name": "trigger_update_sim_line_last_topup",
+      "table": "topup_executions",
+      "definition": "CREATE TRIGGER trigger_update_sim_line_last_topup AFTER INSERT OR UPDATE OF status ON public.topup_executions FOR EACH ROW EXECUTE FUNCTION update_sim_line_last_topup_at()"
+    },
+    {
+      "name": "dtone_setup_guard",
+      "table": "sim_setup_orders",
+      "definition": "CREATE TRIGGER dtone_setup_guard BEFORE INSERT OR UPDATE ON public.sim_setup_orders FOR EACH ROW EXECUTE FUNCTION dtone_private.setup_guard()"
+    }
+  ],
+  "missing_worker_contracts": [
+    "begin_refill_submission(uuid,uuid)",
+    "begin_scheduled_refill_submission(uuid,uuid,jsonb)",
+    "prepare_scheduled_refill(uuid,jsonb)",
+    "claim_refill_supplier_reconciliation(integer)"
+  ],
+  "financial_dependency_gaps": [
+    "assert_wallet_funding_integrity(uuid,numeric)",
+    "assert_instant_refill_reservation(uuid,uuid)",
+    "assert_scheduled_refill_reservation(uuid,uuid)",
+    "wallet_holds.recovery_contract_version",
+    "topup_executions.supplier_recovery_version",
+    "refill_supplier_submissions"
+  ],
+  "hosted_mutations_performed": false
+}
